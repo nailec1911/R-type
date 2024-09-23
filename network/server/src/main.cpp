@@ -11,7 +11,7 @@
 
 int main()
 {
-    network::AsioUdpServer server(4444);
+    network::AsioUdpServer udpServer(4444);
     while (true)
     {
         sleep(1);

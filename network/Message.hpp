@@ -31,8 +31,8 @@ struct messageHeader {
 
 template <typename T>
 struct message {
-    messageHeader<T> header;
-    std::vector<std::uint8_t> body;
+    messageHeader<T> header{};
+    std::vector<std::uint8_t> body{};
 
     [[nodiscard]] std::size_t size() const {
         return sizeof(messageHeader<T>) + body.size();

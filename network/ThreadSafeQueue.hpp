@@ -34,6 +34,12 @@ class ThreadSafeQueue
             return element;
         }
 
+        const T& front()
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            return m_queue.front();
+        }
+
         [[nodiscard]] bool isEmpty()
         {
             std::unique_lock<std::mutex> lock(m_mutex);

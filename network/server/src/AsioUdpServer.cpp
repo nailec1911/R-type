@@ -40,6 +40,8 @@ void network::AsioUdpServer::receiveClientsMessages() {
         [this](std::error_code ec, std::size_t bytesRead) {
             if (!ec) {
                 std::cout << "Bytes read: " << bytesRead << " Message: " << m_readBuffer.data() << std::endl;
+                network::message<network::messageType> msg;
+                msg.header.id = static_cast<network::messageType>(m_readBuffer[0]);
             } else {
                 std::cerr << "[-]Error while receiving the message: " << ec.message() << std::endl;
             }

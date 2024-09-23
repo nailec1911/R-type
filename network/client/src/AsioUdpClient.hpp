@@ -13,11 +13,11 @@
 #include <cstdint>
 #include <memory>
 
-#include "AsioUdpClientInterface.hpp"
 #include "../../ThreadSafeQueue.hpp"
+#include "AsioUdpClientInterface.hpp"
 
 namespace network {
-class AsioUdpClient : public AsioUdpClientInterface {
+class AsioUdpClient : public AsioUdpClientInterface<network::messageType> {
    public:
     AsioUdpClient(const std::string &ip, std::uint16_t port);
     AsioUdpClient(AsioUdpClient &&) = delete;
@@ -26,7 +26,7 @@ class AsioUdpClient : public AsioUdpClientInterface {
     AsioUdpClient &operator=(const AsioUdpClient &) = delete;
     ~AsioUdpClient() override = default;
 
-    void sendMessage(message<network::messageType> &msg) override;
+    void sendMessage(const message<network::messageType> &msg) override;
     void readMessages() override {}
 
    private:
@@ -35,6 +35,13 @@ class AsioUdpClient : public AsioUdpClientInterface {
     asio::ip::udp::socket m_socket;
     std::unique_ptr<asio::io_context::work> m_work;
     std::array<char, 1024> m_readBuffer;
+
+    void sendHeader();
+    void sendBody();
+    // TODO
+    void readHeader() {}
+    // TODO
+    void readBody() {}
 
     ThreadSafeQueue<message<network::messageType>> m_readQueue;
     ThreadSafeQueue<message<network::messageType>> m_sendQueue;
