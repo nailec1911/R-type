@@ -6,7 +6,7 @@
 */
 
 #pragma once
-#include "using.hpp"
+#include "../../using.hpp"
 #include "ComponentArray.hpp"
 
 class ComponentManager
