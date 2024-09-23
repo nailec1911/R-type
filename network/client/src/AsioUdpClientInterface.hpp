@@ -20,8 +20,14 @@ namespace network {
         AsioUdpClientInterface &operator=(const AsioUdpClientInterface &) = delete;
         virtual ~AsioUdpClientInterface() = default;
 
+    protected:
+        virtual void sendHeader() = 0;
+        virtual void sendBody() = 0;
         virtual void sendMessage(const message<T> &msg) = 0;
-        virtual void readMessages() = 0;
+
+        virtual void readHeader() = 0;
+        virtual void readBody() = 0;
+        virtual void readMessage() = 0;
 
     private:
     };

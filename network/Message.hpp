@@ -15,13 +15,6 @@
 #include <vector>
 
 namespace network {
-enum class messageType : uint32_t {
-    SHOOT,
-    MOVE,
-    OK,
-    KO,
-    LOGIN,
-};
 
 template <typename T>
 struct messageHeader {
@@ -38,33 +31,40 @@ struct message {
         return sizeof(messageHeader<T>) + body.size();
     }
 
-    friend std::ostrstream &operator << (std::ostrstream &os, const message<T> &msg) {
-        os << "ID: " << msg.header.id << " Size: " << msg.header.size;
+    friend std::ostream &operator << (std::ostream &os, const message<T> &msg) {
+        os << "ID: " << static_cast<uint8_t>(msg.header.id) << " Size: " << msg.header.size << " Content: " << msg.body.data() << std::endl;
         return os;
     };
 
-        template <typename DataType>
-        friend message<T> &operator << (message<T> &msg, const DataType &data)
-        {
-            static_assert(std::is_standard_layout<DataType>::value, "Data too complex.");
-            std::size_t bodySize = msg.body.size();
-            msg.body.resize(bodySize + sizeof(DataType));
-            std::memcpy(msg.body.data() + bodySize, &data, sizeof(DataType));
-            msg.header.size = msg.size();
+    friend message<T> &operator << (message<T> &dest, const message<T> &source)
+    {
+        // TODO buffering
+        //std::size_t bodySize = dest.body.size();
+        //dest.body.resize(bodySize + source.body.size());
+    }
 
-            return msg;
-        }
+    template <typename DataType>
+    friend message<T> &operator << (message<T> &msg, const DataType &data)
+    {
+        static_assert(std::is_standard_layout<DataType>::value, "Data too complex.");
+        std::size_t bodySize = msg.body.size();
+        msg.body.resize(bodySize + sizeof(DataType));
+        std::memcpy(msg.body.data() + bodySize, &data, sizeof(DataType));
+        msg.header.size = msg.size();
 
-        template <typename DataType>
-        friend message<T> &operator >> (message<T> &msg, DataType &data)
-        {
-            static_assert(std::is_standard_layout<DataType>::value, "Data too complex.");
-            std::size_t bodySize = msg.body.size();
-            std::memcpy(&data, msg.body.data(), bodySize);
-            msg.body.resize(bodySize);
-            msg.header.size = msg.size();
+        return msg;
+    }
 
-            return msg;
-        }
+    template <typename DataType>
+    friend message<T> &operator >> (message<T> &msg, DataType &data)
+    {
+        static_assert(std::is_standard_layout<DataType>::value, "Data too complex.");
+        std::size_t bodySize = msg.body.size();
+        std::memcpy(&data, msg.body.data(), bodySize);
+        msg.body.resize(bodySize);
+        msg.header.size = msg.size();
+
+        return msg;
+    }
 };
 }  // namespace network

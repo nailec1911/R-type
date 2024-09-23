@@ -5,16 +5,16 @@
 ** main
 */
 
-#include "AsioUdpServer.hpp"
+#include "rtypeServer/rtypeUdpServer.hpp"
 #include <unistd.h>
 #include <iostream>
 
 int main()
 {
-    network::AsioUdpServer udpServer(4444);
+    rtypeNetwork::rtypeUdpServer server(4444);
     while (true)
     {
-        sleep(1);
+        sleep(60);
         std::cout << "Async proof" << std::endl;
     }
     return 0;

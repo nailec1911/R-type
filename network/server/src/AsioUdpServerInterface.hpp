@@ -7,9 +7,11 @@
 
 #pragma once
 
+#include "../../Message.hpp"
 #include <asio.hpp>
 
 namespace network {
+    template <typename T>
     class AsioUdpServerInterface {
     public:
         AsioUdpServerInterface() = default;
@@ -21,7 +23,7 @@ namespace network {
 
     protected:
         virtual void receiveClientsMessages() = 0;
-        virtual void sendMessagesToClient() = 0;
-        virtual void sendMessagesToAllClients() = 0;
+        virtual void sendMessagesToClient(const message<T> &) = 0;
+        virtual void sendMessagesToAllClients(const message<T> &) = 0;
     };
 } //namespace network
