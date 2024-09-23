@@ -5,15 +5,15 @@
 ** main
 */
 
-#include "rtypeServer/rtypeUdpServer.hpp"
 #include <unistd.h>
+
 #include <iostream>
 
-int main()
-{
+#include "rtypeServer/rtypeUdpServer.hpp"
+
+int main() {
     rtypeNetwork::rtypeUdpServer server(4444);
-    while (true)
-    {
+    while (true) {
         sleep(60);
         std::cout << "Async proof" << std::endl;
     }

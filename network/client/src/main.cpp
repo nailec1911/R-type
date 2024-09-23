@@ -5,12 +5,12 @@
 ** main
 */
 
-#include "rtypeClient/RtypeUdpClient.hpp"
-#include "rtypeClient/rtypeRfc.hpp"
 #include <iostream>
 
-int main()
-{
+#include "rtypeClient/RtypeUdpClient.hpp"
+#include "rtypeClient/rtypeRfc.hpp"
+
+int main() {
     rtypeNetwork::rtypeUdpClient client("127.0.0.1", 4444);
 
     network::message<rtypeNetwork::rtypeMessageType> msg;
@@ -25,7 +25,7 @@ int main()
     int x = 50;
     int y = 0;
     msg << x;
-    std::cout << msg  << std::endl;
+    std::cout << msg << std::endl;
     msg >> y;
     std::cout << "y: " << y << std::endl;
 
@@ -37,14 +37,13 @@ int main()
 
     msg << toto;
 
-    //msg << msg1;
+    // msg << msg1;
 
     client.sendMessage(msg);
-    //client.sendMessage(msg1);
-    //client.sendMessage(msg2);
-    //client.sendMessage(msg3);
+    // client.sendMessage(msg1);
+    // client.sendMessage(msg2);
+    // client.sendMessage(msg3);
 
-    while (true)
-        sleep(5);
+    while (true) sleep(5);
     return 0;
 }

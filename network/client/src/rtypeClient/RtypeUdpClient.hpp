@@ -28,11 +28,11 @@ class rtypeUdpClient
     rtypeUdpClient &operator=(const rtypeUdpClient &) = delete;
     ~rtypeUdpClient() override;
 
-    void sendMessage(const network::message<rtypeNetwork::rtypeMessageType> &msg) override;
+    void sendMessage(
+        const network::message<rtypeNetwork::rtypeMessageType> &msg) override;
     void readMessage() override {}
 
    private:
-
     void sendHeader() override;
     void sendBody() override;
     void readHeader() override {}
@@ -45,8 +45,9 @@ class rtypeUdpClient
     std::thread m_thread;
     std::array<char, 1024> m_readBuffer;
 
-
-    ThreadSafeQueue<network::message<rtypeNetwork::rtypeMessageType>> m_readQueue;
-    ThreadSafeQueue<network::message<rtypeNetwork::rtypeMessageType>> m_sendQueue;
+    ThreadSafeQueue<network::message<rtypeNetwork::rtypeMessageType>>
+        m_readQueue;
+    ThreadSafeQueue<network::message<rtypeNetwork::rtypeMessageType>>
+        m_sendQueue;
 };
 }  // namespace rtypeNetwork
