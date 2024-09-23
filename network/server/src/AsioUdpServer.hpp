@@ -47,9 +47,13 @@ namespace network {
         std::unique_ptr<asio::io_context::work> m_work;
 
         void receiveClientsMessages() override;
-        void sendMessagesToAllClients() override {
-        }
-        void sendMessagesToClient() override {
-        }
+
+        // TODO ->
+        void readHeader();
+        void readBody();
+        void sendMessagesToAllClients() override;
+        void sendMessagesToClient() override;
+        void sendHeader();
+        void sendBody();
     };
 } //namespace network
