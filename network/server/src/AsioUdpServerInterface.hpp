@@ -9,19 +9,22 @@
 
 #include <asio.hpp>
 
-namespace network {
-    class AsioUdpServerInterface {
-    public:
-        AsioUdpServerInterface() = default;
-        AsioUdpServerInterface(AsioUdpServerInterface &&) = delete;
-        AsioUdpServerInterface(const AsioUdpServerInterface &) = delete;
-        AsioUdpServerInterface &operator=(AsioUdpServerInterface &&) = delete;
-        AsioUdpServerInterface &operator=(const AsioUdpServerInterface &) = delete;
-        virtual ~AsioUdpServerInterface() = default;
+#include "../../Message.hpp"
 
-    protected:
-        virtual void receiveClientsMessages() = 0;
-        virtual void sendMessagesToClient() = 0;
-        virtual void sendMessagesToAllClients() = 0;
-    };
-} //namespace network
+namespace network {
+template <typename T>
+class AsioUdpServerInterface {
+   public:
+    AsioUdpServerInterface() = default;
+    AsioUdpServerInterface(AsioUdpServerInterface &&) = delete;
+    AsioUdpServerInterface(const AsioUdpServerInterface &) = delete;
+    AsioUdpServerInterface &operator=(AsioUdpServerInterface &&) = delete;
+    AsioUdpServerInterface &operator=(const AsioUdpServerInterface &) = delete;
+    virtual ~AsioUdpServerInterface() = default;
+
+   protected:
+    virtual void receiveClientsMessages() = 0;
+    virtual void sendMessagesToClient(const message<T> &) = 0;
+    virtual void sendMessagesToAllClients(const message<T> &) = 0;
+};
+}  // namespace network

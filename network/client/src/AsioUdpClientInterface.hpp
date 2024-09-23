@@ -10,18 +10,25 @@
 #include "../../Message.hpp"
 
 namespace network {
-    class AsioUdpClientInterface {
-    public:
-        AsioUdpClientInterface() = default;
-        AsioUdpClientInterface(AsioUdpClientInterface &&) = delete;
-        AsioUdpClientInterface(const AsioUdpClientInterface &) = delete;
-        AsioUdpClientInterface &operator=(AsioUdpClientInterface &&) = delete;
-        AsioUdpClientInterface &operator=(const AsioUdpClientInterface &) = delete;
-        virtual ~AsioUdpClientInterface() = default;
+template <typename T>
+class AsioUdpClientInterface {
+   public:
+    AsioUdpClientInterface() = default;
+    AsioUdpClientInterface(AsioUdpClientInterface &&) = delete;
+    AsioUdpClientInterface(const AsioUdpClientInterface &) = delete;
+    AsioUdpClientInterface &operator=(AsioUdpClientInterface &&) = delete;
+    AsioUdpClientInterface &operator=(const AsioUdpClientInterface &) = delete;
+    virtual ~AsioUdpClientInterface() = default;
 
-        virtual void sendMessage(message<network::messageType> &msg) = 0;
-        virtual void readMessages() = 0;
+   protected:
+    virtual void sendHeader() = 0;
+    virtual void sendBody() = 0;
+    virtual void sendMessage(const message<T> &msg) = 0;
 
-    private:
-    };
-} // namespace network
+    virtual void readHeader() = 0;
+    virtual void readBody() = 0;
+    virtual void readMessage() = 0;
+
+   private:
+};
+}  // namespace network
