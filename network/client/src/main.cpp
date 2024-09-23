@@ -22,14 +22,22 @@ int main()
     msg2.header.id = rtypeNetwork::rtypeMessageType::OK;
     msg3.header.id = rtypeNetwork::rtypeMessageType::OK;
 
-    msg << "cringe";
+    int x = 50;
+    int y = 0;
+    msg << x;
+    std::cout << msg  << std::endl;
+    msg >> y;
+    std::cout << "y: " << y << std::endl;
+
+    std::vector<uint8_t> toto;
+
     msg1 << "cringe1";
     msg2 << "cringe2";
     msg3 << "cringe3";
 
-    msg << msg1;
+    msg << toto;
 
-    std::cout << msg  << std::endl;
+    //msg << msg1;
 
     client.sendMessage(msg);
     //client.sendMessage(msg1);

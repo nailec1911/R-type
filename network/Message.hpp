@@ -7,10 +7,10 @@
 
 #pragma once
 
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <ostream>
-#include <strstream>
 #include <type_traits>
 #include <vector>
 
@@ -38,9 +38,7 @@ struct message {
 
     friend message<T> &operator << (message<T> &dest, const message<T> &source)
     {
-        // TODO buffering
-        //std::size_t bodySize = dest.body.size();
-        //dest.body.resize(bodySize + source.body.size());
+        // TODO
     }
 
     template <typename DataType>
