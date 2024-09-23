@@ -6,7 +6,7 @@
 */
 
 #pragma once
-#include "using.hpp"
+#include "../../using.hpp"
 
 class EntityManager {
     public:
@@ -18,7 +18,7 @@ class EntityManager {
         Entity CreateEntity()
         {
             if (this->mNumberEntity >= MAX_ENTITIES)
-                return;
+                return 0;
             Entity id = this->mEntitiesAvailable.front();
             this->mEntitiesAvailable.pop();
             this->mNumberEntity += 1;

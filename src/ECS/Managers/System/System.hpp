@@ -6,10 +6,10 @@
 */
 
 #pragma once
-#include "using.hpp"
+#include "../../using.hpp"
 
 class System
 {
 public:
-    std::set<Entity> mEntities;
+    std::vector<Entity> mEntities;
 };

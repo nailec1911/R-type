@@ -6,7 +6,7 @@
 */
 
 #pragma once
-#include "using.hpp"
+#include "../../using.hpp"
 #include "System.hpp"
 
 class SystemManager
@@ -23,6 +23,14 @@ public:
     }
 
     template <typename T>
+    std::shared_ptr<System> GetSystem()
+    {
+        const char *typeName = typeid(T).name();
+
+        return mSystems[typeName];
+    }
+
+    template <typename T>
     void SetSignature(Signature signature)
     {
         const char *typeName = typeid(T).name();
@@ -35,8 +43,9 @@ public:
         for (auto const &pair : mSystems)
         {
             auto const &system = pair.second;
-
-            system->mEntities.erase(entity);
+            auto it = std::find(system->mEntities.begin(), system->mEntities.end(), entity);
+            if (it != system->mEntities.end())
+                system->mEntities.erase(it);
         }
     }
 
@@ -47,15 +56,21 @@ public:
             auto const &type = pair.first;
             auto const &system = pair.second;
             auto const &systemSignature = mSignatures[type];
-
-            if ((entitySignature & systemSignature) == systemSignature)
-                system->mEntities.insert(entity);
+            auto it = std::find(system->mEntities.begin(), system->mEntities.end(), entity);
+            if ((entitySignature & systemSignature) != 0)
+            {
+                if (it == system->mEntities.end())
+                    system->mEntities.emplace_back(entity);
+            }
             else
-                system->mEntities.erase(entity);
+            {
+                if (it != system->mEntities.end())
+                    system->mEntities.erase(it);
+            }
         }
     }
 
 private:
-    std::unordered_map<const char *, Signature> mSignatures{};
-    std::unordered_map<const char *, std::shared_ptr<System>> mSystems{};
+    std::unordered_map<std::string, Signature> mSignatures{};
+    std::unordered_map<std::string, std::shared_ptr<System>> mSystems{};
 };

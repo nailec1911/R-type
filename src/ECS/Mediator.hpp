@@ -6,9 +6,10 @@
 */
 
 #pragma once
-#include "ComponentManager.hpp"
-#include "EntityManager.hpp"
-#include "SystemManager.hpp"
+#include "Managers/Component/ComponentManager.hpp"
+#include "Managers/Entity/EntityManager.hpp"
+#include "Managers/System/SystemManager.hpp"
+#include "Managers/Component/StructComponent.hpp"
 #include "using.hpp"
 
 class Mediator
@@ -45,6 +46,7 @@ public:
         mComponentManager->AddComponent<T>(entity, component);
 
         auto signature = mEntityManager->GetSignature(entity);
+        
         signature.set(mComponentManager->GetComponentType<T>(), true);
         mEntityManager->SetSignature(entity, signature);
 
@@ -85,6 +87,25 @@ public:
     void SetSystemSignature(Signature signature)
     {
         mSystemManager->SetSignature<T>(signature);
+    }
+
+    template <typename T>
+    std::shared_ptr<System> GetSystem()
+    {
+        return mSystemManager->GetSystem<T>();
+    }
+
+    std::string GetEntityRole(Entity entity)
+    {
+        if (mEntityManager->GetSignature(entity).test(PLAYER))
+            return std::string("Player");
+        if (mEntityManager->GetSignature(entity).test(WALL))
+            return std::string("Wall");
+        if (mEntityManager->GetSignature(entity).test(MONSTER))
+            return std::string("Monster");
+        if (mEntityManager->GetSignature(entity).test(BULLET))
+            return std::string("Bullet");
+        return std::string("NULL");
     }
 
 private:
