@@ -6,80 +6,85 @@
 */
 
 #pragma once
-#include "ECS/Mediator.hpp"
+#include <utility>
+
 #include "ECS/Managers/System/Systems.hpp"
+#include "ECS/Mediator.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
-namespace gameEngine
+namespace gameEngine {
+class SystemsFactory
 {
-    class SystemsFactory
+   public:
+    void initSystems(const std::shared_ptr<Mediator> &mediator)
     {
-    public:
-        void initSystems(std::shared_ptr<Mediator> mediator)
-        {
-            motion = mediator->RegisterSystem<MotionSystem>();
-            inputsSystem = mediator->RegisterSystem<InputsPlayer>();
-            collision = mediator->RegisterSystem<CollisionSystem>();
-        }
-        std::shared_ptr<MotionSystem> getMotionSystem(void)
-        {
-            return this->motion;
-        }
-        std::shared_ptr<InputsPlayer> getInputsSystem(void)
-        {
-            return this->inputsSystem;
-        }
-        std::shared_ptr<CollisionSystem> getCollisionSystem(void)
-        {
-            return this->collision;
-        }
+        motion = mediator->RegisterSystem<MotionSystem>();
+        inputsSystem = mediator->RegisterSystem<InputsPlayer>();
+        collision = mediator->RegisterSystem<CollisionSystem>();
+    }
+    std::shared_ptr<MotionSystem> getMotionSystem(void)
+    {
+        return this->motion;
+    }
+    std::shared_ptr<InputsPlayer> getInputsSystem(void)
+    {
+        return this->inputsSystem;
+    }
+    std::shared_ptr<CollisionSystem> getCollisionSystem(void)
+    {
+        return this->collision;
+    }
 
-    private:
-        std::shared_ptr<MotionSystem> motion;
-        std::shared_ptr<InputsPlayer> inputsSystem;
-        std::shared_ptr<CollisionSystem> collision;
+   private:
+    std::shared_ptr<MotionSystem> motion;
+    std::shared_ptr<InputsPlayer> inputsSystem;
+    std::shared_ptr<CollisionSystem> collision;
+};
+
+class RTypeGame
+{
+   public:
+    RTypeGame() = default;
+    ~RTypeGame() = default;
+    RTypeGame(const RTypeGame &) = default;
+    RTypeGame(RTypeGame &&) = delete;
+    RTypeGame &operator=(const RTypeGame &) = default;
+    RTypeGame &operator=(RTypeGame &&) = delete;
+
+    enum class SystemType
+    {
+        MOTION,
+        INPUTS,
+        COLLISION
     };
 
-    class RTypeGame
+    void initSystemSignature(const SystemType &type);
+    void initGameRules(void);
+    static std::vector<SnapshotData> createSnapshots(
+        const std::shared_ptr<Mediator> &mediator);
+    void manageTime(void);
+
+    std::shared_ptr<Mediator> getMediator(void)
     {
-    public:
-        RTypeGame() = default;
-        ~RTypeGame() = default;
+        return m_mediator;
+    }
 
-        enum class SystemType
-        {
-            MOTION,
-            INPUTS,
-            COLLISION
-        };
+    std::vector<Event> getEvents(void)
+    {
+        return this->m_events;
+    }
 
-        void initSystemSignature(const SystemType &type);
-        void initGameRules(void);
-        std::vector<SnapshotData> createSnapshots(std::shared_ptr<Mediator> mediator);
-        void manageTime(void);
+    void setEvents(std::vector<Event> newEvents)
+    {
+        this->m_events = std::move(newEvents);
+    }
 
-        std::shared_ptr<Mediator> getMediator(void)
-        {
-            return m_mediator;
-        }
-
-        std::vector<Event> getEvents(void)
-        {
-            return this->m_events;
-        }
-
-        void setEvents(std::vector<Event> newEvents)
-        {
-            this->m_events = newEvents;
-        }
-
-
-    protected:
-    private:
-        int m_second;
-        std::time_t m_start_time;
-        std::shared_ptr<Mediator> m_mediator;
-        std::vector<Event> m_events;
-        gameEngine::SystemsFactory m_systems;
-    };
-}
+   protected:
+   private:
+    int m_second{};
+    time_t m_start_time{};
+    std::shared_ptr<Mediator> m_mediator;
+    std::vector<Event> m_events;
+    gameEngine::SystemsFactory m_systems;
+};
+}  // namespace gameEngine

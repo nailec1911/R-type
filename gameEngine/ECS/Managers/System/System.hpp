@@ -7,9 +7,10 @@
 
 #pragma once
 #include "../../using.hpp"
+#include <vector>
 
 class System
 {
-public:
+   public:
     std::vector<Entity> mEntities;
 };

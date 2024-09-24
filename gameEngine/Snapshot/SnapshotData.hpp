@@ -6,49 +6,58 @@
 */
 
 #pragma once
-#include <vector>
 #include <cstdint>
+#include <vector>
 
-class SnapshotData {
-public:
-  SnapshotData(int x, int y, int vx, int vy, int info)
-      : m_x(x), m_y(y), m_vx(vx), m_vy(vy), m_info(info){};
-  SnapshotData(const std::vector<uint8_t> &bytes) {
-    m_x = extractInt(bytes, 0);
-    m_y = extractInt(bytes, 4);
-    m_vx = extractInt(bytes, 8);
-    m_vy = extractInt(bytes, 12);
-    m_info = extractInt(bytes, 16);
-  }
-  ~SnapshotData() = default;
-
-  operator std::vector<uint8_t>() const {
-    std::vector<uint8_t> res;
-    res.push_back(m_x);
-    res.push_back(m_y);
-    res.push_back(m_vx);
-    res.push_back(m_vy);
-    res.push_back(m_info);
-    return res;
-  };
-
-  bool operator==(const SnapshotData &b) const {
-    return m_x == b.m_x && m_y == b.m_y && m_vx == b.m_vx && m_vy == b.m_vy &&
-           m_info == b.m_info;
-  }
-
-private:
-  static int extractInt(const std::vector<uint8_t> &bytes, size_t offset) {
-    int value = 0;
-    for (size_t i = 0; i < sizeof(int); ++i) {
-      value |= static_cast<int>(bytes[offset + i]) << (i * 8);
+class SnapshotData
+{
+   public:
+    SnapshotData(const SnapshotData &) = default;
+    SnapshotData(SnapshotData &&) = delete;
+    SnapshotData &operator=(const SnapshotData &) = default;
+    SnapshotData &operator=(SnapshotData &&) = delete;
+    SnapshotData(int x, int y, int vx, int vy, int info)
+        : m_x(x), m_y(y), m_vx(vx), m_vy(vy), m_info(info){};
+    SnapshotData(const std::vector<uint8_t> &bytes)
+        : m_x(extractInt(bytes, 0)),
+          m_y(extractInt(bytes, 4)),
+          m_vx(extractInt(bytes, 8)),
+          m_vy(extractInt(bytes, 12)),
+          m_info(extractInt(bytes, 16))
+    {
     }
-    return value;
-  }
+    ~SnapshotData() = default;
 
-  int m_x;
-  int m_y;
-  int m_vx;
-  int m_vy;
-  int m_info;
+    operator std::vector<uint8_t>() const
+    {
+        std::vector<uint8_t> res;
+        res.push_back(m_x);
+        res.push_back(m_y);
+        res.push_back(m_vx);
+        res.push_back(m_vy);
+        res.push_back(m_info);
+        return res;
+    };
+
+    bool operator==(const SnapshotData &b) const
+    {
+        return m_x == b.m_x && m_y == b.m_y && m_vx == b.m_vx &&
+               m_vy == b.m_vy && m_info == b.m_info;
+    }
+
+   private:
+    static int extractInt(const std::vector<uint8_t> &bytes, size_t offset)
+    {
+        int value = 0;
+        for (size_t i = 0; i < sizeof(int); ++i) {
+            value |= static_cast<int>(bytes[offset + i]) << (i * 8);
+        }
+        return value;
+    }
+
+    int m_x;
+    int m_y;
+    int m_vx;
+    int m_vy;
+    int m_info;
 };

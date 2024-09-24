@@ -11,7 +11,8 @@
  * @brief Event Key enumeration, any other key should be ignored
  */
 #include <sys/types.h>
-enum class EventKey: u_int8_t {
+enum class EventKey : u_int8_t
+{
     KeyA,
     KeyB,
     KeyC,
@@ -53,18 +54,20 @@ enum class EventKey: u_int8_t {
 /**
  * @brief Event State enumeration, either released or pressed.
  */
-enum class EventState: int8_t  {
-    KeyReleased, ///< State for Key release
-    KeyPressed, ///< State for Key press
+enum class EventState : int8_t
+{
+    KeyReleased,  ///< State for Key release
+    KeyPressed,   ///< State for Key press
 };
 
 /**
  * @brief Event Container. This contains an eventkey (key) and a state
  */
-struct Event {
+struct Event
+{
     /// Key of the Event
     EventKey key;
 
-    ///State of the Event
+    /// State of the Event
     EventState state;
 };

@@ -9,12 +9,11 @@
 #include "Managers/Component/ComponentManager.hpp"
 #include "Managers/Entity/EntityManager.hpp"
 #include "Managers/System/SystemManager.hpp"
-#include "Managers/Component/StructComponent.hpp"
 #include "using.hpp"
 
 class Mediator
 {
-public:
+   public:
     Mediator()
     {
         mComponentManager = std::make_unique<ComponentManager>();
@@ -113,7 +112,7 @@ public:
         return this->mEntityManager->GetEntitiesSignatures();
     }
 
-private:
+   private:
     std::unique_ptr<ComponentManager> mComponentManager;
     std::unique_ptr<EntityManager> mEntityManager;
     std::unique_ptr<SystemManager> mSystemManager;
