@@ -15,7 +15,7 @@
 class Mediator
 {
 public:
-    void Init()
+    Mediator()
     {
         mComponentManager = std::make_unique<ComponentManager>();
         mEntityManager = std::make_unique<EntityManager>();
@@ -46,7 +46,7 @@ public:
         mComponentManager->AddComponent<T>(entity, component);
 
         auto signature = mEntityManager->GetSignature(entity);
-        
+
         signature.set(mComponentManager->GetComponentType<T>(), true);
         mEntityManager->SetSignature(entity, signature);
 
@@ -106,6 +106,11 @@ public:
         if (mEntityManager->GetSignature(entity).test(BULLET))
             return std::string("Bullet");
         return std::string("NULL");
+    }
+
+    std::unordered_map<Entity, Signature> GetEntitiesSignatures()
+    {
+        return this->mEntityManager->GetEntitiesSignatures();
     }
 
 private:

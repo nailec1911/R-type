@@ -28,14 +28,3 @@ enum bitToRole {
     WALL,
     MONSTER,
 };
-
-void manageTime(std::time_t &start_time, int &second)
-{
-    auto current = std::chrono::system_clock::now();
-    std::time_t current_time = std::chrono::system_clock::to_time_t(current);
-    if (current_time != start_time)
-    {
-        second += 1;
-        start_time = current_time;
-    }
-}
