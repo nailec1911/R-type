@@ -7,18 +7,22 @@
 
 #include "RTypeGame.hpp"
 
-std::vector<SnapshotData> gameEngine::RTypeGame::createSnapshots(std::shared_ptr<Mediator> mediator)
+#include <chrono>
+
+std::vector<SnapshotData> gameEngine::RTypeGame::createSnapshots(
+    const std::shared_ptr<Mediator> &mediator)
 {
     std::vector<SnapshotData> snapshots;
-    std::unordered_map<Entity, Signature> entities = mediator->GetEntitiesSignatures();
+    std::unordered_map<Entity, Signature> entities =
+        mediator->GetEntitiesSignatures();
 
-    for (auto elem : entities)
-    {
+    for (auto elem : entities) {
         if (mediator->GetEntityRole(elem.first) == "NULL")
             continue;
         auto position = mediator->GetComponent<Position>(elem.first);
         auto transform = mediator->GetComponent<Transform>(elem.first);
-        snapshots.emplace_back(SnapshotData(position.x, position.y, transform.velX, transform.velY, 0));
+        snapshots.emplace_back(
+            position.x, position.y, transform.velX, transform.velY, 0);
     }
     return snapshots;
 }
@@ -26,23 +30,20 @@ std::vector<SnapshotData> gameEngine::RTypeGame::createSnapshots(std::shared_ptr
 void gameEngine::RTypeGame::initSystemSignature(const SystemType &type)
 {
     Signature signature;
-    if (type == SystemType::MOTION)
-    {
+    if (type == SystemType::MOTION) {
         signature.set(m_mediator->GetComponentType<Player>());
         signature.set(m_mediator->GetComponentType<Bullet>());
         signature.set(m_mediator->GetComponentType<Monster>());
         m_mediator->SetSystemSignature<MotionSystem>(signature);
         return;
     }
-    if (type == SystemType::INPUTS)
-    {
+    if (type == SystemType::INPUTS) {
         signature.set(m_mediator->GetComponentType<Player>());
         m_mediator->SetSystemSignature<InputsPlayer>(signature);
         return;
     }
 
-    if (type == SystemType::COLLISION)
-    {
+    if (type == SystemType::COLLISION) {
         signature.set(m_mediator->GetComponentType<BoundingBox>());
         m_mediator->SetSystemSignature<CollisionSystem>(signature);
         return;
@@ -70,9 +71,8 @@ void gameEngine::RTypeGame::initGameRules(void)
 void gameEngine::RTypeGame::manageTime(void)
 {
     auto current = std::chrono::system_clock::now();
-    std::time_t current_time = std::chrono::system_clock::to_time_t(current);
-    if (current_time != m_start_time)
-    {
+    time_t current_time = std::chrono::system_clock::to_time_t(current);
+    if (current_time != m_start_time) {
         m_second += 1;
         m_start_time = current_time;
     }

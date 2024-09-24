@@ -8,10 +8,13 @@
 #pragma once
 #include "../../using.hpp"
 #include "System.hpp"
+#include <algorithm>
+#include <memory>
+#include <unordered_map>
 
 class SystemManager
 {
-public:
+   public:
     template <typename T>
     std::shared_ptr<T> RegisterSystem()
     {
@@ -40,10 +43,10 @@ public:
 
     void EntityDestroyed(Entity entity)
     {
-        for (auto const &pair : mSystems)
-        {
+        for (auto const &pair : mSystems) {
             auto const &system = pair.second;
-            auto it = std::find(system->mEntities.begin(), system->mEntities.end(), entity);
+            auto it = std::find(
+                system->mEntities.begin(), system->mEntities.end(), entity);
             if (it != system->mEntities.end())
                 system->mEntities.erase(it);
         }
@@ -51,26 +54,23 @@ public:
 
     void EntitySignatureChanged(Entity entity, Signature entitySignature)
     {
-        for (auto const &pair : mSystems)
-        {
+        for (auto const &pair : mSystems) {
             auto const &type = pair.first;
             auto const &system = pair.second;
             auto const &systemSignature = mSignatures[type];
-            auto it = std::find(system->mEntities.begin(), system->mEntities.end(), entity);
-            if ((entitySignature & systemSignature) != 0)
-            {
+            auto it = std::find(
+                system->mEntities.begin(), system->mEntities.end(), entity);
+            if ((entitySignature & systemSignature) != 0) {
                 if (it == system->mEntities.end())
                     system->mEntities.emplace_back(entity);
-            }
-            else
-            {
+            } else {
                 if (it != system->mEntities.end())
                     system->mEntities.erase(it);
             }
         }
     }
 
-private:
-    std::unordered_map<std::string, Signature> mSignatures{};
-    std::unordered_map<std::string, std::shared_ptr<System>> mSystems{};
+   private:
+    std::unordered_map<std::string, Signature> mSignatures;
+    std::unordered_map<std::string, std::shared_ptr<System>> mSystems;
 };

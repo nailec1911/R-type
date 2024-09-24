@@ -7,14 +7,15 @@
 
 #pragma once
 #include "../../using.hpp"
+#include <queue>
+#include <unordered_map>
 
 class EntityManager
 {
-public:
+   public:
     EntityManager() : mNumberEntity(0)
     {
-        for (Entity entity = 0; entity < 500; entity += 1)
-        {
+        for (Entity entity = 0; entity < 500; entity += 1) {
             mEntitiesAvailable.push(entity);
         }
     }
@@ -50,7 +51,7 @@ public:
         return this->mSignatures;
     }
 
-private:
+   private:
     std::queue<Entity> mEntitiesAvailable;
     std::unordered_map<Entity, Signature> mSignatures;
     std::uint32_t mNumberEntity;

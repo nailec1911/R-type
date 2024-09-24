@@ -8,13 +8,6 @@
 #pragma once
 #include <bitset>
 #include <cstdint>
-#include <queue>
-#include <array>
-#include <unordered_map>
-#include <memory>
-#include <set>
-#include <chrono>
-#include <algorithm>
 
 using Entity = std::uint32_t;
 const Entity MAX_ENTITIES = 500;

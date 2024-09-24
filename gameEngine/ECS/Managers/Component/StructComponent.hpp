@@ -26,17 +26,13 @@ struct Transform
 };
 
 struct Player
-{
-};
+{};
 
 struct Bullet
-{
-};
+{};
 
 struct Monster
-{
-};
+{};
 
 struct Wall
-{
-};
+{};
