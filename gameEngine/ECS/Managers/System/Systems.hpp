@@ -10,18 +10,6 @@
 #include <iostream>
 #include "../../../Renderer/Events.hpp"
 
-class PhysicsMonsters : public System
-{
-public:
-    void Update(float dt, Mediator &mediator)
-    {
-        for (Entity const &entity : this->mEntities)
-        {
-            auto &transform = mediator.GetComponent<Transform>(entity);
-        }
-    }
-};
-
 class MotionSystem : public System
 {
 public:
@@ -40,7 +28,7 @@ public:
 class InputsPlayer : public System
 {
 public:
-    void Update(std::shared_ptr<Mediator> mediator, std::vector<Event> events, Renderer &renderer)
+    void Update(std::shared_ptr<Mediator> mediator, std::vector<Event> events)
     {
         for (Entity const &entity : this->mEntities)
         {
@@ -69,7 +57,6 @@ public:
                     mediator->AddComponent(bullet, Transform{.velX = 4, .velY = 0});
                     mediator->AddComponent(bullet, Position{.x = position.x, .y = position.y});
                     //Send create sprite to client
-                    renderer.createSprite(bullet, "src/Renderer/assets/sprites/r-typesheet1.gif", {{{249, 90}, {264, 93}}}, {position.x, position.y});
                 }
             }
         }
@@ -86,7 +73,7 @@ public:
     //         indexesToRemove.emplace_back(entityOne);
     //     }
     // }
-    void Update(std::shared_ptr<Mediator> mediator, Renderer &renderer)
+    void Update(std::shared_ptr<Mediator> mediator)
     {
         std::vector<size_t> indexesToRemove;
 
