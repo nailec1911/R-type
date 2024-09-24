@@ -5,27 +5,36 @@
 ** GameServer
 */
 
-#include "Snapshot.hpp"
+#include <sys/types.h>
+
 #include <algorithm>
 #include <array>
 #include <bitset>
-#include <sys/types.h>
 #include <unordered_map>
 #include <vector>
 
+#include "Snapshot.hpp"
+
 #pragma once
 
-template<typename Telement, typename Tother, int nb_others>
-class ClientHistory {
-public:
+namespace gameServer {
+
+template <typename Telement, typename Tother, int nb_others>
+class ClientHistory
+{
+   public:
     ClientHistory();
+    ClientHistory(const ClientHistory &) = delete;
+    ClientHistory(ClientHistory &&) = delete;
+    ClientHistory &operator=(const ClientHistory &) = delete;
+    ClientHistory &operator=(ClientHistory &&) = delete;
     ~ClientHistory();
 
-    Snapshot<Telement, Tother, nb_others> getOldSnap(Snapshot<Telement, Tother, nb_others> &master)
+    Snapshot<Telement, Tother, nb_others> getOldSnap(
+        Snapshot<Telement, Tother, nb_others> &master)
     {
         auto snapVec = m_Snapshots;
         m_Snapshots = {std::copy(master)};
-
 
         for (auto &snap : snapVec) {
             if (time(0) - snap.getCreationTime() > 1) {
@@ -42,7 +51,8 @@ public:
         return Snapshot<Telement, Tother, nb_others>();
     }
 
-    void acknowledgeSnapshot(int idSnapshot) {
+    void acknowledgeSnapshot(int idSnapshot)
+    {
         for (auto &snap : m_Snapshots) {
             if (snap.getId() == idSnapshot) {
                 snap.setAcknowledge();
@@ -51,15 +61,19 @@ public:
         }
     }
 
-private:
+   private:
     std::vector<Snapshot<Telement, Tother, nb_others>> m_Snapshots;
 };
 
-
-template<typename Telement, typename Tother, int nb_others>
-class GameServer {
-public:
+template <typename Telement, typename Tother, int nb_others>
+class GameServer
+{
+   public:
     GameServer();
+    GameServer(const GameServer &) = delete;
+    GameServer(GameServer &&) = delete;
+    GameServer &operator=(const GameServer &) = delete;
+    GameServer &operator=(GameServer &&) = delete;
     ~GameServer();
 
     void sendMaster(Snapshot<Telement, Tother, nb_others> newSnapshot)
@@ -70,22 +84,24 @@ public:
         }
     };
 
-protected:
-private:
+   protected:
+   private:
     void acknowledgeSnapshot(int clientId, int snapId)
     {
         m_clientHistory[clientId].acknowledgeSnapshot(snapId);
     }
 
-    void sendClient(int clientId) {
+    void sendClient(int clientId)
+    {
         auto oldSnap = m_clientHistory[clientId].getOldSnap(m_master);
 
         sendDeltaDiff(clientId, oldSnap);
     };
 
-    void sendDeltaDiff(int clientId, Snapshot<Telement, Tother, nb_others> oldSnap)
+    void sendDeltaDiff(
+        int clientId, Snapshot<Telement, Tother, nb_others> oldSnap)
     {
-        std::array<Tother, nb_others> diffOthers {0};
+        std::array<Tother, nb_others> diffOthers{0};
         std::bitset<nb_others> updateOthers;
         auto masterOther = m_master.getOthers();
         auto oldOther = oldSnap.getOthers();
@@ -97,7 +113,6 @@ private:
             }
         }
 
-
         std::map<u_int32_t, Telement> diffElements;
         std::map<u_int32_t, Telement> &oldElements = oldSnap.getElements();
         std::map<u_int32_t, Telement> &masterElements = m_master.getElements();
@@ -108,13 +123,16 @@ private:
             }
         }
 
-
-        auto deltaDiff = Snapshot<Telement, Tother, nb_others>(m_master.id, diffOthers, diffElements, updateOthers);
-        std::vector<u_int8_t> msg = static_cast<std::vector<u_int8_t>>(deltaDiff);
+        auto deltaDiff = Snapshot<Telement, Tother, nb_others>(
+            m_master.id, diffOthers, diffElements, updateOthers);
+        std::vector<u_int8_t> msg =
+            static_cast<std::vector<u_int8_t>>(deltaDiff);
 
         // server.send(clientId, message);
     }
 
-    std::unordered_map<int, ClientHistory<Telement, Tother, nb_others>> m_clientHistory;
+    std::unordered_map<int, ClientHistory<Telement, Tother, nb_others>>
+        m_clientHistory;
     Snapshot<Telement, Tother, nb_others> m_master;
 };
+};  // namespace gameServer
