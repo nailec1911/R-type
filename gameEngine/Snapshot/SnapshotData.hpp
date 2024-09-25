@@ -16,8 +16,8 @@ class SnapshotData
     SnapshotData(SnapshotData &&) = delete;
     SnapshotData &operator=(const SnapshotData &) = default;
     SnapshotData &operator=(SnapshotData &&) = delete;
-    SnapshotData(int x, int y, int vx, int vy, int info)
-        : m_x(x), m_y(y), m_vx(vx), m_vy(vy), m_info(info){};
+    SnapshotData(uint32_t id, int x, int y, int vx, int vy, int info)
+        : m_id(id), m_x(x), m_y(y), m_vx(vx), m_vy(vy), m_info(info){};
     SnapshotData(const std::vector<uint8_t> &bytes)
         : m_x(extractInt(bytes, 0)),
           m_y(extractInt(bytes, 4)),
@@ -55,6 +55,7 @@ class SnapshotData
         return value;
     }
 
+    uint32_t m_id;
     int m_x;
     int m_y;
     int m_vx;

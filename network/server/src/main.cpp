@@ -7,15 +7,26 @@
 
 #include <unistd.h>
 
-#include <iostream>
+#include <vector>
 
+#include "../../../gameEngine/RTypeGame.hpp"
 #include "rtypeServer/rtypeUdpServer.hpp"
 
-int main() {
+int main()
+{
     rtypeNetwork::rtypeUdpServer server(4444);
+    gameEngine::RTypeGame rType;
+    std::queue<clientEvent> clientsEvents;
+    rType.initGameRules();
+
     while (true) {
-        sleep(1);
-        std::cout << "Async proof" << std::endl;
+        sleep(2);
+        clientsEvents = server.getClientsEvents();
+        rType.getSystems().getInputsSystem()->Update(
+            rType.getMediator(), clientsEvents);
+        rType.getSystems().getMotionSystem()->Update(1, rType.getMediator());
+        rType.getSystems().getCollisionSystem()->Update(rType.getMediator());
+        std::vector<SnapshotData> snapshots = rType.createSnapshots();
     }
     return 0;
 }

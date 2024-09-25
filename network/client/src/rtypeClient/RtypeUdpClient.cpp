@@ -16,11 +16,12 @@
 
 #include "rtypeRfc.hpp"
 
-rtypeNetwork::rtypeUdpClient::rtypeUdpClient(const std::string &ip,
-                                             std::uint16_t port)
+rtypeNetwork::rtypeUdpClient::rtypeUdpClient(
+    const std::string &ip, std::uint16_t port)
     : m_endpoint(asio::ip::address::from_string(ip), port),
       m_socket(m_ctx, m_endpoint.protocol()),
-      m_readBuffer() {
+      m_readBuffer()
+{
     m_socket.connect(m_endpoint);
     if (m_socket.is_open()) {
         m_work = std::make_unique<asio::io_context::work>(m_ctx);
@@ -28,12 +29,15 @@ rtypeNetwork::rtypeUdpClient::rtypeUdpClient(const std::string &ip,
     }
 }
 
-rtypeNetwork::rtypeUdpClient::~rtypeUdpClient() {
+rtypeNetwork::rtypeUdpClient::~rtypeUdpClient()
+{
     m_ctx.stop();
-    if (m_thread.joinable()) m_thread.join();
+    if (m_thread.joinable())
+        m_thread.join();
 }
 
-void rtypeNetwork::rtypeUdpClient::sendBody() {
+void rtypeNetwork::rtypeUdpClient::sendBody()
+{
     m_socket.async_send_to(
         asio::buffer(m_sendQueue.front().body, m_sendQueue.front().body.size()),
         m_endpoint,
@@ -47,10 +51,12 @@ void rtypeNetwork::rtypeUdpClient::sendBody() {
         });
 }
 
-void rtypeNetwork::rtypeUdpClient::sendHeader() {
+void rtypeNetwork::rtypeUdpClient::sendHeader()
+{
     m_socket.async_send_to(
-        asio::buffer(&m_sendQueue.front().header,
-                     sizeof(network::message<rtypeNetwork::rtypeMessageType>)),
+        asio::buffer(
+            &m_sendQueue.front().header,
+            sizeof(network::messageHeader<rtypeNetwork::rtypeMessageType>)),
         m_endpoint,
         [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
             if (!ec) {
@@ -67,7 +73,8 @@ void rtypeNetwork::rtypeUdpClient::sendHeader() {
 }
 
 void rtypeNetwork::rtypeUdpClient::sendMessage(
-    const network::message<rtypeNetwork::rtypeMessageType> &msg) {
+    const network::message<rtypeNetwork::rtypeMessageType> &msg)
+{
     asio::post(m_ctx, [this, msg]() {
         bool canSend = !m_sendQueue.isEmpty();
         m_sendQueue.push(msg);

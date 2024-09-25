@@ -12,5 +12,5 @@
 class System
 {
    public:
-    std::vector<Entity> mEntities;
+    std::vector<Entity> m_Entities;
 };

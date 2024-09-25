@@ -9,20 +9,23 @@
 
 #include <chrono>
 
-std::vector<SnapshotData> gameEngine::RTypeGame::createSnapshots(
-    const std::shared_ptr<Mediator> &mediator)
+#include "ECS/Managers/Component//StructComponent.hpp"
+#include "ECS/using.hpp"
+
+std::vector<SnapshotData> gameEngine::RTypeGame::createSnapshots(void)
 {
     std::vector<SnapshotData> snapshots;
     std::unordered_map<Entity, Signature> entities =
-        mediator->GetEntitiesSignatures();
+        m_mediator->GetEntitiesSignatures();
 
     for (auto elem : entities) {
-        if (mediator->GetEntityRole(elem.first) == "NULL")
+        if (m_mediator->GetEntityRole(elem.first) == "NULL")
             continue;
-        auto position = mediator->GetComponent<Position>(elem.first);
-        auto transform = mediator->GetComponent<Transform>(elem.first);
+        auto position = m_mediator->GetComponent<Position>(elem.first);
+        auto transform = m_mediator->GetComponent<Transform>(elem.first);
         snapshots.emplace_back(
-            position.x, position.y, transform.velX, transform.velY, 0);
+            elem.first, position.x, position.y, transform.velX, transform.velY,
+            0);
     }
     return snapshots;
 }
@@ -57,6 +60,7 @@ void gameEngine::RTypeGame::initGameRules(void)
     m_mediator->RegisterComponent<Bullet>();
     m_mediator->RegisterComponent<Wall>();
     m_mediator->RegisterComponent<Monster>();
+    m_mediator->RegisterComponent<HUDComp>();
     m_mediator->RegisterComponent<Transform>();
     m_mediator->RegisterComponent<Position>();
     m_mediator->RegisterComponent<BoundingBox>();
@@ -66,6 +70,13 @@ void gameEngine::RTypeGame::initGameRules(void)
     initSystemSignature(SystemType::MOTION);
     initSystemSignature(SystemType::INPUTS);
     initSystemSignature(SystemType::COLLISION);
+}
+
+void gameEngine::RTypeGame::initHUDEntities(void)
+{
+    Entity score = m_mediator->CreateEntity();
+    m_mediator->AddComponent<HUDComp>(score, HUDComp{.body = "Score: "});
+    m_mediator->AddComponent<Position>(score, Position{.x = 0, .y = 0});
 }
 
 void gameEngine::RTypeGame::manageTime(void)

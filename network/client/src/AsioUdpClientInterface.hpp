@@ -11,7 +11,8 @@
 
 namespace network {
 template <typename T>
-class AsioUdpClientInterface {
+class AsioUdpClientInterface
+{
    public:
     AsioUdpClientInterface() = default;
     AsioUdpClientInterface(AsioUdpClientInterface &&) = delete;

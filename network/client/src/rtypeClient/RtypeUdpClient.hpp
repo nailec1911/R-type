@@ -19,7 +19,8 @@
 
 namespace rtypeNetwork {
 class rtypeUdpClient
-    : public network::AsioUdpClientInterface<rtypeNetwork::rtypeMessageType> {
+    : public network::AsioUdpClientInterface<rtypeNetwork::rtypeMessageType>
+{
    public:
     rtypeUdpClient(const std::string &ip, std::uint16_t port);
     rtypeUdpClient(rtypeUdpClient &&) = delete;

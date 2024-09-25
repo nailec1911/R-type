@@ -11,10 +11,6 @@
 class IComponentArray
 {
    public:
-    IComponentArray(const IComponentArray &) = default;
-    IComponentArray(IComponentArray &&) = delete;
-    IComponentArray &operator=(const IComponentArray &) = default;
-    IComponentArray &operator=(IComponentArray &&) = delete;
     virtual ~IComponentArray() = default;
     virtual void EntityDestroyed(Entity entity) = 0;
 };

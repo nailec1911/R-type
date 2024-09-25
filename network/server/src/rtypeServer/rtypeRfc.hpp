@@ -9,7 +9,8 @@
 
 #include <cstdint>
 namespace rtypeNetwork {
-enum class rtypeMessageType : uint8_t {
+enum class rtypeMessageType : uint8_t
+{
     SHOOT,
     MOVE,
     OK,

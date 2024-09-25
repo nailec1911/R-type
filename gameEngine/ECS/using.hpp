@@ -20,4 +20,5 @@ enum bitToRole {
     BULLET,
     WALL,
     MONSTER,
+    HUD,
 };
