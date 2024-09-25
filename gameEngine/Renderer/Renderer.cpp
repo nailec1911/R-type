@@ -22,19 +22,21 @@
 
 #include "Events.hpp"
 #include "IRenderer.hpp"
+#include <iostream>
 
-Sprite::Sprite(
-    std::string filepath, Vector2<float> pos,
-    std::vector<Vector2<Vector2<float>>> frames)
-    : m_nbAnim(frames.size()), m_indexFrame(0), m_display(true)
+Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos) 
+    : m_nbAnim(spriteInfo.frames.size()), m_indexFrame(0), m_display(true)
 {
+    if (!m_texture.loadFromFile(spriteInfo.filepath))
+        std::cout << "yydfhffvh" << std::endl;
+
     for (size_t i = 0; i < m_nbAnim; i++) {
-        size_t width = frames.at(i).y.x - frames.at(i).x.x;
-        size_t height = frames.at(i).y.y - frames.at(i).x.y;
+        float width = spriteInfo.frames.at(i).y.x - spriteInfo.frames.at(i).x.x;
+        float height = spriteInfo.frames.at(i).y.y - spriteInfo.frames.at(i).x.y;
         sf::IntRect rectSourceSprite(
-            frames.at(i).x.x, frames.at(i).x.y, width, height);
+            spriteInfo.frames.at(i).x.x, spriteInfo.frames.at(i).x.y, width, height);
         sf::Sprite sprite(m_texture, rectSourceSprite);
-        sprite.setScale(3, 3);
+        sprite.setScale(spriteInfo.scale, spriteInfo.scale);
         sprite.setPosition(pos.x, pos.y);
         sprite.setOrigin(
             static_cast<float>(width) / 2, static_cast<float>(height) / 2);
@@ -42,17 +44,24 @@ Sprite::Sprite(
     }
 }
 
-Vector2<float> Sprite::getSpritePosition()
+rndr::Vector2<float> Sprite::getSpritePosition()
 {
     sf::Vector2f pos = m_sprites.at(0).getPosition();
 
     return {static_cast<float>(pos.x), static_cast<float>(pos.y)};
 }
 
-void Sprite::setSpritePosition(Vector2<float> newPosition)
+void Sprite::setSpritePosition(rndr::Vector2<float> newPosition)
 {
     for (size_t i = 0; i < m_nbAnim; i++) {
         m_sprites.at(i).setPosition(newPosition.x, newPosition.y);
+    }
+}
+
+void Sprite::setCustomScale(float newScale)
+{
+    for (size_t i = 0; i < m_nbAnim; i++) {
+        m_sprites.at(i).setScale(newScale, newScale);
     }
 }
 
@@ -66,16 +75,17 @@ sf::Sprite &Sprite::getSprite()
     return m_sprites.at(m_indexFrame);
 }
 
-Renderer::Renderer(Vector2<int> size, std::string title, int framRate)
-    : m_windowSFML(sf::VideoMode(size.x, size.y), title), m_frameRate(framRate)
+Renderer::Renderer(rndr::Vector2<int> size, std::string title, int framRate)
+    : m_windowSFML(sf::VideoMode(size.x, size.y), title), m_deltaTime(1.0F / static_cast<float>(framRate)), m_frameRate(framRate)
 {
     m_windowSFML.setFramerateLimit(m_frameRate);
     m_windowSize = m_windowSFML.getSize();
-    m_deltaTime = 1.0 / m_frameRate;
+    
 }
 
 void Renderer::setBackgrounds(std::string filepath, float speed)
 {
+    m_bgTexture.loadFromFile(filepath);
     m_bgSprites.first.setTexture(m_bgTexture);
     m_bgSprites.second.setTexture(m_bgTexture);
     m_bgSprites.first.setPosition(0, 0);
@@ -95,16 +105,15 @@ void Renderer::refresh()
     m_windowSFML.display();
 }
 
-void Renderer::setPosition(std::uint32_t idSprite, Vector2<float> newPosition)
+void Renderer::setPosition(std::uint32_t idSprite, rndr::Vector2<float> newPosition)
 {
     m_spriteMap[idSprite]->setSpritePosition(newPosition);
 }
 
 uint32_t Renderer::createSprite(
-    uint32_t idEntity, std::string filepath,
-    std::vector<Vector2<Vector2<float>>> frame_pos, Vector2<float> pos)
+    uint32_t idEntity, rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
 {
-    auto sprite = std::make_unique<Sprite>(filepath, pos, frame_pos);
+    auto sprite = std::make_unique<Sprite>(spriteInfo, pos);
     m_spriteMap[idEntity] = std::move(sprite);
     return idEntity;
 }
@@ -125,7 +134,7 @@ void Renderer::hideSprite(uint32_t idSprite)
     m_spriteMap[idSprite]->setDraw(false);
 }
 
-void Renderer::moveSprite(uint32_t idSprite, Vector2<float> pos)
+void Renderer::moveSprite(uint32_t idSprite, rndr::Vector2<float> pos)
 {
     m_spriteMap[idSprite]->setSpritePosition(pos);
 }
@@ -135,7 +144,7 @@ void Renderer::clear(rndr::Color color)
     m_windowSFML.clear(conv_color.at(color));
 }
 
-void Renderer::drawText(std::string text, Vector2<float> pos, rndr::Color color)
+void Renderer::drawText(std::string text, rndr::Vector2<float> pos, rndr::Color color)
 {
     return;
 }

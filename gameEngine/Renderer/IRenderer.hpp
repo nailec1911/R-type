@@ -13,10 +13,20 @@
 #include <string>
 #include <vector>
 
-#include "Elements.hpp"
 #include "Events.hpp"
 
 namespace rndr {
+
+/**
+ * @brief Vector for 2 Dimensional reference
+ * @tparam T Type of the vector
+ */
+template <typename T>
+struct Vector2
+{
+    T x;  ///< x value
+    T y;  ///< y value
+};
 
 using color_t = u_int8_t;
 enum class Color : color_t
@@ -39,6 +49,15 @@ enum class Color : color_t
     White
 };
 
+struct elementInfo
+{
+    std::string filepath;
+    std::vector<Vector2<Vector2<float>>> frames;
+    int sizeX;
+    int sizeY;
+    float scale;
+};
+
 class IRenderer
 {
    public:
@@ -55,9 +74,8 @@ class IRenderer
     virtual void setBackgrounds(std::string filepath, float speed) = 0;
     virtual void setPosition(
         std::uint32_t idSprite, Vector2<float> newPosition) = 0;
-    virtual uint32_t createSprite(
-        uint32_t idEntity, std::string filepath,
-        std::vector<Vector2<Vector2<float>>> frame_pos, Vector2<float> pos) = 0;
+    virtual uint32_t createSprite(uint32_t idEntity,
+        elementInfo spriteInfo, Vector2<float> pos) = 0;
     virtual void removeSprite(uint32_t idSprite) = 0;
     virtual void hideSprite(uint32_t idSprite) = 0;
     virtual void drawSprite(uint32_t idSprite) = 0;
