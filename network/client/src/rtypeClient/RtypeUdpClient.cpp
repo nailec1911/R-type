@@ -56,7 +56,7 @@ void rtypeNetwork::rtypeUdpClient::sendHeader()
     m_socket.async_send_to(
         asio::buffer(
             &m_sendQueue.front().header,
-            sizeof(network::messageHeader<rtypeNetwork::rtypeMessageType>)),
+            sizeof(asun::messageHeader<rtypeNetwork::rtypeMessageType>)),
         m_endpoint,
         [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
             if (!ec) {
@@ -73,7 +73,7 @@ void rtypeNetwork::rtypeUdpClient::sendHeader()
 }
 
 void rtypeNetwork::rtypeUdpClient::sendMessage(
-    const network::message<rtypeNetwork::rtypeMessageType> &msg)
+    const asun::message<rtypeNetwork::rtypeMessageType> &msg)
 {
     asio::post(m_ctx, [this, msg]() {
         bool canSend = !m_sendQueue.isEmpty();

@@ -1,32 +1,20 @@
 /*
 ** EPITECH PROJECT, 2024
-** server
+** src
 ** File description:
 ** main
 */
 
-#include <unistd.h>
-
-#include <vector>
-
-#include "../../../gameEngine/RTypeGame.hpp"
-#include "rtypeServer/rtypeUdpServer.hpp"
+#include "RtypeServer.hpp"
 
 int main()
 {
-    rtypeNetwork::rtypeUdpServer server(4444);
-    gameEngine::RTypeGame rType;
-    std::queue<clientEvent> clientsEvents;
-    rType.initGameRules();
-
-    while (true) {
-        sleep(2);
-        clientsEvents = server.getClientsEvents();
-        rType.getSystems().getInputsSystem()->Update(
-            rType.getMediator(), clientsEvents);
-        rType.getSystems().getMotionSystem()->Update(1, rType.getMediator());
-        rType.getSystems().getCollisionSystem()->Update(rType.getMediator());
-        std::vector<SnapshotData> snapshots = rType.createSnapshots();
+    rtypeNetwork::RtypeServer server(4444);
+    server.start();
+    while (true)
+    {
+        sleep(1);
+        std::cout << "async proof" << std::endl;
     }
     return 0;
 }

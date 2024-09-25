@@ -19,7 +19,7 @@
 
 namespace rtypeNetwork {
 class rtypeUdpClient
-    : public network::AsioUdpClientInterface<rtypeNetwork::rtypeMessageType>
+    : public asun::AsioUdpClientInterface<rtypeNetwork::rtypeMessageType>
 {
    public:
     rtypeUdpClient(const std::string &ip, std::uint16_t port);
@@ -30,7 +30,7 @@ class rtypeUdpClient
     ~rtypeUdpClient() override;
 
     void sendMessage(
-        const network::message<rtypeNetwork::rtypeMessageType> &msg) override;
+        const asun::message<rtypeNetwork::rtypeMessageType> &msg) override;
     void readMessage() override {}
 
    private:
@@ -46,9 +46,9 @@ class rtypeUdpClient
     std::thread m_thread;
     std::array<char, 1024> m_readBuffer;
 
-    ThreadSafeQueue<network::message<rtypeNetwork::rtypeMessageType>>
+    ThreadSafeQueue<asun::message<rtypeNetwork::rtypeMessageType>>
         m_readQueue;
-    ThreadSafeQueue<network::message<rtypeNetwork::rtypeMessageType>>
+    ThreadSafeQueue<asun::message<rtypeNetwork::rtypeMessageType>>
         m_sendQueue;
 };
 }  // namespace rtypeNetwork

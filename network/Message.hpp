@@ -15,38 +15,46 @@
 #include <type_traits>
 #include <vector>
 
-namespace network {
+namespace asun {
 
 template <typename T>
-struct messageHeader {
+struct messageHeader
+{
     T id{};
     std::uint32_t size = 0;
 };
 
 template <typename T>
-struct message {
+struct message
+{
     messageHeader<T> header{};
     std::vector<std::uint8_t> body{};
 
-    [[nodiscard]] std::size_t size() const {
+    [[nodiscard]] std::size_t size() const
+    {
         return sizeof(messageHeader<T>) + body.size();
     }
 
-    friend std::ostream &operator<<(std::ostream &os, const message<T> &msg) {
+    friend std::ostream &operator<<(std::ostream &os, const message<T> &msg)
+    {
         os << "ID: " << static_cast<int>(msg.header.id)
            << " Size: " << msg.header.size << " Content: " << msg.body.data()
            << std::endl;
         return os;
     };
 
-    friend message<T> &operator<<(message<T> &dest, const message<T> &source) {
+    friend message<T> &operator<<(message<T> &dest, const message<T> &source)
+    {
         // TODO
+        (void)dest;
+        (void)source;
     }
 
     template <typename DataType>
-    friend message<T> &operator<<(message<T> &msg, const DataType &data) {
-        static_assert(std::is_standard_layout<DataType>::value,
-                      "Data too complex.");
+    friend message<T> &operator<<(message<T> &msg, const DataType &data)
+    {
+        static_assert(
+            std::is_standard_layout<DataType>::value, "Data too complex.");
         std::size_t bodySize = msg.body.size();
         msg.body.resize(bodySize + sizeof(DataType));
         std::memcpy(msg.body.data() + bodySize, &data, sizeof(DataType));
@@ -56,9 +64,10 @@ struct message {
     }
 
     template <typename DataType>
-    friend message<T> &operator>>(message<T> &msg, DataType &data) {
-        static_assert(std::is_standard_layout<DataType>::value,
-                      "Data too complex.");
+    friend message<T> &operator>>(message<T> &msg, DataType &data)
+    {
+        static_assert(
+            std::is_standard_layout<DataType>::value, "Data too complex.");
         std::size_t bodySize = msg.body.size();
         std::memcpy(&data, msg.body.data(), bodySize);
         msg.body.resize(bodySize);
@@ -67,4 +76,4 @@ struct message {
         return msg;
     }
 };
-}  // namespace network
+}  // namespace asun

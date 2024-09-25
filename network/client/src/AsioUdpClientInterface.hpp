@@ -9,7 +9,7 @@
 
 #include "../../Message.hpp"
 
-namespace network {
+namespace asun {
 template <typename T>
 class AsioUdpClientInterface
 {
@@ -32,4 +32,4 @@ class AsioUdpClientInterface
 
    private:
 };
-}  // namespace network
+}  // namespace asun
