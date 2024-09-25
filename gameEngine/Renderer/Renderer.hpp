@@ -91,17 +91,17 @@ class Sprite
     Sprite &operator=(const Sprite &) = default;
     Sprite &operator=(Sprite &&) = delete;
     Sprite(
-        std::string filepath, Vector2<float> pos,
-        std::vector<Vector2<Vector2<float>>> frames);
+        rndr::elementInfo, rndr::Vector2<float> pos);
     ~Sprite() = default;
 
-    void setSpritePosition(Vector2<float> newPosition);
+    void setSpritePosition(rndr::Vector2<float> newPosition);
+    void setCustomScale(float newScale);
     sf::Sprite &getSprite();
     void setDraw(bool draw)
     {
         m_display = draw;
     }
-    Vector2<float> getSpritePosition();
+    rndr::Vector2<float> getSpritePosition();
     bool isToDraw() const
     {
         return m_display;
@@ -121,7 +121,7 @@ class Renderer final : public rndr::IRenderer
    public:
     Renderer() = delete;
     Renderer(
-        Vector2<int> size = {1920, 1080}, std::string title = "",
+        rndr::Vector2<int> size = {1920, 1080}, std::string title = "",
         int frameRate = 60);
     Renderer(const Renderer &) = delete;
     Renderer(Renderer &&) = delete;
@@ -131,21 +131,21 @@ class Renderer final : public rndr::IRenderer
 
     void setBackgrounds(std::string filepath, float speed) override;
     void setPosition(
-        std::uint32_t idSprite, Vector2<float> newPosition) override;
+        std::uint32_t idSprite, rndr::Vector2<float> newPosition) override;
     uint32_t createSprite(
-        uint32_t idEntity, std::string filepath,
-        std::vector<Vector2<Vector2<float>>> frame_pos,
-        Vector2<float> pos) override;
+        uint32_t idEntity,
+        rndr::elementInfo spriteInfo,
+        rndr::Vector2<float> pos) override;
     void removeSprite(uint32_t idSprite) override;
-    void moveSprite(uint32_t idSprite, Vector2<float> pos) override;
+    void moveSprite(uint32_t idSprite, rndr::Vector2<float> pos) override;
     void clear(rndr::Color color = rndr::Color::Black) override;
     void refresh() override;
     void hideSprite(uint32_t idSprite) override;
     void drawSprite(uint32_t idSprite) override;
     void drawText(
-        std::string text, Vector2<float> pos,
+        std::string text, rndr::Vector2<float> pos,
         rndr::Color color = rndr::Color::White) override;
-    Vector2<float> getPostion(uint32_t idSprite) override
+    rndr::Vector2<float> getPostion(uint32_t idSprite) override
     {
         return m_spriteMap[idSprite]->getSpritePosition();
     };
