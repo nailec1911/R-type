@@ -6,7 +6,6 @@
 */
 
 #pragma once
-#include <utility>
 
 #include "ECS/Managers/System/Systems.hpp"
 #include "ECS/Mediator.hpp"
@@ -58,10 +57,10 @@ class RTypeGame
         COLLISION
     };
 
-    void initSystemSignature(const SystemType &type);
     void initGameRules(void);
-    static std::vector<SnapshotData> createSnapshots(
-        const std::shared_ptr<Mediator> &mediator);
+    void initSystemSignature(const SystemType &type);
+    void initHUDEntities(void);
+    std::vector<SnapshotData> createSnapshots(void);
     void manageTime(void);
 
     std::shared_ptr<Mediator> getMediator(void)
@@ -69,14 +68,9 @@ class RTypeGame
         return m_mediator;
     }
 
-    std::vector<Event> getEvents(void)
+    SystemsFactory getSystems(void)
     {
-        return this->m_events;
-    }
-
-    void setEvents(std::vector<Event> newEvents)
-    {
-        this->m_events = std::move(newEvents);
+        return m_systems;
     }
 
    protected:
@@ -84,7 +78,6 @@ class RTypeGame
     int m_second{};
     time_t m_start_time{};
     std::shared_ptr<Mediator> m_mediator;
-    std::vector<Event> m_events;
     gameEngine::SystemsFactory m_systems;
 };
 }  // namespace gameEngine

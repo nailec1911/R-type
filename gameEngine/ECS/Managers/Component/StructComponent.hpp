@@ -6,6 +6,8 @@
 */
 
 #pragma once
+#include <cstdint>
+#include <string>
 
 struct Position
 {
@@ -26,7 +28,9 @@ struct Transform
 };
 
 struct Player
-{};
+{
+    uint16_t id;
+};
 
 struct Bullet
 {};
@@ -36,3 +40,8 @@ struct Monster
 
 struct Wall
 {};
+
+struct HUDComp
+{
+    std::string body;
+};

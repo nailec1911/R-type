@@ -104,6 +104,8 @@ class Mediator
             return std::string("Monster");
         if (mEntityManager->GetSignature(entity).test(BULLET))
             return std::string("Bullet");
+        if (mEntityManager->GetSignature(entity).test(HUD))
+            return std::string("HUD element");
         return std::string("NULL");
     }
 

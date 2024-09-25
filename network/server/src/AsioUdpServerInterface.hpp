@@ -8,12 +8,14 @@
 #pragma once
 
 #include <asio.hpp>
+#include <cstdint>
 
 #include "../../Message.hpp"
 
 namespace network {
 template <typename T>
-class AsioUdpServerInterface {
+class AsioUdpServerInterface
+{
    public:
     AsioUdpServerInterface() = default;
     AsioUdpServerInterface(AsioUdpServerInterface &&) = delete;
@@ -23,8 +25,8 @@ class AsioUdpServerInterface {
     virtual ~AsioUdpServerInterface() = default;
 
    protected:
-    virtual void receiveClientsMessages() = 0;
-    virtual void sendMessagesToClient(const message<T> &) = 0;
+    virtual void sendMessagesToClient(
+        const message<T> &, uint16_t clientId) = 0;
     virtual void sendMessagesToAllClients(const message<T> &) = 0;
 };
 }  // namespace network

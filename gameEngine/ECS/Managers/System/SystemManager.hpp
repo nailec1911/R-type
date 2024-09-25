@@ -46,9 +46,9 @@ class SystemManager
         for (auto const &pair : mSystems) {
             auto const &system = pair.second;
             auto it = std::find(
-                system->mEntities.begin(), system->mEntities.end(), entity);
-            if (it != system->mEntities.end())
-                system->mEntities.erase(it);
+                system->m_Entities.begin(), system->m_Entities.end(), entity);
+            if (it != system->m_Entities.end())
+                system->m_Entities.erase(it);
         }
     }
 
@@ -59,13 +59,13 @@ class SystemManager
             auto const &system = pair.second;
             auto const &systemSignature = mSignatures[type];
             auto it = std::find(
-                system->mEntities.begin(), system->mEntities.end(), entity);
+                system->m_Entities.begin(), system->m_Entities.end(), entity);
             if ((entitySignature & systemSignature) != 0) {
-                if (it == system->mEntities.end())
-                    system->mEntities.emplace_back(entity);
+                if (it == system->m_Entities.end())
+                    system->m_Entities.emplace_back(entity);
             } else {
-                if (it != system->mEntities.end())
-                    system->mEntities.erase(it);
+                if (it != system->m_Entities.end())
+                    system->m_Entities.erase(it);
             }
         }
     }
