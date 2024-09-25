@@ -14,7 +14,7 @@
 int main() {
     rtypeNetwork::rtypeUdpServer server(4444);
     while (true) {
-        sleep(60);
+        sleep(1);
         std::cout << "Async proof" << std::endl;
     }
     return 0;

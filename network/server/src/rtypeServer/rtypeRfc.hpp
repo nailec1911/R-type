@@ -7,8 +7,9 @@
 
 #pragma once
 
+#include <cstdint>
 namespace rtypeNetwork {
-enum class rtypeMessageType {
+enum class rtypeMessageType : uint8_t {
     SHOOT,
     MOVE,
     OK,

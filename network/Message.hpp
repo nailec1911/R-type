@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <ostream>
 #include <type_traits>
@@ -32,7 +33,7 @@ struct message {
     }
 
     friend std::ostream &operator<<(std::ostream &os, const message<T> &msg) {
-        os << "ID: " << static_cast<uint8_t>(msg.header.id)
+        os << "ID: " << static_cast<int>(msg.header.id)
            << " Size: " << msg.header.size << " Content: " << msg.body.data()
            << std::endl;
         return os;

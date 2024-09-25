@@ -50,15 +50,17 @@ class rtypeUdpServer
     asio::ip::udp::endpoint m_remoteEndpoint;
     std::unique_ptr<asio::io_context::work> m_work;
 
+    network::message<rtypeNetwork::rtypeMessageType> m_tempRead;
+
     void receiveClientsMessages() override;
 
     // TODO ->
     void readHeader();
-    void readBody() {}
+    void readBody();
     void sendMessagesToAllClients(
-        const network::message<rtypeNetwork::rtypeMessageType> &msg) override {}
+        const network::message<rtypeNetwork::rtypeMessageType> &msg) override { (void)msg; }
     void sendMessagesToClient(
-        const network::message<rtypeNetwork::rtypeMessageType> &msg) override {}
+        const network::message<rtypeNetwork::rtypeMessageType> &msg) override { (void)msg; }
     void sendHeader() {}
     void sendBody() {}
 };
