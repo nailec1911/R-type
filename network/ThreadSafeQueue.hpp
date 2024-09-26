@@ -8,22 +8,26 @@
 #pragma once
 
 #include <condition_variable>
+#include <cstddef>
 #include <mutex>
 #include <queue>
 
 template <typename T>
-class ThreadSafeQueue {
+class ThreadSafeQueue
+{
    public:
     ThreadSafeQueue() = default;
     ~ThreadSafeQueue() = default;
 
-    void push(T element) {
+    void push(T element)
+    {
         std::unique_lock<std::mutex> lock(m_mutex);
         m_queue.push(element);
         m_cond.notify_one();
     }
 
-    T pop() {
+    T pop()
+    {
         std::unique_lock<std::mutex> lock(m_mutex);
         m_cond.wait(lock, [this]() { return !m_queue.empty(); });
         T element = m_queue.front();
@@ -31,12 +35,19 @@ class ThreadSafeQueue {
         return element;
     }
 
-    const T& front() {
+    size_t size() const
+    {
+        return m_queue.size();
+    }
+
+    const T& front()
+    {
         std::unique_lock<std::mutex> lock(m_mutex);
         return m_queue.front();
     }
 
-    [[nodiscard]] bool isEmpty() {
+    [[nodiscard]] bool isEmpty()
+    {
         std::unique_lock<std::mutex> lock(m_mutex);
         return m_queue.empty();
     }

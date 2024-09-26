@@ -7,11 +7,10 @@
 
 #pragma once
 
-#include <iostream>
 #include <queue>
 #include <unordered_map>
 
-#include "../../../../network/server/src/rtypeServer/clientsEvents.hpp"
+#include "../../../../network/server/src/RtypeServer.hpp"
 #include "../../Mediator.hpp"
 #include "../Component/StructComponent.hpp"
 
@@ -34,7 +33,7 @@ class InputsPlayer : public System
    public:
     void Update(
         const std::shared_ptr<Mediator> &mediator,
-        std::queue<clientEvent> &clientsEvents)
+        std::queue<rtypeNetwork::clientEvent> &clientsEvents)
     {
         for (auto &player : m_players) {
             auto &tranformComp =
