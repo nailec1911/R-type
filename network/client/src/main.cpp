@@ -5,26 +5,23 @@
 ** main
 */
 
-#include "rtypeClient/RtypeUdpClient.hpp"
-#include "rtypeClient/rtypeRfc.hpp"
+#include "RtypeClient.hpp"
+
+#include "../../Message.hpp"
 
 int main()
 {
-    rtypeNetwork::rtypeUdpClient client("127.0.0.1", 4444);
+    asun::message<rtypeNetwork::CustomMessageType> msg{};
+    rtypeNetwork::RtypeClient client("127.0.0.1", 4444);
+    msg.header.id = rtypeNetwork::CustomMessageType::OK;
+    msg << "mariu";
 
-    asun::message<rtypeNetwork::rtypeMessageType> msg;
-    asun::message<rtypeNetwork::rtypeMessageType> msg2;
-    msg.header.id = rtypeNetwork::rtypeMessageType::LOGIN;
-    msg2.header.id = rtypeNetwork::rtypeMessageType::MOVE;
-
-    msg << "adamudesu";
-    msg2 << "1";
-
+    client.start();
     client.sendMessage(msg);
-
-    while (true) {
-        sleep(5);
-        client.sendMessage(msg2);
+    while (true)
+    {
+        sleep(1);
+        std::cout << "async proof" << std::endl;
     }
     return 0;
 }
