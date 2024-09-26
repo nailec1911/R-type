@@ -89,6 +89,16 @@ class AsioUdpServer : public AsioNetworkThread
             });
     }
 
+    std::pair<asio::ip::udp::endpoint, asun::message<T>> popReadQueue(void)
+    {
+        return m_readQueue.pop();
+    }
+
+    size_t getSizeReadQueue(void) const
+    {
+        return m_readQueue.size();
+    }
+
    private:
     void readBody()
     {
@@ -97,7 +107,7 @@ class AsioUdpServer : public AsioNetworkThread
             m_remoteEndpoint,
             [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
-                    m_readQueue.push(m_readMessage);
+                    m_readQueue.push({m_remoteEndpoint, m_readMessage});
                     readHeader();
                 } else {
                     std::cerr << "[-]Body error" << std::endl;
@@ -108,7 +118,8 @@ class AsioUdpServer : public AsioNetworkThread
     void readHeader()
     {
         m_socket.async_receive_from(
-            asio::buffer(&m_readMessage.header, sizeof(asun::messageHeader<T>)),
+            asio::buffer(
+                &m_readMessage.header, sizeof(asun::messageHeader<T>)),
             m_remoteEndpoint,
             [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
@@ -125,7 +136,7 @@ class AsioUdpServer : public AsioNetworkThread
     asio::ip::udp::socket m_socket;
     asio::ip::udp::endpoint m_remoteEndpoint;
 
-    ThreadSafeQueue<asun::message<T>> m_readQueue;
+    ThreadSafeQueue<std::pair<asio::ip::udp::endpoint, asun::message<T>>> m_readQueue;
     ThreadSafeQueue<asun::message<T>> m_sendQueue;
 
     message<T> m_readMessage{};
