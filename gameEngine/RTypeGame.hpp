@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <cstdint>
+#include <unordered_map>
 #include "ECS/Managers/System/Systems.hpp"
 #include "ECS/Mediator.hpp"
 #include "Snapshot/SnapshotData.hpp"
@@ -60,7 +62,7 @@ class RTypeGame
     void initGameRules(void);
     void initSystemSignature(const SystemType &type);
     void initHUDEntities(void);
-    std::vector<SnapshotData> createSnapshots(void);
+    [[nodiscard]] std::unordered_map<uint32_t, SnapshotData> createSnapshots() const;
     void manageTime(void);
 
     std::shared_ptr<Mediator> getMediator(void)

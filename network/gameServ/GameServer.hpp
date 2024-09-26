@@ -5,36 +5,50 @@
 ** GameServer
 */
 
-#include <sys/types.h>
-
 #include <algorithm>
 #include <array>
 #include <bitset>
+#include <cstddef>
+#include <cstdint>
+#include <queue>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
+#include "../server/src/AsioUdpServer.hpp"
 #include "Snapshot.hpp"
 
 #pragma once
 
 namespace gameServer {
 
+using clientSession = struct clientSession
+{
+    std::string clientProtocol;
+    asio::ip::udp::endpoint endpoint;
+    std::chrono::steady_clock::time_point lastHeartBeat;
+};
+
 template <typename Telement, typename Tother, int nb_others>
 class ClientHistory
 {
    public:
-    ClientHistory();
+    ClientHistory() : m_Snapshots({Snapshot<Telement, Tother, nb_others>()}) {};
     ClientHistory(const ClientHistory &) = delete;
     ClientHistory(ClientHistory &&) = delete;
-    ClientHistory &operator=(const ClientHistory &) = delete;
-    ClientHistory &operator=(ClientHistory &&) = delete;
-    ~ClientHistory();
+    ClientHistory &operator=(const ClientHistory &) = default;
+    ClientHistory &operator=(ClientHistory &&) = default;
+    ~ClientHistory() = default;
 
     Snapshot<Telement, Tother, nb_others> getOldSnap(
         Snapshot<Telement, Tother, nb_others> &master)
     {
-        auto snapVec = m_Snapshots;
-        m_Snapshots = {std::copy(master)};
+        auto snapVec = std::move(m_Snapshots);
+        // m_Snapshots.erase();
+        m_Snapshots.push_back(std::move(master));
+
+        if (snapVec.empty())
+            return  Snapshot<Telement, Tother, nb_others>();
 
         for (auto &snap : snapVec) {
             if (time(0) - snap.getCreationTime() > 1) {
@@ -65,41 +79,109 @@ class ClientHistory
     std::vector<Snapshot<Telement, Tother, nb_others>> m_Snapshots;
 };
 
-template <typename Telement, typename Tother, int nb_others>
-class GameServer
+template <typename Telement, typename Tother, int nb_others, typename Tmessage>
+class GameServer : public asun::AsioUdpServer<Tmessage>
 {
    public:
-    GameServer();
+    GameServer(uint16_t port) : asun::AsioUdpServer<Tmessage>(port), m_master(Snapshot<Telement, Tother, nb_others>()){};
     GameServer(const GameServer &) = delete;
     GameServer(GameServer &&) = delete;
     GameServer &operator=(const GameServer &) = delete;
     GameServer &operator=(GameServer &&) = delete;
-    ~GameServer();
+    ~GameServer() = default;
 
-    void sendMaster(Snapshot<Telement, Tother, nb_others> newSnapshot)
+    void sendMaster(Tmessage headerId, Snapshot<Telement, Tother, nb_others> newSnapshot)
     {
-        m_master = newSnapshot;
+        m_master = std::move(newSnapshot);
         for (auto &items : m_clientHistory) {
-            sendClient(items.first);
+            sendClient(headerId, items.first);
         }
+    };
+
+    std::queue<std::pair<uint32_t, asun::message<Tmessage>>> getMessages()
+    {
+        std::queue<std::pair<uint32_t, asun::message<Tmessage>>> res;
+
+        while (this->getSizeReadQueue() > 0) {
+            auto msg = this->popReadQueue();
+            uint32_t clientId = getIdFromEndpoint(msg.first);
+            if (clientId == 0) {
+                clientId = handleClientLogin(msg);
+            }
+            res.push({clientId, msg.second});
+        }
+        return res;
+    }
+
+    uint32_t handleClientLogin(
+        std::pair<asio::ip::udp::endpoint, asun::message<Tmessage>> &msg)
+    {
+        std::string endpointData = msg.first.address().to_string() + ":" +
+                                   std::to_string(msg.first.port());
+        for (auto &elem : m_clients) {
+            if (elem.second.clientProtocol == endpointData) {
+                std::cerr << "Client already connected..." << std::endl;
+                return 0;
+            }
+        }
+        m_lastId++;
+        m_clients[m_lastId] = clientSession{
+            .clientProtocol = endpointData,
+            .endpoint = msg.first,
+            .lastHeartBeat = std::chrono::steady_clock::now()};
+        m_clientHistory[m_lastId] = ClientHistory<Telement, Tother, nb_others>();
+        return m_lastId;
+    }
+
+    void removeClient(uint32_t clientId)
+    {
+        m_clientHistory.erase(clientId);
+        m_clients.erase(clientId);
+    }
+
+    size_t getNbClient() const
+    {
+        return m_clients.size();
     };
 
    protected:
    private:
-    void acknowledgeSnapshot(int clientId, int snapId)
+    uint32_t m_lastId{};
+
+    std::unordered_map<uint32_t, clientSession> m_clients;
+    std::unordered_map<uint32_t, ClientHistory<Telement, Tother, nb_others>>
+        m_clientHistory;
+    Snapshot<Telement, Tother, nb_others> m_master;
+
+    uint32_t getIdFromEndpoint(asio::ip::udp::endpoint &endpoint)
+    {
+        uint16_t clientId = 0;
+        std::string endpointData = endpoint.address().to_string() + ":" +
+                                   std::to_string(endpoint.port());
+
+        for (auto &elem : m_clients) {
+            if (elem.second.clientProtocol == endpointData) {
+                clientId = elem.first;
+                break;
+            }
+        }
+        return clientId;
+    }
+
+    void acknowledgeSnapshot(uint32_t clientId, int snapId)
     {
         m_clientHistory[clientId].acknowledgeSnapshot(snapId);
     }
 
-    void sendClient(int clientId)
+    void sendClient(Tmessage headerId, uint32_t clientId)
     {
         auto oldSnap = m_clientHistory[clientId].getOldSnap(m_master);
 
-        sendDeltaDiff(clientId, oldSnap);
+        sendDeltaDiff(headerId, clientId, oldSnap);
     };
 
-    void sendDeltaDiff(
-        int clientId, Snapshot<Telement, Tother, nb_others> oldSnap)
+    void sendDeltaDiff(Tmessage headerId,
+        uint32_t clientId, Snapshot<Telement, Tother, nb_others> oldSnap)
     {
         std::array<Tother, nb_others> diffOthers{0};
         std::bitset<nb_others> updateOthers;
@@ -113,26 +195,23 @@ class GameServer
             }
         }
 
-        std::map<u_int32_t, Telement> diffElements;
-        std::map<u_int32_t, Telement> &oldElements = oldSnap.getElements();
-        std::map<u_int32_t, Telement> &masterElements = m_master.getElements();
+        std::unordered_map<uint32_t, Telement> diffElements;
+        std::unordered_map<uint32_t, Telement> oldElements = oldSnap.getElements();
+        std::unordered_map<uint32_t, Telement> masterElements = m_master.getElements();
 
-        for (auto &elt : oldOther) {
+        for (auto elt : oldElements) {
             if (elt.second != masterElements[elt.first]) {
                 diffElements[elt.first] = masterElements[elt.first];
             }
         }
 
         auto deltaDiff = Snapshot<Telement, Tother, nb_others>(
-            m_master.id, diffOthers, diffElements, updateOthers);
-        std::vector<u_int8_t> msg =
-            static_cast<std::vector<u_int8_t>>(deltaDiff);
+            m_master.getId(), diffOthers, diffElements, updateOthers);
+        asun::message<Tmessage> msg{};
+        msg.header.id = headerId;
+        msg << deltaDiff.toMessage();
 
-        // server.send(clientId, message);
+        this->sendMessage(m_clients[clientId].endpoint, msg);
     }
-
-    std::unordered_map<int, ClientHistory<Telement, Tother, nb_others>>
-        m_clientHistory;
-    Snapshot<Telement, Tother, nb_others> m_master;
 };
 };  // namespace gameServer

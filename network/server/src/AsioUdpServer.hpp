@@ -8,6 +8,7 @@
 #pragma once
 
 #include <asio.hpp>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 
@@ -74,15 +75,13 @@ class AsioUdpServer : public AsioNetworkThread
         AsioNetworkThread::stop();
     }
 
-    virtual void handleMessages() = 0;
-
    protected:
     void sendMessage(
         const asio::ip::udp::endpoint &endpoint, const message<T> &msg)
     {
         m_socket.async_send_to(
             asio::buffer(&msg.header, sizeof(messageHeader<T>)), endpoint,
-            [this](std::error_code ec) {
+            [this](std::error_code ec, std::size_t  /*length*/) {
                 if (!ec) {
                     std::cout << "Sucess\n";
                 }
