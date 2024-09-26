@@ -8,22 +8,31 @@
 #include "RtypeServer.hpp"
 
 #include <asio/ip/udp.hpp>
+#include <cstdint>
 #include <string>
 
 void rtypeNetwork::RtypeServer::handleMessages()
 {
-    std::pair<asio::ip::udp::endpoint, asun::message<CustomMessageType>> msg;
-    while (getSizeReadQueue() > 0) {
-        msg = popReadQueue();
-        switch (msg.second.header.id) {
-            case CustomMessageType::LOGIN:
-                handleClientLogin(msg);
-                break;
+    auto msgQueue = m_gameServ.getMessages();
+    while (!msgQueue.empty()) {
+        auto msg = msgQueue.front();
+        uint32_t clientId = msg.first;
+        auto content = msg.second;
+        msgQueue.pop();
+        if (content.header.id == CustomMessageType::LOGIN) {
+            handleClientLogin(clientId, content);
+            continue;
+        }
+        if (!isClientConnected(clientId)) {
+            std::cerr << "why is this client not connected" << clientId << std::endl;
+            continue;
+        }
+        switch (content.header.id) {
             case CustomMessageType::MOVE:
-                handleClientMove(msg);
+                handleClientMove(clientId, content);
                 break;
             case CustomMessageType::SHOOT:
-                handleClientShoot(msg);
+                handleClientShoot(clientId, content);
                 break;
             default:
                 break;
@@ -32,43 +41,25 @@ void rtypeNetwork::RtypeServer::handleMessages()
 }
 
 void rtypeNetwork::RtypeServer::handleClientLogin(
-    std::pair<asio::ip::udp::endpoint, asun::message<CustomMessageType>> &msg)
+    uint32_t clientId, asun::message<CustomMessageType> & /*msg*/)
 {
-    if (m_clients.size() >= 5) {
-        std::cerr << "There is already 5 players." << std::endl;
+    if (isClientConnected(clientId)) {
+        std::cerr << "already logged in" << std::endl;
         return;
     }
-    std::string endpointData = msg.first.address().to_string() + ":" +
-                               std::to_string(msg.first.port());
-    for (auto &elem : m_clients) {
-        if (elem.second.clientProtocol == endpointData) {
-            std::cerr << "Client already connected..." << std::endl;
-            return;
-        }
+    if (m_gameServ.getNbClient() < m_maxClient) {
+        std::cout << "client added" << std::endl;
+        m_connectedClients.emplace_back(clientId);
+        return;
     }
-    m_clients[m_id] = clientSession{
-        .clientProtocol = endpointData,
-        .endpoint = msg.first,
-        .lastHeartBeat = std::chrono::steady_clock::now()};
-    m_id++;
+    std::cerr << "There is already 5 players." << std::endl;
+    m_gameServ.removeClient(clientId);
 }
 
 void rtypeNetwork::RtypeServer::handleClientMove(
-    std::pair<asio::ip::udp::endpoint, asun::message<CustomMessageType>> &msg)
+    uint32_t clientId, asun::message<CustomMessageType> &msg)
 {
-    uint16_t clientId = 500;
-    std::string endpointData = msg.first.address().to_string() + ":" +
-                               std::to_string(msg.first.port());
-
-    for (auto &elem : m_clients) {
-        if (elem.second.clientProtocol == endpointData) {
-            clientId = elem.first;
-            break;
-        }
-    }
-    if (clientId == 500)
-        return;
-    std::string input(reinterpret_cast<char *>(msg.second.body.data()));
+    std::string input(reinterpret_cast<char *>(msg.body.data()));
     if (input == "1")
         m_clientsEvents.push(
             {.id = clientId,
@@ -92,20 +83,8 @@ void rtypeNetwork::RtypeServer::handleClientMove(
 }
 
 void rtypeNetwork::RtypeServer::handleClientShoot(
-    std::pair<asio::ip::udp::endpoint, asun::message<CustomMessageType>> &msg)
+    uint32_t clientId, asun::message<CustomMessageType> & /*msg*/)
 {
-    uint16_t clientId = 500;
-    std::string endpointData = msg.first.address().to_string() + ":" +
-                               std::to_string(msg.first.port());
-
-    for (auto &elem : m_clients) {
-        if (elem.second.clientProtocol == endpointData) {
-            clientId = elem.first;
-            break;
-        }
-    }
-    if (clientId == 500)
-        return;
     m_clientsEvents.push(
         {.id = clientId,
          .event =

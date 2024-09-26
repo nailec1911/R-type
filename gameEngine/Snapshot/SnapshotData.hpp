@@ -7,23 +7,26 @@
 
 #pragma once
 #include <cstdint>
+#include <cstring>
 #include <vector>
 
 class SnapshotData
 {
    public:
+    SnapshotData() = default;
     SnapshotData(const SnapshotData &) = default;
     SnapshotData(SnapshotData &&) = delete;
     SnapshotData &operator=(const SnapshotData &) = default;
-    SnapshotData &operator=(SnapshotData &&) = delete;
+    SnapshotData &operator=(SnapshotData &&) = default;
     SnapshotData(uint32_t id, int x, int y, int vx, int vy, int info)
         : m_id(id), m_x(x), m_y(y), m_vx(vx), m_vy(vy), m_info(info){};
     SnapshotData(const std::vector<uint8_t> &bytes)
-        : m_x(extractInt(bytes, 0)),
-          m_y(extractInt(bytes, 4)),
-          m_vx(extractInt(bytes, 8)),
-          m_vy(extractInt(bytes, 12)),
-          m_info(extractInt(bytes, 16))
+        : m_id(extractInt(bytes, 0)),
+          m_x(extractInt(bytes, 4)),
+          m_y(extractInt(bytes, 8)),
+          m_vx(extractInt(bytes, 12)),
+          m_vy(extractInt(bytes, 16)),
+          m_info(extractInt(bytes, 20))
     {
     }
     ~SnapshotData() = default;
@@ -43,6 +46,11 @@ class SnapshotData
     {
         return m_x == b.m_x && m_y == b.m_y && m_vx == b.m_vx &&
                m_vy == b.m_vy && m_info == b.m_info;
+    }
+
+    [[nodiscard]] uint32_t getId() const
+    {
+        return m_id;
     }
 
    private:

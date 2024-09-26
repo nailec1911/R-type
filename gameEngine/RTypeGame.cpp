@@ -8,13 +8,16 @@
 #include "RTypeGame.hpp"
 
 #include <chrono>
+#include <cstdint>
+#include <unordered_map>
 
 #include "ECS/Managers/Component//StructComponent.hpp"
 #include "ECS/using.hpp"
+#include "Snapshot/SnapshotData.hpp"
 
-std::vector<SnapshotData> gameEngine::RTypeGame::createSnapshots(void)
+std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::createSnapshots() const
 {
-    std::vector<SnapshotData> snapshots;
+    std::unordered_map<uint32_t, SnapshotData> snapshots;
     std::unordered_map<Entity, Signature> entities =
         m_mediator->GetEntitiesSignatures();
 
@@ -23,9 +26,7 @@ std::vector<SnapshotData> gameEngine::RTypeGame::createSnapshots(void)
             continue;
         auto position = m_mediator->GetComponent<Position>(elem.first);
         auto transform = m_mediator->GetComponent<Transform>(elem.first);
-        snapshots.emplace_back(
-            elem.first, position.x, position.y, transform.velX, transform.velY,
-            0);
+        snapshots[elem.first] = {elem.first, position.x, position.y, transform.velX, transform.velY,0};
     }
     return snapshots;
 }

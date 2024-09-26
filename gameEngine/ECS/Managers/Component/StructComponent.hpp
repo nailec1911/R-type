@@ -11,8 +11,8 @@
 
 struct Position
 {
-    float x;
-    float y;
+    int x;
+    int y;
 };
 
 struct BoundingBox
@@ -23,13 +23,13 @@ struct BoundingBox
 
 struct Transform
 {
-    float velX;
-    float velY;
+    int velX;
+    int velY;
 };
 
 struct Player
 {
-    uint16_t id;
+    uint32_t id;
 };
 
 struct Bullet
