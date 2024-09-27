@@ -18,18 +18,9 @@
 #include "../../../gameEngine/Renderer/Events.hpp"
 #include "../../../gameEngine/Snapshot/SnapshotData.hpp"
 #include "../../gameServ/GameServer.hpp"
+#include "../../client/src/RtypeClient.hpp"
 
 namespace rtypeNetwork {
-
-enum class CustomMessageType
-{
-    SHOOT,
-    MOVE,
-    OK,
-    KO,
-    LOGIN,
-    SNAPSHOT,
-};
 
 struct clientEvent
 {

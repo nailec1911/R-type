@@ -58,6 +58,8 @@ test_output/
 *.user
 *.suo
 *.sln
+Server
+Client
 
 # Ignore any other unwanted folders
 # Add more folders if your project structure grows or changes

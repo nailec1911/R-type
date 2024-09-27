@@ -6,7 +6,6 @@
 */
 
 #include "RtypeServer.hpp"
-
 #include <asio/ip/udp.hpp>
 #include <cstdint>
 #include <string>
@@ -19,6 +18,7 @@ void rtypeNetwork::RtypeServer::handleMessages()
         uint32_t clientId = msg.first;
         auto content = msg.second;
         msgQueue.pop();
+        std::cout << msg.second << std::endl;
         if (content.header.id == CustomMessageType::LOGIN) {
             handleClientLogin(clientId, content);
             continue;

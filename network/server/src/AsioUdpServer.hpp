@@ -83,7 +83,7 @@ class AsioUdpServer : public AsioNetworkThread
             asio::buffer(&msg.header, sizeof(messageHeader<T>)), endpoint,
             [this](std::error_code ec, std::size_t  /*length*/) {
                 if (!ec) {
-                    std::cout << "Sucess\n";
+                    // std::cout << "Sucess\n";
                 }
             });
     }
