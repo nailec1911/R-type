@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <vector>
+
 #include "IRenderer.hpp"
 
 enum elementTypes
@@ -53,6 +54,7 @@ enum elementTypes
     WALL_1,
     WALL_2,
     WALL_3,
+    NONE,
 };
 
 const std::map<elementTypes, rndr::elementInfo> eltInfo{
@@ -207,7 +209,8 @@ const std::map<elementTypes, rndr::elementInfo> eltInfo{
      {"gameEngine/Renderer/assets/sprites/r-typesheet1.gif",
       {{{136, 154}, {199, 167}}, {{201, 154}, {264, 167}}},
       63,
-      13}},
+      13,
+      3}},
     {BULLET_P_CHARGED_100,
      {"gameEngine/Renderer/assets/sprites/r-typesheet1.gif",
       {{{104, 171}, {183, 184}}, {{185, 170}, {264, 285}}},

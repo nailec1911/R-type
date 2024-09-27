@@ -6,9 +6,11 @@
 */
 
 #pragma once
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include "../Renderer/Elements.hpp"
 
 class SnapshotData
 {
@@ -18,22 +20,24 @@ class SnapshotData
     SnapshotData(SnapshotData &&) = delete;
     SnapshotData &operator=(const SnapshotData &) = default;
     SnapshotData &operator=(SnapshotData &&) = default;
-    SnapshotData(uint32_t id, int x, int y, int vx, int vy, int info)
-        : m_id(id), m_x(x), m_y(y), m_vx(vx), m_vy(vy), m_info(info){};
-    SnapshotData(const std::vector<uint8_t> &bytes)
-        : m_id(extractInt(bytes, 0)),
-          m_x(extractInt(bytes, 4)),
-          m_y(extractInt(bytes, 8)),
-          m_vx(extractInt(bytes, 12)),
-          m_vy(extractInt(bytes, 16)),
-          m_info(extractInt(bytes, 20))
+    SnapshotData(elementTypes type, int x, int y, int vx, int vy, int info)
+        : m_type(type), m_x(x), m_y(y), m_vx(vx), m_vy(vy), m_info(info){};
+    SnapshotData(const std::vector<uint8_t> &bytes, size_t &indx)
+        : m_type(static_cast<elementTypes>(extractInt(bytes, indx + 0))),
+          m_x(extractInt(bytes, indx + 4)),
+          m_y(extractInt(bytes, indx + 8)),
+          m_vx(extractInt(bytes, indx + 12)),
+          m_vy(extractInt(bytes, indx + 16)),
+          m_info(extractInt(bytes, indx + 20))
     {
+          indx += 24;
     }
     ~SnapshotData() = default;
 
     operator std::vector<uint8_t>() const
     {
         std::vector<uint8_t> res;
+        res.push_back(m_type);
         res.push_back(m_x);
         res.push_back(m_y);
         res.push_back(m_vx);
@@ -48,11 +52,6 @@ class SnapshotData
                m_vy == b.m_vy && m_info == b.m_info;
     }
 
-    [[nodiscard]] uint32_t getId() const
-    {
-        return m_id;
-    }
-
    private:
     static int extractInt(const std::vector<uint8_t> &bytes, size_t offset)
     {
@@ -63,7 +62,7 @@ class SnapshotData
         return value;
     }
 
-    uint32_t m_id;
+    elementTypes m_type;
     int m_x;
     int m_y;
     int m_vx;

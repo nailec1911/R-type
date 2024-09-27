@@ -13,6 +13,7 @@
 
 #include "ECS/Managers/Component//StructComponent.hpp"
 #include "ECS/using.hpp"
+#include "Renderer/Elements.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
 std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::createSnapshots() const
@@ -22,11 +23,12 @@ std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::createSnapshot
         m_mediator->GetEntitiesSignatures();
 
     for (auto elem : entities) {
-        if (m_mediator->GetEntityRole(elem.first) == "NULL")
+        if (m_mediator->GetEntityRole(elem.first) == elementTypes::NONE)
             continue;
         auto position = m_mediator->GetComponent<Position>(elem.first);
         auto transform = m_mediator->GetComponent<Transform>(elem.first);
-        snapshots[elem.first] = {elem.first, position.x, position.y, transform.velX, transform.velY,0};
+        auto type = m_mediator->GetEntityRole(elem.first);
+        snapshots[elem.first] = {type, position.x, position.y, transform.velX, transform.velY,0};
     }
     return snapshots;
 }
