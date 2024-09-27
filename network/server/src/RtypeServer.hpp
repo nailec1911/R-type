@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <queue>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 #include "../../../gameEngine/Renderer/Events.hpp"
@@ -52,20 +51,20 @@ class RtypeServer
     {
         m_gameServ.start();
     }
-    void sendMaster(std::unordered_map<uint32_t, SnapshotData> eltsMap, int other1, int other2)
+    void sendMaster(const std::unordered_map<uint32_t, SnapshotData>& eltsMap, int other1, int other2)
     {
         m_snapId++;
         asun::message<rtypeNetwork::CustomMessageType> msg{};
 
-        m_gameServ.sendMaster(CustomMessageType::SNAPSHOT, gameServer::Snapshot<SnapshotData, int, 2>(
-            m_snapId, {other1, other2}, std::move(eltsMap)));
+        m_gameServ.sendMaster(CustomMessageType::SNAPSHOT, gameServer::Snapshot<SnapshotData, int, 2, sizeof(int)>(
+            m_snapId, {other1, other2}, eltsMap));
     }
 
    private:
     uint32_t m_snapId{};
     uint8_t m_maxClient;
     std::queue<clientEvent> m_clientsEvents;
-    gameServer::GameServer<SnapshotData, int, 2, CustomMessageType> m_gameServ;
+    gameServer::GameServer<SnapshotData, int, 2, sizeof(int), CustomMessageType> m_gameServ;
     std::vector<uint32_t> m_connectedClients;
 
     void handleClientLogin(

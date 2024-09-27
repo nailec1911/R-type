@@ -25,8 +25,8 @@
 #include <iostream>
 #include "../../network/client/src/RtypeClient.hpp"
 
-Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos) 
-    : m_nbAnim(spriteInfo.frames.size()), m_indexFrame(0), m_display(true)
+Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
+    : m_display(true), m_nbAnim(spriteInfo.frames.size())
 {
     m_texture.loadFromFile(spriteInfo.filepath);
 
@@ -143,9 +143,8 @@ void Renderer::clear(rndr::Color color)
     m_windowSFML.clear(conv_color.at(color));
 }
 
-void Renderer::drawText(std::string text, rndr::Vector2<float> pos, rndr::Color color)
+void Renderer::drawText(std::string  /*text*/, rndr::Vector2<float>  /*pos*/, rndr::Color  /*color*/)
 {
-    return;
 }
 
 void Renderer::loopBackGround()
@@ -175,7 +174,7 @@ void Renderer::loopBackGround()
 std::vector<Event> Renderer::getEvents()
 {
     std::vector<Event> events = {};
-    sf::Event event;
+    sf::Event event{};
 
     while (m_windowSFML.pollEvent(event)) {
         switch (event.type) {
@@ -186,7 +185,7 @@ std::vector<Event> Renderer::getEvents()
                 break;
         }
     }
-    for (const std::pair<int, EventKey> &item : convert_event) {
+    for (std::pair<int, EventKey> item : convert_event) {
         sf::Keyboard::Key key = static_cast<sf::Keyboard::Key>(item.first);
         if (sf::Keyboard::isKeyPressed(key))
             events.push_back({convert_event.at(key), EventState::KeyPressed});

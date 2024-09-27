@@ -10,6 +10,7 @@
 #include "Managers/Entity/EntityManager.hpp"
 #include "Managers/System/SystemManager.hpp"
 #include "using.hpp"
+#include "../Renderer/Elements.hpp"
 
 class Mediator
 {
@@ -94,19 +95,19 @@ class Mediator
         return mSystemManager->GetSystem<T>();
     }
 
-    std::string GetEntityRole(Entity entity)
+    elementTypes GetEntityRole(Entity entity)
     {
         if (mEntityManager->GetSignature(entity).test(PLAYER))
-            return std::string("Player");
+            return elementTypes::PLAYER1;
         if (mEntityManager->GetSignature(entity).test(WALL))
-            return std::string("Wall");
+            return elementTypes::WALL_1;
         if (mEntityManager->GetSignature(entity).test(MONSTER))
-            return std::string("Monster");
+            return elementTypes::RED_MONSTER_LEFT;
         if (mEntityManager->GetSignature(entity).test(BULLET))
-            return std::string("Bullet");
+            return elementTypes::BULLET_P;
         if (mEntityManager->GetSignature(entity).test(HUD))
-            return std::string("HUD element");
-        return std::string("NULL");
+            return elementTypes::BONUS_ITEM;
+        return elementTypes::NONE;
     }
 
     std::unordered_map<Entity, Signature> GetEntitiesSignatures()

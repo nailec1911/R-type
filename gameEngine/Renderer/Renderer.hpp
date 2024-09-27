@@ -21,8 +21,8 @@
 #include <vector>
 
 #include "Events.hpp"
-#include "IRenderer.hpp"
 #include "../../network/client/src/RtypeClient.hpp"
+#include "IRenderer.hpp"
 
 #pragma once
 
@@ -174,4 +174,3 @@ class Renderer final : public rndr::IRenderer
 };
 
 std::vector<asun::message<rtypeNetwork::CustomMessageType>> inputToMessage(const std::vector<Event>& events);
-

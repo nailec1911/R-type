@@ -29,30 +29,30 @@ using clientSession = struct clientSession
     std::chrono::steady_clock::time_point lastHeartBeat;
 };
 
-template <typename Telement, typename Tother, int nb_others>
+template <typename Telement, typename Tother, int nb_others, uint32_t sizeTother>
 class ClientHistory
 {
    public:
-    ClientHistory() : m_Snapshots({Snapshot<Telement, Tother, nb_others>()}) {};
+    ClientHistory() : m_Snapshots({Snapshot<Telement, Tother, nb_others, sizeTother>()}) {};
     ClientHistory(const ClientHistory &) = delete;
     ClientHistory(ClientHistory &&) = delete;
     ClientHistory &operator=(const ClientHistory &) = default;
     ClientHistory &operator=(ClientHistory &&) = default;
     ~ClientHistory() = default;
 
-    Snapshot<Telement, Tother, nb_others> getOldSnap(
-        Snapshot<Telement, Tother, nb_others> &master)
+    Snapshot<Telement, Tother, nb_others, sizeTother> getOldSnap(
+        Snapshot<Telement, Tother, nb_others, sizeTother> &master)
     {
         auto snapVec = std::move(m_Snapshots);
         // m_Snapshots.erase();
         m_Snapshots.push_back(std::move(master));
 
         if (snapVec.empty())
-            return  Snapshot<Telement, Tother, nb_others>();
+            return  Snapshot<Telement, Tother, nb_others, sizeTother>();
 
         for (auto &snap : snapVec) {
             if (time(0) - snap.getCreationTime() > 1) {
-                return Snapshot<Telement, Tother, nb_others>();
+                return Snapshot<Telement, Tother, nb_others, sizeTother>();
             }
             m_Snapshots.push_back(snap);
             if (snap.isAcknowledged()) {
@@ -62,7 +62,7 @@ class ClientHistory
         if (m_Snapshots.size() > 32) {
             m_Snapshots.resize(32);
         }
-        return Snapshot<Telement, Tother, nb_others>();
+        return Snapshot<Telement, Tother, nb_others, sizeTother>();
     }
 
     void acknowledgeSnapshot(int idSnapshot)
@@ -76,21 +76,21 @@ class ClientHistory
     }
 
    private:
-    std::vector<Snapshot<Telement, Tother, nb_others>> m_Snapshots;
+    std::vector<Snapshot<Telement, Tother, nb_others, sizeTother>> m_Snapshots;
 };
 
-template <typename Telement, typename Tother, int nb_others, typename Tmessage>
+template <typename Telement, typename Tother, int nb_others, uint32_t sizeTother, typename Tmessage>
 class GameServer : public asun::AsioUdpServer<Tmessage>
 {
    public:
-    GameServer(uint16_t port) : asun::AsioUdpServer<Tmessage>(port), m_master(Snapshot<Telement, Tother, nb_others>()){};
+    GameServer(uint16_t port) : asun::AsioUdpServer<Tmessage>(port), m_master(Snapshot<Telement, Tother, nb_others, sizeTother>()){};
     GameServer(const GameServer &) = delete;
     GameServer(GameServer &&) = delete;
     GameServer &operator=(const GameServer &) = delete;
     GameServer &operator=(GameServer &&) = delete;
     ~GameServer() = default;
 
-    void sendMaster(Tmessage headerId, Snapshot<Telement, Tother, nb_others> newSnapshot)
+    void sendMaster(Tmessage headerId, Snapshot<Telement, Tother, nb_others, sizeTother> newSnapshot)
     {
         m_master = std::move(newSnapshot);
         for (auto &items : m_clientHistory) {
@@ -129,7 +129,7 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
             .clientProtocol = endpointData,
             .endpoint = msg.first,
             .lastHeartBeat = std::chrono::steady_clock::now()};
-        m_clientHistory[m_lastId] = ClientHistory<Telement, Tother, nb_others>();
+        m_clientHistory[m_lastId] = ClientHistory<Telement, Tother, nb_others, sizeTother>();
         return m_lastId;
     }
 
@@ -149,9 +149,9 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
     uint32_t m_lastId{};
 
     std::unordered_map<uint32_t, clientSession> m_clients;
-    std::unordered_map<uint32_t, ClientHistory<Telement, Tother, nb_others>>
+    std::unordered_map<uint32_t, ClientHistory<Telement, Tother, nb_others, sizeTother>>
         m_clientHistory;
-    Snapshot<Telement, Tother, nb_others> m_master;
+    Snapshot<Telement, Tother, nb_others, sizeTother> m_master;
 
     uint32_t getIdFromEndpoint(asio::ip::udp::endpoint &endpoint)
     {
@@ -181,7 +181,7 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
     };
 
     void sendDeltaDiff(Tmessage headerId,
-        uint32_t clientId, Snapshot<Telement, Tother, nb_others> oldSnap)
+        uint32_t clientId, Snapshot<Telement, Tother, nb_others, sizeTother> oldSnap)
     {
         std::array<Tother, nb_others> diffOthers{0};
         std::bitset<nb_others> updateOthers;
@@ -205,7 +205,7 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
             }
         }
 
-        auto deltaDiff = Snapshot<Telement, Tother, nb_others>(
+        auto deltaDiff = Snapshot<Telement, Tother, nb_others, sizeTother>(
             m_master.getId(), diffOthers, diffElements, updateOthers);
         asun::message<Tmessage> msg{};
         msg.header.id = headerId;
