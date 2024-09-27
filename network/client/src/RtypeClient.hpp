@@ -11,12 +11,17 @@
 #include <unordered_map>
 #include "AsioUdpClient.hpp"
 
+
 namespace rtypeNetwork {
 
 enum class CustomMessageType
 {
+    SHOOT,
+    MOVE,
     OK,
     KO,
+    LOGIN,
+    SNAPSHOT,
 };
 
 class RtypeClient : public asun::AsioUdpClient<CustomMessageType>

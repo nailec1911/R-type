@@ -21,8 +21,7 @@ int main()
     server.start();
     while (true)
     {
-        sleep(1);
-        server.handleMessages();
+       server.handleMessages();
         clientsEvents = server.getClientsEvents();
         rType.getSystems().getInputsSystem()->Update(
             rType.getMediator(), clientsEvents);

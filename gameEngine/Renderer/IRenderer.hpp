@@ -86,6 +86,7 @@ class IRenderer
         std::string text, Vector2<float> pos, Color color = Color::White) = 0;
     virtual Vector2<float> getPostion(uint32_t idSprite) = 0;
     virtual std::vector<Event> getEvents() = 0;
+    virtual bool isWindowOpen() = 0;
 
    protected:
    private:

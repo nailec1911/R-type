@@ -23,12 +23,12 @@
 #include "Events.hpp"
 #include "IRenderer.hpp"
 #include <iostream>
+#include "../../network/client/src/RtypeClient.hpp"
 
 Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos) 
     : m_nbAnim(spriteInfo.frames.size()), m_indexFrame(0), m_display(true)
 {
-    if (!m_texture.loadFromFile(spriteInfo.filepath))
-        std::cout << "yydfhffvh" << std::endl;
+    m_texture.loadFromFile(spriteInfo.filepath);
 
     for (size_t i = 0; i < m_nbAnim; i++) {
         float width = spriteInfo.frames.at(i).y.x - spriteInfo.frames.at(i).x.x;
@@ -80,7 +80,6 @@ Renderer::Renderer(rndr::Vector2<int> size, std::string title, int framRate)
 {
     m_windowSFML.setFramerateLimit(m_frameRate);
     m_windowSize = m_windowSFML.getSize();
-    
 }
 
 void Renderer::setBackgrounds(std::string filepath, float speed)
@@ -90,7 +89,7 @@ void Renderer::setBackgrounds(std::string filepath, float speed)
     m_bgSprites.second.setTexture(m_bgTexture);
     m_bgSprites.first.setPosition(0, 0);
     m_bgSprites.second.setPosition(
-        m_bgSprites.first.getGlobalBounds().width, 0);
+    m_bgSprites.first.getGlobalBounds().width, 0);
     m_bgSpeed = speed;
 }
 
@@ -181,7 +180,7 @@ std::vector<Event> Renderer::getEvents()
     while (m_windowSFML.pollEvent(event)) {
         switch (event.type) {
             case sf::Event::Closed:
-                events.push_back({EventKey::KeyEscape, EventState::KeyPressed});
+                m_windowSFML.close();
                 break;
             default:
                 break;
@@ -192,5 +191,6 @@ std::vector<Event> Renderer::getEvents()
         if (sf::Keyboard::isKeyPressed(key))
             events.push_back({convert_event.at(key), EventState::KeyPressed});
     }
+
     return events;
 }

@@ -13,50 +13,16 @@
 
 #include "../../Message.hpp"
 #include "../../ThreadSafeQueue.hpp"
+#include "../../server/src/AsioUdpServer.hpp"
 
 namespace asun {
-
-class AsioNetworkThread
-{
-   public:
-    AsioNetworkThread() : m_guard(asio::make_work_guard(m_ctx)) {}
-    AsioNetworkThread(AsioNetworkThread &&) = delete;
-    AsioNetworkThread(const AsioNetworkThread &) = delete;
-    AsioNetworkThread &operator=(AsioNetworkThread &&) = delete;
-    AsioNetworkThread &operator=(const AsioNetworkThread &) = delete;
-    virtual ~AsioNetworkThread()
-    {
-        stop();
-    }
-
-    void start()
-    {
-        m_iothread = std::thread([this]() { m_ctx.run(); });
-        std::cout << "[+]Client started !" << std::endl;
-    }
-
-    void stop()
-    {
-        m_ctx.stop();
-        if (m_iothread.joinable()) {
-            m_iothread.join();
-        }
-        std::cout << "[-]Client stoped !" << std::endl;
-    }
-
-   protected:
-    asio::io_context m_ctx;  // NOLINT
-    asio::executor_work_guard<asio::io_context::executor_type>
-        m_guard;             // NOLINT
-    std::thread m_iothread;  // NOLINT
-};
 
 template <typename T>
 class AsioUdpClient : public AsioNetworkThread
 {
    public:
     AsioUdpClient(const std::string &ip, uint16_t port)
-        : AsioNetworkThread(),
+        : AsioNetworkThread(port),
           m_serverEndpoint(asio::ip::address::from_string(ip), port),
           m_socket(m_ctx, m_serverEndpoint.protocol())
     {
