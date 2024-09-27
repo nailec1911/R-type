@@ -79,26 +79,65 @@ class AsioUdpServer : public AsioNetworkThread
     void sendMessage(
         const asio::ip::udp::endpoint &endpoint, const message<T> &msg)
     {
-        m_socket.async_send_to(
-            asio::buffer(&msg.header, sizeof(messageHeader<T>)), endpoint,
-            [this](std::error_code ec, std::size_t  /*length*/) {
-                if (!ec) {
-                    // std::cout << "Sucess\n";
-                }
-            });
+        asio::post(m_ctx, [this, endpoint, msg]() {
+            bool canSend = !m_sendQueue.isEmpty();
+            m_sendQueue.push(msg);
+            if (!canSend) {
+                sendHeader(endpoint);
+            }
+        });
     }
 
-    std::pair<asio::ip::udp::endpoint, asun::message<T>> popReadQueue(void)
+    std::pair<asio::ip::udp::endpoint, asun::message<T>> popReadQueue()
     {
         return m_readQueue.pop();
     }
 
-    size_t getSizeReadQueue(void) const
+    [[nodiscard]] size_t getSizeReadQueue() const
     {
         return m_readQueue.size();
     }
 
    private:
+    void sendBody(const asio::ip::udp::endpoint &clientEndpoint)
+    {
+        m_socket.async_send_to(
+            asio::buffer(
+                m_sendQueue.front().body, m_sendQueue.front().body.size()),
+            clientEndpoint,
+            [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
+                if (!ec) {
+                    m_sendQueue.pop();
+                    // if (!m_sendQueue.isEmpty()) {
+                    //     sendHeader();
+                    // }
+                } else {
+                    std::cerr << ec.message() << std::endl;
+                }
+            });
+    }
+
+    void sendHeader(const asio::ip::udp::endpoint &clientEndpoint)
+    {
+        m_socket.async_send_to(
+            asio::buffer(&m_sendQueue.front().header, sizeof(messageHeader<T>)),
+            clientEndpoint,
+            [this, clientEndpoint](std::error_code ec, [[maybe_unused]] std::size_t length) {
+                if (!ec) {
+                    if (m_sendQueue.front().body.size() > 0) {
+                        sendBody(clientEndpoint);
+                    } else {
+                        m_sendQueue.pop();
+                        //if (!m_sendQueue.isEmpty()) {
+                        //    sendHeader();
+                        //}
+                    }
+                } else {
+                    std::cerr << ec.message() << std::endl;
+                }
+            });
+    }
+
     void readBody()
     {
         m_socket.async_receive_from(
@@ -117,8 +156,7 @@ class AsioUdpServer : public AsioNetworkThread
     void readHeader()
     {
         m_socket.async_receive_from(
-            asio::buffer(
-                &m_readMessage.header, sizeof(asun::messageHeader<T>)),
+            asio::buffer(&m_readMessage.header, sizeof(asun::messageHeader<T>)),
             m_remoteEndpoint,
             [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
@@ -135,7 +173,8 @@ class AsioUdpServer : public AsioNetworkThread
     asio::ip::udp::socket m_socket;
     asio::ip::udp::endpoint m_remoteEndpoint;
 
-    ThreadSafeQueue<std::pair<asio::ip::udp::endpoint, asun::message<T>>> m_readQueue;
+    ThreadSafeQueue<std::pair<asio::ip::udp::endpoint, asun::message<T>>>
+        m_readQueue;
     ThreadSafeQueue<asun::message<T>> m_sendQueue;
 
     message<T> m_readMessage{};
