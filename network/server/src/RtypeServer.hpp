@@ -32,7 +32,7 @@ class RtypeServer
 
     void handleMessages();
 
-    std::queue<clientEvent> getClientsEvents()
+    std::queue<clientEvent> &getClientsEvents()
     {
         return this->m_clientsEvents;
     }

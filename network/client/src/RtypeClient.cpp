@@ -6,8 +6,9 @@
 */
 
 #include "RtypeClient.hpp"
+
 #include <cstdint>
-#include <vector>
+#include <cstdlib>
 
 #include "../../../gameEngine/Renderer/Elements.hpp"
 
@@ -15,9 +16,9 @@ void rtypeNetwork::RtypeClient::handleMessages(Renderer &renderer)
 {
     while (getSizeReadQueue() > 0) {
         auto msg = popReadQueue();
-        std::cout << "received " <<  msg << std::endl;
         if (msg.header.id == CustomMessageType::SNAPSHOT) {
-            uint32_t id = updateGameData(gameServer::Snapshot<SnapshotData, 2>(msg.body), renderer);
+            uint32_t id = updateGameData(
+                gameServer::Snapshot<SnapshotData, 2>(msg.body), renderer);
             asun::message<CustomMessageType> ok;
             ok.header.id = CustomMessageType::SNAP_OK;
             ok << id;
@@ -31,16 +32,16 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
     Renderer &renderer)
 {
     for (auto item : newSnapshot.getElements()) {
-        auto &spriteItem = renderer.getSpriteMap()[item.first];
         rndr::Vector2<float> vec = {
             static_cast<float>(item.second.getXY().x),
             static_cast<float>(item.second.getXY().y)};
-        if (spriteItem) {
-            renderer.setPosition(item.first, vec);
-            continue;;
+        if (renderer.getSpriteMap().find(item.first) ==
+            renderer.getSpriteMap().end()) {
+            renderer.createSprite(
+                item.first, eltInfo.at(item.second.getType()), vec);
+            continue;
         }
-        renderer.createSprite(
-            item.first, eltInfo.at(item.second.getType()), vec);
+        renderer.setPosition(item.first, vec);
     }
     return newSnapshot.getId();
 }
