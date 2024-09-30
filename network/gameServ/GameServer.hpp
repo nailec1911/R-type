@@ -65,7 +65,7 @@ class ClientHistory
         return Snapshot<Telement, nb_others>();
     }
 
-    void acknowledgeSnapshot(int idSnapshot)
+    void acknowledgeSnapshot(uint32_t idSnapshot)
     {
         for (auto &snap : m_Snapshots) {
             if (snap.getId() == idSnapshot) {
@@ -97,6 +97,11 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
             sendClient(headerId, items.first);
         }
     };
+
+    void acknowledgeSnapshot(uint32_t clientId, uint32_t snapId)
+    {
+        m_clientHistory[clientId].acknowledgeSnapshot(snapId);
+    }
 
     std::queue<std::pair<uint32_t, asun::message<Tmessage>>> getMessages()
     {
@@ -166,11 +171,6 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
             }
         }
         return clientId;
-    }
-
-    void acknowledgeSnapshot(uint32_t clientId, int snapId)
-    {
-        m_clientHistory[clientId].acknowledgeSnapshot(snapId);
     }
 
     void sendClient(Tmessage headerId, uint32_t clientId)

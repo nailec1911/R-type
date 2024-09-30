@@ -34,6 +34,9 @@ void rtypeNetwork::RtypeServer::handleMessages()
             case CustomMessageType::SHOOT:
                 handleClientShoot(clientId, content);
                 break;
+            case CustomMessageType::SNAP_OK:
+                handleClientSnapOk(clientId, content);
+                break;
             default:
                 break;
         }
@@ -89,4 +92,12 @@ void rtypeNetwork::RtypeServer::handleClientShoot(
         {.id = clientId,
          .event =
              Event{.key = EventKey::KeyB, .state = EventState::KeyPressed}});
+}
+
+void rtypeNetwork::RtypeServer::handleClientSnapOk(
+    uint32_t clientId, asun::message<CustomMessageType> & msg)
+{
+    uint32_t snapId = 0;
+    msg >> snapId;
+    m_gameServ.acknowledgeSnapshot(clientId, snapId);
 }
