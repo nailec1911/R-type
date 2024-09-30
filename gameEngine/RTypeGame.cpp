@@ -11,7 +11,6 @@
 #include <cstdint>
 #include <unordered_map>
 
-#include "ECS/Managers/Component//StructComponent.hpp"
 #include "ECS/using.hpp"
 #include "Renderer/Elements.hpp"
 #include "Snapshot/SnapshotData.hpp"
@@ -28,7 +27,7 @@ std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::createSnapshot
         auto position = m_mediator->GetComponent<Position>(elem.first);
         auto transform = m_mediator->GetComponent<Transform>(elem.first);
         auto type = m_mediator->GetEntityRole(elem.first);
-        snapshots[elem.first] = {type, position.x, position.y, transform.velX, transform.velY,0};
+        snapshots[elem.first] = {type, position.x, position.y, transform.velX, transform.velY, 0};
     }
     return snapshots;
 }

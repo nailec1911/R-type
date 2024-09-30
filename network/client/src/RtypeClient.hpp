@@ -8,37 +8,31 @@
 #pragma once
 
 #include <cstdint>
-#include <unordered_map>
+
+#include "../../../gameEngine/Renderer/Renderer.hpp"
+#include "../../../gameEngine/Snapshot/SnapshotData.hpp"
+#include "../../gameServ/Snapshot.hpp"
 #include "AsioUdpClient.hpp"
 
-
 namespace rtypeNetwork {
-
-enum class CustomMessageType
-{
-    SHOOT,
-    MOVE,
-    OK,
-    KO,
-    LOGIN,
-    SNAPSHOT,
-};
-
 class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
 {
    public:
     RtypeClient(const std::string &ip, uint16_t port)
         : asun::AsioUdpClient<CustomMessageType>(ip, port)
-    {}
+    {
+    }
     RtypeClient(RtypeClient &&) = delete;
     RtypeClient(const RtypeClient &) = delete;
     RtypeClient &operator=(RtypeClient &&) = delete;
     RtypeClient &operator=(const RtypeClient &) = delete;
     ~RtypeClient() override = default;
 
-    void handleMessages() override {
-    }
+    void handleMessages(Renderer &renderer);
 
    private:
+    static void updateGameData(
+        const gameServer::Snapshot<SnapshotData, 2> &newSnapshot,
+        Renderer &renderer);
 };
 }  // namespace rtypeNetwork

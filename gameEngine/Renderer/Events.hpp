@@ -10,6 +10,7 @@
 /**
  * @brief Event Key enumeration, any other key should be ignored
  */
+#include <cstdint>
 #include <sys/types.h>
 enum class EventKey : u_int8_t
 {
@@ -70,4 +71,10 @@ struct Event
 
     /// State of the Event
     EventState state;
+};
+
+struct clientEvent
+{
+    uint32_t id;
+    Event event;
 };

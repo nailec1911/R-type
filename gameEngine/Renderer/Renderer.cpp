@@ -22,8 +22,6 @@
 
 #include "Events.hpp"
 #include "IRenderer.hpp"
-#include <iostream>
-#include "../../network/client/src/RtypeClient.hpp"
 
 Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
     : m_display(true), m_nbAnim(spriteInfo.frames.size())
@@ -32,9 +30,12 @@ Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
 
     for (size_t i = 0; i < m_nbAnim; i++) {
         float width = spriteInfo.frames.at(i).y.x - spriteInfo.frames.at(i).x.x;
-        float height = spriteInfo.frames.at(i).y.y - spriteInfo.frames.at(i).x.y;
+        float height =
+            spriteInfo.frames.at(i).y.y - spriteInfo.frames.at(i).x.y;
         sf::IntRect rectSourceSprite(
-            spriteInfo.frames.at(i).x.x, spriteInfo.frames.at(i).x.y, width, height);
+            static_cast<int>(spriteInfo.frames.at(i).x.x),
+            static_cast<int>(spriteInfo.frames.at(i).x.y),
+            static_cast<int>(width), static_cast<int>(height));
         sf::Sprite sprite(m_texture, rectSourceSprite);
         sprite.setScale(spriteInfo.scale, spriteInfo.scale);
         sprite.setPosition(pos.x, pos.y);
@@ -76,7 +77,9 @@ sf::Sprite &Sprite::getSprite()
 }
 
 Renderer::Renderer(rndr::Vector2<int> size, std::string title, int framRate)
-    : m_windowSFML(sf::VideoMode(size.x, size.y), title), m_deltaTime(1.0F / static_cast<float>(framRate)), m_frameRate(framRate)
+    : m_windowSFML(sf::VideoMode(size.x, size.y), title),
+      m_deltaTime(1.0F / static_cast<float>(framRate)),
+      m_frameRate(framRate)
 {
     m_windowSFML.setFramerateLimit(m_frameRate);
     m_windowSize = m_windowSFML.getSize();
@@ -89,7 +92,7 @@ void Renderer::setBackgrounds(std::string filepath, float speed)
     m_bgSprites.second.setTexture(m_bgTexture);
     m_bgSprites.first.setPosition(0, 0);
     m_bgSprites.second.setPosition(
-    m_bgSprites.first.getGlobalBounds().width, 0);
+        m_bgSprites.first.getGlobalBounds().width, 0);
     m_bgSpeed = speed;
 }
 
@@ -104,7 +107,8 @@ void Renderer::refresh()
     m_windowSFML.display();
 }
 
-void Renderer::setPosition(std::uint32_t idSprite, rndr::Vector2<float> newPosition)
+void Renderer::setPosition(
+    std::uint32_t idSprite, rndr::Vector2<float> newPosition)
 {
     m_spriteMap[idSprite]->setSpritePosition(newPosition);
 }
@@ -143,7 +147,8 @@ void Renderer::clear(rndr::Color color)
     m_windowSFML.clear(conv_color.at(color));
 }
 
-void Renderer::drawText(std::string  /*text*/, rndr::Vector2<float>  /*pos*/, rndr::Color  /*color*/)
+void Renderer::drawText(
+    std::string /*text*/, rndr::Vector2<float> /*pos*/, rndr::Color /*color*/)
 {
 }
 

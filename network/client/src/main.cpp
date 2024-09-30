@@ -5,19 +5,21 @@
 ** main
 */
 
-#include "RtypeClient.hpp"
 #include "../../../gameEngine/Renderer/Renderer.hpp"
+#include "RtypeClient.hpp"
 
 #include "../../Message.hpp"
+
+std::vector<asun::message<CustomMessageType>> inputToMessage(const std::vector<Event>& events);
 
 int main()
 {
     Renderer renderer({1920, 1080}, "Rtype");
-    asun::message<rtypeNetwork::CustomMessageType> msg{};
+    asun::message<CustomMessageType> msg{};
     rtypeNetwork::RtypeClient client("127.0.0.1", 4444);
-    msg.header.id = rtypeNetwork::CustomMessageType::LOGIN;
+    msg.header.id = CustomMessageType::LOGIN;
     msg << "marius";
-    std::vector<asun::message<rtypeNetwork::CustomMessageType>> eventMessage;
+    std::vector<asun::message<CustomMessageType>> eventMessage;
     std::vector<Event> events;
     renderer.setBackgrounds("../gameEngine/Renderer/assets/background_5.png", 50);
 
@@ -25,6 +27,7 @@ int main()
     client.sendMessage(msg);
     while (renderer.isWindowOpen())
     {
+        client.handleMessages(renderer);
         renderer.clear();
         events = renderer.getEvents();
         eventMessage = inputToMessage(events);

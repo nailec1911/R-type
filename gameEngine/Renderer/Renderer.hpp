@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "Events.hpp"
-#include "../../network/client/src/RtypeClient.hpp"
 #include "IRenderer.hpp"
 
 #pragma once
@@ -154,7 +153,12 @@ class Renderer final : public rndr::IRenderer
     {
         return m_windowSFML.isOpen();
     }
-    std::vector<Event> getEvents() override;
+    std::vector<Event> getEvents();
+
+    std::unordered_map<uint32_t, std::unique_ptr<Sprite>> &getSpriteMap()
+    {
+        return m_spriteMap;
+    }
 
    protected:
    private:
@@ -172,5 +176,3 @@ class Renderer final : public rndr::IRenderer
     int m_frameRate;
 
 };
-
-std::vector<asun::message<rtypeNetwork::CustomMessageType>> inputToMessage(const std::vector<Event>& events);
