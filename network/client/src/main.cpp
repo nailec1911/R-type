@@ -34,7 +34,7 @@ int main()
         renderer.refresh();
         for (const auto& elem : eventMessage) {
             client.sendMessage(elem);
-            std::cout << elem << std::endl;
+            std::cout << "send: " << elem << std::endl;
         }
     }
     return 0;

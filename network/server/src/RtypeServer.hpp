@@ -41,10 +41,10 @@ class RtypeServer
     {
         m_gameServ.start();
     }
+
     void sendMaster(const std::unordered_map<uint32_t, SnapshotData>& eltsMap, int other1, int other2)
     {
         m_snapId++;
-        asun::message<CustomMessageType> msg{};
 
         m_gameServ.sendMaster(CustomMessageType::SNAPSHOT, gameServer::Snapshot<SnapshotData, 2>(
             m_snapId, {other1, other2}, eltsMap));
@@ -62,6 +62,8 @@ class RtypeServer
     void handleClientMove(
         uint32_t clientId, asun::message<CustomMessageType> &msg);
     void handleClientShoot(
+        uint32_t clientId, asun::message<CustomMessageType> &msg);
+    void handleClientSnapOk(
         uint32_t clientId, asun::message<CustomMessageType> &msg);
     bool isClientConnected(uint32_t clientId)
     {

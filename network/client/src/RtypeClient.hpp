@@ -31,7 +31,7 @@ class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
     void handleMessages(Renderer &renderer);
 
    private:
-    static void updateGameData(
+    static uint32_t updateGameData(
         const gameServer::Snapshot<SnapshotData, 2> &newSnapshot,
         Renderer &renderer);
 };

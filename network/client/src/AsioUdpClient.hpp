@@ -106,7 +106,6 @@ class AsioUdpClient : public AsioNetworkThread
             m_serverEndpoint,
             [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
-                    std::cout << m_readMessage << std::endl;
                     m_readQueue.push(m_readMessage);
                     readHeader();
                 }

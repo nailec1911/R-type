@@ -28,6 +28,7 @@ enum class CustomMessageType
     KO,
     LOGIN,
     SNAPSHOT,
+    SNAP_OK,
 };
 
 namespace gameServer {
