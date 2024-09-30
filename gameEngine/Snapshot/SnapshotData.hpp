@@ -9,7 +9,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 #include <vector>
+
 #include "../Renderer/Elements.hpp"
 
 class SnapshotData
@@ -22,7 +24,7 @@ class SnapshotData
     SnapshotData &operator=(SnapshotData &&) = default;
     SnapshotData(elementTypes type, int x, int y, int vx, int vy, int info)
         : m_type(type), m_x(x), m_y(y), m_vx(vx), m_vy(vy), m_info(info){};
-    SnapshotData(const std::vector<uint8_t> &bytes, size_t &indx)
+    SnapshotData(const std::vector<uint8_t> &bytes, size_t & indx)
         : m_type(static_cast<elementTypes>(extractInt(bytes, indx + 0))),
           m_x(extractInt(bytes, indx + 4)),
           m_y(extractInt(bytes, indx + 8)),
@@ -30,7 +32,7 @@ class SnapshotData
           m_vy(extractInt(bytes, indx + 16)),
           m_info(extractInt(bytes, indx + 20))
     {
-          indx += 24;
+        indx += 24;
     }
     ~SnapshotData() = default;
 
@@ -50,6 +52,16 @@ class SnapshotData
     {
         return m_x == b.m_x && m_y == b.m_y && m_vx == b.m_vx &&
                m_vy == b.m_vy && m_info == b.m_info;
+    }
+
+    rndr::Vector2<int> getXY()
+    {
+        return {m_x, m_y};
+    }
+
+    elementTypes getType()
+    {
+        return m_type;
     }
 
    private:

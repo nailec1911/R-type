@@ -16,7 +16,7 @@ int main()
 {
     rtypeNetwork::RtypeServer server(4444, 5);
     gameEngine::RTypeGame rType;
-    std::queue<rtypeNetwork::clientEvent> clientsEvents;
+    std::queue<clientEvent> clientsEvents;
     rType.initGameRules();
     server.start();
     while (true)
@@ -29,6 +29,7 @@ int main()
         rType.getSystems().getCollisionSystem()->Update(rType.getMediator());
         std::unordered_map<uint32_t, SnapshotData> snapshots = rType.createSnapshots();
         server.sendMaster(snapshots, 1, 2);
+        usleep(1000);
     }
     return 0;
 }

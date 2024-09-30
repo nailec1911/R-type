@@ -38,9 +38,6 @@ class AsioUdpClient : public AsioNetworkThread
         AsioNetworkThread::stop();
     }
 
-    virtual void handleMessages() = 0;
-
-    // protected:
     void sendMessage(const message<T> &msg)
     {
         asio::post(m_ctx, [this, msg]() {
@@ -50,6 +47,17 @@ class AsioUdpClient : public AsioNetworkThread
                 sendHeader();
             }
         });
+    }
+
+   protected:
+    asun::message<T> popReadQueue(void)
+    {
+        return m_readQueue.pop();
+    }
+
+    size_t getSizeReadQueue(void) const
+    {
+        return m_readQueue.size();
     }
 
    private:
@@ -98,6 +106,7 @@ class AsioUdpClient : public AsioNetworkThread
             m_serverEndpoint,
             [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
+                    std::cout << m_readMessage << std::endl;
                     m_readQueue.push(m_readMessage);
                     readHeader();
                 }
@@ -112,6 +121,7 @@ class AsioUdpClient : public AsioNetworkThread
             [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
                     if (m_readMessage.header.size > 0) {
+                        m_readMessage.body.resize(m_readMessage.header.size);
                         readBody();
                     } else {
                         m_readQueue.push(m_readMessage);

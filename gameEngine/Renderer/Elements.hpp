@@ -7,9 +7,7 @@
 
 #pragma once
 
-#include <map>
-#include <string>
-#include <vector>
+#include <unordered_map>
 
 #include "IRenderer.hpp"
 
@@ -57,7 +55,7 @@ enum elementTypes
     NONE,
 };
 
-const std::map<elementTypes, rndr::elementInfo> eltInfo{
+const std::unordered_map<elementTypes, rndr::elementInfo> eltInfo{
     {PLAYER1,
      {"gameEngine/Renderer/assets/sprites/r-typesheet42.gif",
       {{{67, 3}, {98, 14}}},

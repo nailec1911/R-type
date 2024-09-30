@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <cassert>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -32,14 +31,14 @@ struct message
 
     [[nodiscard]] std::size_t size() const
     {
-        return sizeof(messageHeader<T>) + body.size();
+        return body.size();
     }
 
     friend std::ostream &operator<<(std::ostream &os, const message<T> &msg)
     {
         os << "ID: " << static_cast<int>(msg.header.id)
-           << " Size: " << msg.header.size << " Content: " << msg.body.data()
-           << std::endl;
+           << " Size: " << msg.header.size << " Content: [" << msg.body.data()
+           << "]" << std::endl;
         return os;
     };
 
@@ -58,6 +57,19 @@ struct message
         std::size_t bodySize = msg.body.size();
         msg.body.resize(bodySize + sizeof(DataType));
         std::memcpy(msg.body.data() + bodySize, &data, sizeof(DataType));
+        msg.header.size = msg.size();
+
+        return msg;
+    }
+
+    friend message<T> &operator<<(
+        message<T> &msg, const std::vector<uint8_t> &data)
+    {
+        std::size_t bodySize = msg.body.size();
+        msg.body.resize(bodySize + data.size());  // Resize to fit the new data
+        std::memcpy(
+            msg.body.data() + bodySize, data.data(),
+            data.size());  // Copy the vector contents
         msg.header.size = msg.size();
 
         return msg;
