@@ -155,7 +155,7 @@ class Renderer final : public rndr::IRenderer
     }
     std::vector<Event> getEvents();
 
-    std::unordered_map<uint32_t, std::unique_ptr<Sprite>> &getSpriteMap()
+    const std::unordered_map<uint32_t, std::unique_ptr<Sprite>> &getSpriteMap()
     {
         return m_spriteMap;
     }

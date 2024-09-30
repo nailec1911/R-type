@@ -36,17 +36,26 @@ class SnapshotData
     }
     ~SnapshotData() = default;
 
-    operator std::vector<uint8_t>() const
-    {
-        std::vector<uint8_t> res;
-        res.push_back(m_type);
-        res.push_back(m_x);
-        res.push_back(m_y);
-        res.push_back(m_vx);
-        res.push_back(m_vy);
-        res.push_back(m_info);
-        return res;
+operator std::vector<uint8_t>() const
+{
+    std::vector<uint8_t> res;
+
+    auto appendIntToVector = [&res](int value) {
+        res.push_back(static_cast<uint8_t>((value >> 0)  & 0xFF));
+        res.push_back(static_cast<uint8_t>((value >> 8)  & 0xFF));
+        res.push_back(static_cast<uint8_t>((value >> 16) & 0xFF));
+        res.push_back(static_cast<uint8_t>((value >> 24) & 0xFF));
     };
+
+    appendIntToVector(m_type);
+    appendIntToVector(m_x);
+    appendIntToVector(m_y);
+    appendIntToVector(m_vx);
+    appendIntToVector(m_vy);
+    appendIntToVector(m_info);
+
+    return res;
+}
 
     bool operator==(const SnapshotData &b) const
     {
