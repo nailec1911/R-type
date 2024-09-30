@@ -18,7 +18,6 @@ void rtypeNetwork::RtypeServer::handleMessages()
         uint32_t clientId = msg.first;
         auto content = msg.second;
         msgQueue.pop();
-        std::cout << msg.second << std::endl;
         if (content.header.id == CustomMessageType::LOGIN) {
             handleClientLogin(clientId, content);
             continue;
@@ -51,7 +50,7 @@ void rtypeNetwork::RtypeServer::handleClientLogin(
         return;
     }
     if (m_gameServ.getNbClient() < m_maxClient) {
-        std::cout << "client added" << std::endl;
+        std::cout << "client added" << clientId << std::endl;
         m_connectedClients.emplace_back(clientId);
         return;
     }

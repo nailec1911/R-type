@@ -45,7 +45,7 @@ class ClientHistory
     {
         auto snapVec = std::move(m_Snapshots);
         // m_Snapshots.erase();
-        m_Snapshots.push_back(std::move(master));
+        m_Snapshots.push_back(master);
 
         if (snapVec.empty())
             return  Snapshot<Telement, nb_others>();
@@ -199,8 +199,8 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
         std::unordered_map<uint32_t, Telement> oldElements = oldSnap.getElements();
         std::unordered_map<uint32_t, Telement> masterElements = m_master.getElements();
 
-        for (auto elt : oldElements) {
-            if (elt.second != masterElements[elt.first]) {
+        for (auto elt : masterElements) {
+            if (elt.second != oldElements[elt.first]) {
                 diffElements[elt.first] = masterElements[elt.first];
             }
         }
@@ -210,16 +210,6 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
         asun::message<Tmessage> msg{};
         msg.header.id = headerId;
         msg << deltaDiff.toMessage();
-
-        std::cout << "after overload" << std::endl;
-        for (size_t i = 0; i < msg.body.size(); i++) {
-            std::cout << "- "<< static_cast<int>(msg.body[i]) << std::endl;
-        }
-
-        std::cout << "deltaDiff: [" << deltaDiff.getId() << "]" << std::endl;
-        std::cout << "others:" << deltaDiff.getOthers().at(0) << ' ' << deltaDiff.getOthers().at(1) << std::endl;
-        std::cout << "nbElts:" << deltaDiff.getElements().size() << std::endl;
-        std::cout << "master msg: " << msg << std::endl;
         this->sendMessage(m_clients[clientId].endpoint, msg);
     }
 };

@@ -29,6 +29,7 @@ enum class CustomMessageType
     LOGIN,
     SNAPSHOT,
     SNAP_OK,
+    NONE,
 };
 
 namespace gameServer {
@@ -97,11 +98,11 @@ class Snapshot
     Snapshot &operator=(Snapshot &&) = default;
     Snapshot(
         uint32_t id, std::array<int, nb_others> otherInfo,
-        std::unordered_map<uint32_t, Telement> m_eltsMap,
+        std::unordered_map<uint32_t, Telement> eltsMap,
         std::bitset<nb_others> otherUpadte = std::bitset<nb_others>().flip())
         : m_otherUpadte(otherUpadte),
           m_otherInfo(otherInfo),
-          m_eltsMap(m_eltsMap),
+          m_eltsMap(eltsMap),
           m_timestamp(time(0)),
           m_id(id){};
     ~Snapshot() = default;
@@ -109,13 +110,7 @@ class Snapshot
     {
         size_t indx = 0;
         m_id = extractUint32(bytes, indx);
-        std::cout << "id: " << m_id << std::endl;
-
-        for (size_t i = 0; i < bytes.size(); i++) {
-            std::cout << "- "<< static_cast<int>(bytes[i]) << std::endl;
-        }
         for (int i = 0; i < nb_others; i++) {
-            std::cout << indx << std::endl;
             if (bytes.at(indx) == 0) {
                 indx += 1;
                 continue;
@@ -123,14 +118,7 @@ class Snapshot
             indx += 1;
             m_otherInfo[i] = extractUint32(bytes , indx);
         }
-        std::cout << indx << std::endl;
-        std::cout << "others work" << std::endl;
-        std::cout << "others:" << m_otherInfo.at(0) << ' ' << m_otherInfo.at(1) << std::endl;
-
         uint32_t nbEntity = extractUint32(bytes, indx);
-        std::cout << "nb entity:" << nbEntity << std::endl;
-
-
         for (size_t i = 0; i < nbEntity; i++) {
             uint32_t id = extractUint32(bytes, indx);
             try {
@@ -140,7 +128,6 @@ class Snapshot
                 std::cerr << "Parsing failed" << std::endl;
             }
         }
-        std::cout << "elts size:" << m_eltsMap.size() << std::endl;
 
     }
 
@@ -186,7 +173,8 @@ class Snapshot
         auto nbElts = intToVector(m_eltsMap.size());
         res.insert(res.end(), nbElts.begin(), nbElts.end());
         for (auto &elt : m_eltsMap) {
-            res.push_back(elt.first);
+            auto eltId = intToVector(elt.first);
+            res.insert(res.end(), eltId.begin(), eltId.end());
             auto toAdd = static_cast<std::vector<uint8_t>>(elt.second);
             res.insert(res.end(), toAdd.begin(), toAdd.end());
         }

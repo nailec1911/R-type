@@ -79,8 +79,6 @@ class AsioUdpServer : public AsioNetworkThread
     void sendMessage(
         const asio::ip::udp::endpoint &endpoint, const message<T> &msg)
     {
-        std::cout << "send message" << std::endl;
-        std::cout << msg << std::endl;
         asio::post(m_ctx, [this, endpoint, msg]() {
             bool canSend = !m_sendQueue.isEmpty();
             m_sendQueue.push(msg);
@@ -109,8 +107,6 @@ class AsioUdpServer : public AsioNetworkThread
             clientEndpoint,
             [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
-                    std::cout << "body sended" << std::endl;
-                    std::cout << m_sendQueue.front() << std::endl;
                     m_sendQueue.pop();
                     // if (!m_sendQueue.isEmpty()) {
                     //     sendHeader();
@@ -128,7 +124,6 @@ class AsioUdpServer : public AsioNetworkThread
             clientEndpoint,
             [this, clientEndpoint](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
-                    std::cout << "header sended" << std::endl;
                     if (m_sendQueue.front().body.size() > 0) {
                         sendBody(clientEndpoint);
                     } else {

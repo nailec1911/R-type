@@ -37,8 +37,7 @@ struct message
     friend std::ostream &operator<<(std::ostream &os, const message<T> &msg)
     {
         os << "ID: " << static_cast<int>(msg.header.id)
-           << " Size: " << msg.header.size << " Content: [" << msg.body.data()
-           << "]" << std::endl;
+           << " Size: " << msg.header.size << std::endl;
         return os;
     };
 
