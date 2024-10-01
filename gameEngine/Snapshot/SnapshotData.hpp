@@ -9,7 +9,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <utility>
 #include <vector>
 
 #include "../Renderer/Elements.hpp"

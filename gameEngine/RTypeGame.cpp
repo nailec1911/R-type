@@ -9,15 +9,29 @@
 
 #include <chrono>
 #include <cstdint>
+#include <thread>
 #include <unordered_map>
 
 #include "ECS/using.hpp"
 #include "Renderer/Elements.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
-std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::createSnapshots() const
+gameEngine::RTypeGame::RTypeGame()
 {
-    std::unordered_map<uint32_t, SnapshotData> snapshots;
+    m_timeManagerThread = std::thread([this]() {
+        this->manageTime();
+    });
+}
+
+gameEngine::RTypeGame::~RTypeGame()
+{
+    if (m_timeManagerThread.joinable())
+        m_timeManagerThread.join();
+}
+
+std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::createSnapshots()
+{
+    std::unordered_map<uint32_t, SnapshotData> snapshots{};
     std::unordered_map<Entity, Signature> entities =
         m_mediator->GetEntitiesSignatures();
 

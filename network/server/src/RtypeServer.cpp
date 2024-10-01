@@ -6,9 +6,46 @@
 */
 
 #include "RtypeServer.hpp"
+
 #include <asio/ip/udp.hpp>
+#include <chrono>
 #include <cstdint>
 #include <string>
+#include <thread>
+
+rtypeNetwork::RtypeServer::RtypeServer(uint16_t port, uint8_t maxClient)
+    : m_maxClient(maxClient), m_gameServ(port)
+{
+    m_tickRateThread = std::thread([this]() {
+        this->manageTickRate();
+    });
+}
+
+rtypeNetwork::RtypeServer::~RtypeServer()
+{
+    if (m_tickRateThread.joinable())
+        m_tickRateThread.join();
+}
+
+void rtypeNetwork::RtypeServer::manageTickRate()
+{
+    using chrono = std::chrono::steady_clock;
+    const int tickRate = 128;
+    const auto tickDuration = std::chrono::duration_cast<chrono::duration>(
+        std::chrono::duration<double>(1.0 / tickRate));
+    auto nextTick = chrono::now();
+    while (true) {
+        auto start = chrono::now();
+        this->sendMaster(this->m_snapshots, 1, 2);
+        auto elapsedTime = chrono::now() - start;
+        nextTick += tickDuration;
+        if (elapsedTime < tickDuration) {
+            std::this_thread::sleep_until(nextTick);
+        } else {
+            nextTick = chrono::now();
+        }
+    }
+}
 
 void rtypeNetwork::RtypeServer::handleMessages()
 {
@@ -23,7 +60,8 @@ void rtypeNetwork::RtypeServer::handleMessages()
             continue;
         }
         if (!isClientConnected(clientId)) {
-            std::cerr << "why is this client not connected" << clientId << std::endl;
+            std::cerr << "why is this client not connected" << clientId
+                      << std::endl;
             continue;
         }
         switch (content.header.id) {
@@ -94,7 +132,7 @@ void rtypeNetwork::RtypeServer::handleClientShoot(
 }
 
 void rtypeNetwork::RtypeServer::handleClientSnapOk(
-    uint32_t clientId, asun::message<CustomMessageType> & msg)
+    uint32_t clientId, asun::message<CustomMessageType> &msg)
 {
     uint32_t snapId = 0;
     msg >> snapId;
