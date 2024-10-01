@@ -8,7 +8,9 @@
 #pragma once
 
 #include <cstdint>
+#include <thread>
 #include <unordered_map>
+
 #include "ECS/Managers/System/Systems.hpp"
 #include "ECS/Mediator.hpp"
 #include "Snapshot/SnapshotData.hpp"
@@ -45,11 +47,11 @@ class SystemsFactory
 class RTypeGame
 {
    public:
-    RTypeGame() = default;
-    ~RTypeGame() = default;
-    RTypeGame(const RTypeGame &) = default;
+    RTypeGame();
+    ~RTypeGame();
+    RTypeGame(const RTypeGame &) = delete;
     RTypeGame(RTypeGame &&) = delete;
-    RTypeGame &operator=(const RTypeGame &) = default;
+    RTypeGame &operator=(const RTypeGame &) = delete;
     RTypeGame &operator=(RTypeGame &&) = delete;
 
     enum class SystemType
@@ -62,8 +64,7 @@ class RTypeGame
     void initGameRules(void);
     void initSystemSignature(const SystemType &type);
     void initHUDEntities(void);
-    [[nodiscard]] std::unordered_map<uint32_t, SnapshotData> createSnapshots() const;
-    void manageTime(void);
+    [[nodiscard]] std::unordered_map<uint32_t, SnapshotData> createSnapshots();
 
     std::shared_ptr<Mediator> getMediator(void)
     {
@@ -81,5 +82,8 @@ class RTypeGame
     time_t m_start_time{};
     std::shared_ptr<Mediator> m_mediator;
     gameEngine::SystemsFactory m_systems;
+    std::thread m_timeManagerThread;
+    
+    void manageTime(void);
 };
 }  // namespace gameEngine

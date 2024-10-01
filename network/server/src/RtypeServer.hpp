@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -20,15 +21,12 @@ namespace rtypeNetwork {
 class RtypeServer
 {
    public:
-    RtypeServer(uint16_t port, uint8_t maxClient)
-        : m_maxClient(maxClient), m_gameServ(port)
-    {
-    }
+    RtypeServer(uint16_t port, uint8_t maxClient);
     RtypeServer(RtypeServer &&) = delete;
     RtypeServer(const RtypeServer &) = delete;
     RtypeServer &operator=(RtypeServer &&) = delete;
     RtypeServer &operator=(const RtypeServer &) = delete;
-    ~RtypeServer() = default;
+    ~RtypeServer();
 
     void handleMessages();
 
@@ -50,12 +48,20 @@ class RtypeServer
             m_snapId, {other1, other2}, eltsMap));
     }
 
+
+    void setSnapshots(std::unordered_map<uint32_t, SnapshotData> &snapshots)
+    {
+        this->m_snapshots = snapshots;
+    }
+
    private:
     uint32_t m_snapId{0};
     uint8_t m_maxClient;
     std::queue<clientEvent> m_clientsEvents;
     gameServer::GameServer<SnapshotData, 2, CustomMessageType> m_gameServ;
     std::vector<uint32_t> m_connectedClients;
+    std::thread m_tickRateThread;
+    std::unordered_map<uint32_t, SnapshotData> m_snapshots;
 
     void handleClientLogin(
         uint32_t clientId, asun::message<CustomMessageType> &msg);
@@ -71,5 +77,6 @@ class RtypeServer
                    m_connectedClients.begin(), m_connectedClients.end(),
                    clientId) != m_connectedClients.end();
     }
+    void manageTickRate();
 };
 }  // namespace rtypeNetwork

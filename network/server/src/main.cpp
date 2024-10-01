@@ -5,11 +5,10 @@
 ** main
 */
 
-#include <cstdint>
-#include <unordered_map>
-
 #include "../../../gameEngine/RTypeGame.hpp"
 #include "RtypeServer.hpp"
+
+#include <unistd.h>
 
 int main()
 {
@@ -24,10 +23,8 @@ int main()
             rType.getMediator(), clientsEvents);
         rType.getSystems().getMotionSystem()->Update(1, rType.getMediator());
         rType.getSystems().getCollisionSystem()->Update(rType.getMediator());
-        std::unordered_map<uint32_t, SnapshotData> snapshots =
-            rType.createSnapshots();
-        server.sendMaster(snapshots, 1, 2);
-        usleep(10000);
+        auto snapshots = rType.createSnapshots();
+        server.setSnapshots(snapshots);
     }
     return 0;
 }
