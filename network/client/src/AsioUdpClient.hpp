@@ -124,6 +124,7 @@ class AsioUdpClient : public AsioNetworkThread
                         readBody();
                     } else {
                         m_readQueue.push(m_readMessage);
+                        readHeader();
                     }
                 }
             });

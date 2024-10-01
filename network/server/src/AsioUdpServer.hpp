@@ -122,15 +122,16 @@ class AsioUdpServer : public AsioNetworkThread
         m_socket.async_send_to(
             asio::buffer(&m_sendQueue.front().header, sizeof(messageHeader<T>)),
             clientEndpoint,
-            [this, clientEndpoint](std::error_code ec, [[maybe_unused]] std::size_t length) {
+            [this, clientEndpoint](
+                std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
                     if (m_sendQueue.front().body.size() > 0) {
                         sendBody(clientEndpoint);
                     } else {
                         m_sendQueue.pop();
-                        //if (!m_sendQueue.isEmpty()) {
-                        //    sendHeader();
-                        //}
+                        // if (!m_sendQueue.isEmpty()) {
+                        //     sendHeader();
+                        // }
                     }
                 } else {
                     std::cerr << ec.message() << std::endl;
@@ -164,7 +165,8 @@ class AsioUdpServer : public AsioNetworkThread
                         m_readMessage.body.resize(m_readMessage.header.size);
                         readBody();
                     } else {
-                        std::cerr << "[-]Header error" << std::endl;
+                        m_readQueue.push({m_remoteEndpoint, m_readMessage});
+                        readHeader();
                     }
                 }
             });
