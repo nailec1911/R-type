@@ -79,13 +79,8 @@ class AsioUdpServer : public AsioNetworkThread
     void sendMessage(
         const asio::ip::udp::endpoint &endpoint, const message<T> &msg)
     {
-        asio::post(m_ctx, [this, endpoint, msg]() {
-            bool canSend = !m_sendQueue.isEmpty();
-            m_sendQueue.push(msg);
-            if (!canSend) {
-                sendHeader(endpoint);
-            }
-        });
+        asio::post(
+            m_ctx, [this, endpoint, msg]() { sendHeader(endpoint, msg); });
     }
 
     std::pair<asio::ip::udp::endpoint, asun::message<T>> popReadQueue()
@@ -99,35 +94,36 @@ class AsioUdpServer : public AsioNetworkThread
     }
 
    private:
-    void sendBody(const asio::ip::udp::endpoint &clientEndpoint)
+    void sendBody(
+        const asio::ip::udp::endpoint &clientEndpoint,
+        const asun::message<T> &msg)
     {
-        std::error_code ec;
-        m_socket.send_to(
-            asio::buffer(
-                m_sendQueue.front().body, m_sendQueue.front().body.size()),
-            clientEndpoint, 0, ec);
-        if (!ec) {
-            m_sendQueue.pop();
-        } else {
-            std::cerr << ec.message() << std::endl;
-        }
+        m_socket.async_send_to(
+            asio::buffer(msg.body, msg.body.size()), clientEndpoint,
+            [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
+                if (!ec) {
+                } else {
+                    std::cerr << ec.message() << std::endl;
+                }
+            });
     }
 
-    void sendHeader(const asio::ip::udp::endpoint &clientEndpoint)
+    void sendHeader(
+        const asio::ip::udp::endpoint &clientEndpoint,
+        const asun::message<T> &msg)
     {
-        std::error_code ec;
-        m_socket.send_to(
-            asio::buffer(&m_sendQueue.front().header, sizeof(messageHeader<T>)),
-            clientEndpoint, 0, ec);
-        if (!ec) {
-            if (m_sendQueue.front().body.size() > 0) {
-                sendBody(clientEndpoint);
-            } else {
-                m_sendQueue.pop();
-            }
-        } else {
-            std::cerr << ec.message() << std::endl;
-        }
+        m_socket.async_send_to(
+            asio::buffer(&msg.header, sizeof(messageHeader<T>)), clientEndpoint,
+            [this, msg, clientEndpoint](
+                std::error_code ec, [[maybe_unused]] std::size_t length) {
+                if (!ec) {
+                    if (msg.header.size > 0) {
+                        sendBody(clientEndpoint, msg);
+                    }
+                } else {
+                    std::cerr << ec.message() << std::endl;
+                }
+            });
     }
 
     void readBody()
