@@ -36,11 +36,9 @@ std::vector<asun::message<CustomMessageType>> inputToMessage(
             break;
         case EventKey::KeyB:
             newMsg.header.id = CustomMessageType::SHOOT;
-            newMsg << "SHOOT";
             break;
         default:
             newMsg.header.id = CustomMessageType::NONE;
-            newMsg << "NONE";
             break;
         }
         eventMessages.push_back(newMsg);
