@@ -67,6 +67,11 @@ void gameEngine::RTypeGame::initSystemSignature(const SystemType &type)
         m_mediator->SetSystemSignature<CollisionSystem>(signature);
         return;
     }
+    if (type == SystemType::BULLETDESTRUCTION) {
+        signature.set(m_mediator->GetComponentType<Bullet>());
+        m_mediator->SetSystemSignature<DestroyBullets>(signature);
+        return;
+    }
 }
 
 void gameEngine::RTypeGame::initGameRules(void)
@@ -86,6 +91,7 @@ void gameEngine::RTypeGame::initGameRules(void)
     initSystemSignature(SystemType::MOTION);
     initSystemSignature(SystemType::INPUTS);
     initSystemSignature(SystemType::COLLISION);
+    initSystemSignature(SystemType::BULLETDESTRUCTION);
 }
 
 void gameEngine::RTypeGame::initHUDEntities(void)
