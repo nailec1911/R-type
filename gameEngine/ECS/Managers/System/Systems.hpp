@@ -14,6 +14,7 @@
 
 #include "../../Mediator.hpp"
 #include "../Component/StructComponent.hpp"
+#include "System.hpp"
 
 class MotionSystem : public System
 {
@@ -67,7 +68,8 @@ class InputsPlayer : public System
     bool canShoot(const clientEvent &cEvent)
     {
         auto testShot = std::chrono::steady_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(testShot - m_players[cEvent.id].second);
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+            testShot - m_players[cEvent.id].second);
         return duration.count() > 1000;
     }
 
@@ -101,8 +103,23 @@ class InputsPlayer : public System
     }
 
    private:
-    std::unordered_map<size_t, std::pair<Entity, std::chrono::steady_clock::time_point>> m_players;
-    
+    std::unordered_map<
+        size_t, std::pair<Entity, std::chrono::steady_clock::time_point>>
+        m_players;
+};
+
+class DestroyBullets : public System
+{
+    public:
+        void Update(const std::shared_ptr<Mediator> &mediator)
+        {
+            for (auto entity : m_Entities)
+            {
+                auto &position = mediator->GetComponent<Position>(entity);
+                if (position.x > 1940)
+                    mediator->DestroyEntity(entity);
+            }
+        }
 };
 
 class CollisionSystem : public System

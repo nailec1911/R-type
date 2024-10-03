@@ -24,6 +24,7 @@ int main()
             rType.getMediator(), clientsEvents);
         rType.getSystems().getMotionSystem()->Update(rType.getMediator());
         rType.getSystems().getCollisionSystem()->Update(rType.getMediator());
+        rType.getSystems().getDestroyBulletSystem()->Update(rType.getMediator());
         auto snapshots = rType.createSnapshots();
         server.setSnapshots(snapshots);
     }
