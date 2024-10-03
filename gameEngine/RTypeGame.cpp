@@ -41,7 +41,7 @@ std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::createSnapshot
         auto position = m_mediator->GetComponent<Position>(elem.first);
         auto transform = m_mediator->GetComponent<Transform>(elem.first);
         auto type = m_mediator->GetEntityRole(elem.first);
-        snapshots[elem.first] = {type, position.x, position.y, transform.velX, transform.velY, 0};
+        snapshots[elem.first] = {type, static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(transform.velX), static_cast<int>(transform.velY), 0};
     }
     return snapshots;
 }

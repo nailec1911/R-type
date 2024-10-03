@@ -14,6 +14,7 @@ int main()
 {
     rtypeNetwork::RtypeServer server(4444, 5);
     gameEngine::RTypeGame rType;
+
     rType.initGameRules();
     server.start();
     while (true) {
@@ -21,7 +22,7 @@ int main()
         auto &clientsEvents = server.getClientsEvents();
         rType.getSystems().getInputsSystem()->Update(
             rType.getMediator(), clientsEvents);
-        rType.getSystems().getMotionSystem()->Update(1, rType.getMediator());
+        rType.getSystems().getMotionSystem()->Update(rType.getMediator());
         rType.getSystems().getCollisionSystem()->Update(rType.getMediator());
         auto snapshots = rType.createSnapshots();
         server.setSnapshots(snapshots);

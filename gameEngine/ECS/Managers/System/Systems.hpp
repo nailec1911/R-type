@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <chrono>
+#include <memory>
 #include <queue>
 #include <unordered_map>
 
@@ -16,13 +18,13 @@
 class MotionSystem : public System
 {
    public:
-    void Update(float dt, const std::shared_ptr<Mediator> &mediator)
+    void Update(const std::shared_ptr<Mediator> &mediator)
     {
         for (Entity const &entity : this->m_Entities) {
             auto &transform = mediator->GetComponent<Transform>(entity);
             auto &position = mediator->GetComponent<Position>(entity);
-            position.x += transform.velX * dt;
-            position.y += transform.velY * dt;
+            position.x += transform.velX;
+            position.y += transform.velY;
         }
     }
 };
@@ -30,33 +32,59 @@ class MotionSystem : public System
 class InputsPlayer : public System
 {
    public:
+    void createPlayer(
+        const std::shared_ptr<Mediator> &mediator, const clientEvent &cEvent)
+    {
+        Entity newPlayer = mediator->CreateEntity();
+        mediator->AddComponent<Player>(newPlayer, Player{.id = cEvent.id});
+        mediator->AddComponent<Transform>(
+            newPlayer, Transform{.velX = 0, .velY = 0});
+        mediator->AddComponent<Position>(
+            newPlayer, Position{.x = 500, .y = 540});
+        m_players[cEvent.id] = {newPlayer, {}};
+    }
+
+    void resetPlayerVelocity(const std::shared_ptr<Mediator> &mediator)
+    {
+        for (auto &player : m_players) {
+            auto &tranformComp =
+                mediator->GetComponent<Transform>(player.second.first);
+            tranformComp.velX = 0;
+            tranformComp.velY = 0;
+        }
+    }
+
+    static void createBullet(
+        const std::shared_ptr<Mediator> &mediator, const Position &position)
+    {
+        Entity bullet = mediator->CreateEntity();
+        mediator->AddComponent(bullet, Bullet{});
+        mediator->AddComponent(bullet, Transform{.velX = 0.001, .velY = 0});
+        mediator->AddComponent(
+            bullet, Position{.x = position.x, .y = position.y});
+    }
+
+    bool canShoot(const clientEvent &cEvent)
+    {
+        auto testShot = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(testShot - m_players[cEvent.id].second);
+        return duration.count() > 1000;
+    }
+
     void Update(
         const std::shared_ptr<Mediator> &mediator,
         std::queue<clientEvent> &clientsEvents)
     {
-        for (auto &player : m_players) {
-            auto &tranformComp =
-                mediator->GetComponent<Transform>(player.second);
-            tranformComp.velX = 0;
-            tranformComp.velY = 0;
-        }
+        resetPlayerVelocity(mediator);
         while (!clientsEvents.empty()) {
             auto cEvent = clientsEvents.front();
             clientsEvents.pop();
-            if (m_players.find(cEvent.id) == m_players.end()) {
-                Entity newPlayer = mediator->CreateEntity();
-                mediator->AddComponent<Player>(
-                    newPlayer, Player{.id = cEvent.id});
-                mediator->AddComponent<Transform>(
-                    newPlayer, Transform{.velX = 0, .velY = 0});
-                mediator->AddComponent<Position>(
-                    newPlayer, Position{.x = 500, .y = 540});
-                m_players[cEvent.id] = newPlayer;
-            }
+            if (m_players.find(cEvent.id) == m_players.end())
+                createPlayer(mediator, cEvent);
             auto &transform =
-                mediator->GetComponent<Transform>(m_players[cEvent.id]);
-            auto &position =
-                mediator->GetComponent<Position>(m_players[cEvent.id]);
+                mediator->GetComponent<Transform>(m_players[cEvent.id].first);
+            auto position =
+                mediator->GetComponent<Position>(m_players[cEvent.id].first);
             if (cEvent.event.key == EventKey::KeyLeft)
                 transform.velX = -4;
             if (cEvent.event.key == EventKey::KeyRight)
@@ -65,18 +93,16 @@ class InputsPlayer : public System
                 transform.velY = -4;
             if (cEvent.event.key == EventKey::KeyDown)
                 transform.velY = 4;
-            if (cEvent.event.key == EventKey::KeyB) {
-                Entity bullet = mediator->CreateEntity();
-                mediator->AddComponent(bullet, Bullet{});
-                mediator->AddComponent(bullet, Transform{.velX = 4, .velY = 0});
-                mediator->AddComponent(
-                    bullet, Position{.x = position.x, .y = position.y});
+            if (cEvent.event.key == EventKey::KeyB && canShoot(cEvent)) {
+                createBullet(mediator, position);
+                m_players[cEvent.id].second = std::chrono::steady_clock::now();
             }
         }
     }
 
    private:
-    std::unordered_map<size_t, Entity> m_players;
+    std::unordered_map<size_t, std::pair<Entity, std::chrono::steady_clock::time_point>> m_players;
+    
 };
 
 class CollisionSystem : public System
