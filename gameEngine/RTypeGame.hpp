@@ -8,11 +8,13 @@
 #pragma once
 
 #include <cstdint>
+#include <queue>
 #include <thread>
 #include <unordered_map>
 
 #include "ECS/Managers/System/Systems.hpp"
 #include "ECS/Mediator.hpp"
+#include "ECS/using.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
 namespace gameEngine {
@@ -39,7 +41,7 @@ class SystemsFactory
         return this->collision;
     }
 
-        std::shared_ptr<DestroyBullets> getDestroyBulletSystem(void)
+    std::shared_ptr<DestroyBullets> getDestroyBulletSystem(void)
     {
         return this->destroyBullets;
     }
@@ -72,7 +74,9 @@ class RTypeGame
     void initGameRules(void);
     void initSystemSignature(const SystemType &type);
     void initHUDEntities(void);
-    [[nodiscard]] std::unordered_map<uint32_t, SnapshotData> createSnapshots();
+
+    std::unordered_map<uint32_t, SnapshotData> createSnapshots(
+        std::queue<Entity> &entitiesToRemove);
 
     std::shared_ptr<Mediator> getMediator(void)
     {
@@ -84,6 +88,9 @@ class RTypeGame
         return m_systems;
     }
 
+    std::unordered_map<uint32_t, SnapshotData> updateSystems(
+        std::queue<clientEvent> &clientsEvents);
+
    protected:
    private:
     int m_second{};
@@ -91,7 +98,7 @@ class RTypeGame
     std::shared_ptr<Mediator> m_mediator;
     gameEngine::SystemsFactory m_systems;
     std::thread m_timeManagerThread;
-    
+
     void manageTime(void);
 };
 }  // namespace gameEngine

@@ -32,6 +32,10 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
     Renderer &renderer)
 {
     for (auto item : newSnapshot.getElements()) {
+        if (item.second.getDestroy() == 1) {
+            renderer.getSpriteMap().erase(item.first);
+            continue;
+        }
         rndr::Vector2<float> vec = {
             static_cast<float>(item.second.getXY().x),
             static_cast<float>(item.second.getXY().y)};

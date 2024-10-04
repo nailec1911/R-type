@@ -9,18 +9,18 @@
 
 #include <chrono>
 #include <cstdint>
+#include <queue>
 #include <thread>
 #include <unordered_map>
 
 #include "ECS/using.hpp"
 #include "Renderer/Elements.hpp"
+#include "Renderer/Events.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
 gameEngine::RTypeGame::RTypeGame()
 {
-    m_timeManagerThread = std::thread([this]() {
-        this->manageTime();
-    });
+    m_timeManagerThread = std::thread([this]() { this->manageTime(); });
 }
 
 gameEngine::RTypeGame::~RTypeGame()
@@ -29,11 +29,18 @@ gameEngine::RTypeGame::~RTypeGame()
         m_timeManagerThread.join();
 }
 
-std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::createSnapshots()
+std::unordered_map<uint32_t, SnapshotData>
+gameEngine::RTypeGame::createSnapshots(std::queue<Entity> &entitiesToRemove)
 {
     std::unordered_map<uint32_t, SnapshotData> snapshots{};
     std::unordered_map<Entity, Signature> entities =
         m_mediator->GetEntitiesSignatures();
+
+    while (!entitiesToRemove.empty()) {
+        auto entity = entitiesToRemove.front();
+        entitiesToRemove.pop();
+        snapshots[entity] = {elementTypes::NONE, 0, 0, 0, 0, 1};
+    }
 
     for (auto elem : entities) {
         if (m_mediator->GetEntityRole(elem.first) == elementTypes::NONE)
@@ -41,7 +48,13 @@ std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::createSnapshot
         auto position = m_mediator->GetComponent<Position>(elem.first);
         auto transform = m_mediator->GetComponent<Transform>(elem.first);
         auto type = m_mediator->GetEntityRole(elem.first);
-        snapshots[elem.first] = {type, static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(transform.velX), static_cast<int>(transform.velY), 0};
+        snapshots[elem.first] = {
+            type,
+            static_cast<int>(position.x),
+            static_cast<int>(position.y),
+            static_cast<int>(transform.velX),
+            static_cast<int>(transform.velY),
+            0};
     }
     return snapshots;
 }
@@ -109,4 +122,17 @@ void gameEngine::RTypeGame::manageTime(void)
         m_second += 1;
         m_start_time = current_time;
     }
+}
+
+std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::updateSystems(
+    std::queue<clientEvent> &clientsEvents)
+{
+    std::queue<Entity> entitiesToRemove{};
+    getSystems().getInputsSystem()->Update(getMediator(), clientsEvents);
+    getSystems().getMotionSystem()->Update(getMediator());
+    getSystems().getCollisionSystem()->Update(getMediator());
+    getSystems().getDestroyBulletSystem()->Update(
+        getMediator(), entitiesToRemove);
+    auto snapshots = createSnapshots(entitiesToRemove);
+    return snapshots;
 }
