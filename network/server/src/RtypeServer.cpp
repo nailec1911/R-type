@@ -10,15 +10,14 @@
 #include <asio/ip/udp.hpp>
 #include <chrono>
 #include <cstdint>
+#include <mutex>
 #include <string>
 #include <thread>
 
 rtypeNetwork::RtypeServer::RtypeServer(uint16_t port, uint8_t maxClient)
     : m_maxClient(maxClient), m_gameServ(port)
 {
-    m_tickRateThread = std::thread([this]() {
-        this->manageTickRate();
-    });
+    m_tickRateThread = std::thread([this]() { this->manageTickRate(); });
 }
 
 rtypeNetwork::RtypeServer::~RtypeServer()
@@ -29,14 +28,20 @@ rtypeNetwork::RtypeServer::~RtypeServer()
 
 void rtypeNetwork::RtypeServer::manageTickRate()
 {
-    using chrono = std::chrono::steady_clock;
-    const int tickRate = 128;
-    const auto tickDuration = std::chrono::duration_cast<chrono::duration>(
-        std::chrono::duration<double>(1.0 / tickRate));
+    auto tickDuration = initTickRate();
     auto nextTick = chrono::now();
     while (true) {
         auto start = chrono::now();
-        this->sendMaster(this->m_snapshots, 1, 2);
+        {
+            std::unique_lock<std::mutex> mtx(m_mtx);
+            m_cond.wait(mtx, [this]() { return m_ready; });
+            while (!m_snapshots.empty()) {
+                auto snap = m_snapshots.front();
+                m_snapshots.pop();
+                this->sendMaster(snap, 1, 2);
+            }
+            m_ready = false;
+        }
         auto elapsedTime = chrono::now() - start;
         nextTick += tickDuration;
         if (elapsedTime < tickDuration) {

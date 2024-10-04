@@ -8,7 +8,10 @@
 #pragma once
 
 #include <algorithm>
+#include <condition_variable>
 #include <cstdint>
+#include <mutex>
+#include <queue>
 #include <thread>
 #include <unordered_map>
 #include <vector>
@@ -16,6 +19,8 @@
 #include "../../../gameEngine/Renderer/Events.hpp"
 #include "../../../gameEngine/Snapshot/SnapshotData.hpp"
 #include "../../gameServ/GameServer.hpp"
+
+using chrono = std::chrono::steady_clock;
 
 namespace rtypeNetwork {
 class RtypeServer
@@ -40,18 +45,34 @@ class RtypeServer
         m_gameServ.start();
     }
 
-    void sendMaster(const std::unordered_map<uint32_t, SnapshotData>& eltsMap, int other1, int other2)
+    void sendMaster(
+        const std::unordered_map<uint32_t, SnapshotData> &eltsMap, int other1,
+        int other2)
     {
         m_snapId++;
 
-        m_gameServ.sendMaster(CustomMessageType::SNAPSHOT, gameServer::Snapshot<SnapshotData, 2>(
-            m_snapId, {other1, other2}, eltsMap));
+        m_gameServ.sendMaster(
+            CustomMessageType::SNAPSHOT,
+            gameServer::Snapshot<SnapshotData, 2>(
+                m_snapId, {other1, other2}, eltsMap));
     }
-
 
     void setSnapshots(std::unordered_map<uint32_t, SnapshotData> &snapshots)
     {
-        this->m_snapshots = snapshots;
+        {
+            std::unique_lock<std::mutex> mtx(m_mtx);
+            this->m_snapshots.push(snapshots);
+            m_ready = true;
+        }
+        m_cond.notify_one();
+    }
+
+    std::chrono::steady_clock::duration initTickRate()
+    {
+        const int tickRate = 128;
+        auto tickDuration = std::chrono::duration_cast<chrono::duration>(
+            std::chrono::duration<double>(1.0 / tickRate));
+        return tickDuration;
     }
 
    private:
@@ -61,7 +82,10 @@ class RtypeServer
     gameServer::GameServer<SnapshotData, 2, CustomMessageType> m_gameServ;
     std::vector<uint32_t> m_connectedClients;
     std::thread m_tickRateThread;
-    std::unordered_map<uint32_t, SnapshotData> m_snapshots;
+    std::condition_variable m_cond;
+    std::mutex m_mtx;
+    bool m_ready;
+    std::queue<std::unordered_map<uint32_t, SnapshotData>> m_snapshots;
 
     void handleClientLogin(
         uint32_t clientId, asun::message<CustomMessageType> &msg);

@@ -60,7 +60,7 @@ class InputsPlayer : public System
     {
         Entity bullet = mediator->CreateEntity();
         mediator->AddComponent(bullet, Bullet{});
-        mediator->AddComponent(bullet, Transform{.velX = 0.001, .velY = 0});
+        mediator->AddComponent(bullet, Transform{.velX = 4, .velY = 0});
         mediator->AddComponent(
             bullet, Position{.x = position.x, .y = position.y});
     }
@@ -70,7 +70,7 @@ class InputsPlayer : public System
         auto testShot = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
             testShot - m_players[cEvent.id].second);
-        return duration.count() > 1000;
+        return duration.count() > 300;
     }
 
     void Update(
@@ -110,16 +110,19 @@ class InputsPlayer : public System
 
 class DestroyBullets : public System
 {
-    public:
-        void Update(const std::shared_ptr<Mediator> &mediator)
-        {
-            for (auto entity : m_Entities)
-            {
-                auto &position = mediator->GetComponent<Position>(entity);
-                if (position.x > 1940)
-                    mediator->DestroyEntity(entity);
+   public:
+    void Update(
+        const std::shared_ptr<Mediator> &mediator,
+        std::queue<Entity> &entitiesToRemove)
+    {
+        for (auto entity : m_Entities) {
+            auto &position = mediator->GetComponent<Position>(entity);
+            if (position.x > 1940) {
+                mediator->DestroyEntity(entity);
+                entitiesToRemove.push(entity);
             }
         }
+    }
 };
 
 class CollisionSystem : public System
