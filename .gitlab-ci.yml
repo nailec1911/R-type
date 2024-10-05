@@ -3,9 +3,13 @@ stages:
   - packaging
   - release
 
+default:
+  image: registry.gitlab.com/epitech-it-2027/rts/rts-env:latest
+  tags:
+    - arch
+
 build:dependencies:
   stage: build
-  image: registry.gitlab.com/epitech-it-2027/rts/rts-env:latest
   before_script:
     - conan profile detect
   script:
@@ -19,7 +23,6 @@ build:project:
   stage: build
   needs:
     - build:dependencies
-  image: registry.gitlab.com/epitech-it-2027/rts/rts-env:latest
   script:
     - cd network/build
     - cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
