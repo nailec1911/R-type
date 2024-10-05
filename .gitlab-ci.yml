@@ -8,6 +8,7 @@ default:
   tags:
     - arch
 
+# Step 1: Install dependencies and create build directory
 build:dependencies:
   stage: build
   before_script:
@@ -16,15 +17,24 @@ build:dependencies:
     - cd network
     - conan install . --output-folder=build --build=missing -c tools.system.package_manager:mode=install
   cache:
+    key: conan-dependencies
     paths:
-      - network/build
+      - ~/.conan/  # Cache Conan dependencies
+  artifacts:
+    paths:
+      - network/build/  # Share the build directory with the next job
 
+# Step 2: Build the project, reusing the build directory from previous step
 build:project:
   stage: build
   needs:
     - build:dependencies
   script:
-    - echo $(ls network)
     - cd network/build
     - cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
     - cmake --build .
+  dependencies:
+    - build:dependencies
+  artifacts:
+    paths:
+      - network/build/  # Keep the build directory for the next stages
