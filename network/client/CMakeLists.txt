@@ -19,7 +19,8 @@ file(GLOB_RECURSE SOURCES "src/*.cpp" "../../gameEngine/*.cpp")
 
 find_package(asio REQUIRED)
 find_package(SFML 2.5 COMPONENTS system window graphics network audio REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 add_executable(Client ${SOURCES})
-target_link_libraries(Client PRIVATE asio::asio sfml-system sfml-window sfml-graphics sfml-network sfml-audio)
+target_link_libraries(Client PRIVATE asio::asio sfml-system sfml-window sfml-graphics sfml-network sfml-audio yaml-cpp)
 

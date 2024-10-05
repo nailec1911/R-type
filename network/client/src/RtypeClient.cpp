@@ -8,7 +8,6 @@
 #include "RtypeClient.hpp"
 
 #include <cstdint>
-#include <cstdlib>
 
 #include "../../../gameEngine/Renderer/Elements.hpp"
 
@@ -42,7 +41,7 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
         if (renderer.getSpriteMap().find(item.first) ==
             renderer.getSpriteMap().end()) {
             renderer.createSprite(
-                item.first, eltInfo.at(item.second.getType()), vec);
+                item.first, eltTypeToStr.at(item.second.getType()), vec);
             continue;
         }
         renderer.setPosition(item.first, vec);

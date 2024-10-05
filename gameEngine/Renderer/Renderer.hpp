@@ -134,7 +134,7 @@ class Renderer final : public rndr::IRenderer
         std::uint32_t idSprite, rndr::Vector2<float> newPosition) override;
     uint32_t createSprite(
         uint32_t idEntity,
-        rndr::elementInfo spriteInfo,
+        const std::string &spriteRef,
         rndr::Vector2<float> pos) override;
     void removeSprite(uint32_t idSprite) override;
     void moveSprite(uint32_t idSprite, rndr::Vector2<float> pos) override;
@@ -159,6 +159,14 @@ class Renderer final : public rndr::IRenderer
     {
         return m_spriteMap;
     }
+    std::unordered_map<std::string, rndr::elementInfo> getEltInfo()
+    {
+        return m_eltInfo;
+    }
+    void setEltInfo(const std::unordered_map<std::string, rndr::elementInfo> &newEltInfo)
+    {
+        m_eltInfo = newEltInfo;
+    }
 
    protected:
    private:
@@ -171,8 +179,8 @@ class Renderer final : public rndr::IRenderer
     sf::Vector2u m_windowSize;
     sf::Vector2u m_textureSize;
     sf::Clock m_clock;
+    std::unordered_map<std::string, rndr::elementInfo> m_eltInfo;
     float m_deltaTime;
     float m_bgSpeed;
     int m_frameRate;
-
 };
