@@ -11,15 +11,13 @@ default:
 build:dependencies:
   stage: build
   before_script:
-    - echo $(ls .)
-    - ozier
     - conan profile detect
   script:
     - cd network
     - conan install . --output-folder=build --build=missing -c tools.system.package_manager:mode=install
   cache:
     paths:
-      - /network/build
+      - network/build
 
 build:project:
   stage: build
