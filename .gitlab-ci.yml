@@ -11,6 +11,8 @@ default:
 build:dependencies:
   stage: build
   before_script:
+    - echo $(ls .)
+    - ozier
     - conan profile detect
   script:
     - cd network
