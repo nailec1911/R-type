@@ -28,6 +28,11 @@ struct Vector2
     T y;  ///< y value
 };
 
+struct Frame {
+    rndr::Vector2<float> topLeft;
+    rndr::Vector2<float> bottomRight;
+};
+
 using color_t = u_int8_t;
 enum class Color : color_t
 {
@@ -52,7 +57,7 @@ enum class Color : color_t
 struct elementInfo
 {
     std::string filepath;
-    std::vector<Vector2<Vector2<float>>> frames;
+    std::vector<Frame> frames;
     int sizeX;
     int sizeY;
     float scale;
@@ -75,7 +80,7 @@ class IRenderer
     virtual void setPosition(
         std::uint32_t idSprite, Vector2<float> newPosition) = 0;
     virtual uint32_t createSprite(uint32_t idEntity,
-        elementInfo spriteInfo, Vector2<float> pos) = 0;
+        const std::string &srpiteRef, Vector2<float> pos) = 0;
     virtual void removeSprite(uint32_t idSprite) = 0;
     virtual void hideSprite(uint32_t idSprite) = 0;
     virtual void drawSprite(uint32_t idSprite) = 0;

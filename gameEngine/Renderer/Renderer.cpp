@@ -22,6 +22,27 @@
 
 #include "Events.hpp"
 #include "IRenderer.hpp"
+#include "ConfigParser.hpp"
+
+
+ConfigParser::ConfigParser(const std::string &filename)
+{
+    YAML::Node config = YAML::LoadFile(filename);
+    for (YAML::const_iterator it = config.begin(); it != config.end(); ++it) {
+        std::string entityName = it->first.as<std::string>();
+        m_entitiesType.push_back(entityName);
+    }
+    for (auto &elem : m_entitiesType) {
+        rndr::elementInfo newElem;
+        newElem.filepath = config[elem]["sprite"].as<std::string>();
+        newElem.scale = config[elem]["scale"].as<float>();
+        newElem.sizeX = config[elem]["width"].as<int>();
+        newElem.sizeY = config[elem]["height"].as<int>();
+        YAML::Node framesNode = config[elem]["frames"];
+        newElem.frames = parseFrames(framesNode);
+        m_eltInfo.insert({elem, newElem});
+    }
+}
 
 Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
     : m_display(true), m_nbAnim(spriteInfo.frames.size())
@@ -29,12 +50,12 @@ Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
     m_texture.loadFromFile(spriteInfo.filepath);
 
     for (size_t i = 0; i < m_nbAnim; i++) {
-        float width = spriteInfo.frames.at(i).y.x - spriteInfo.frames.at(i).x.x;
+        float width = spriteInfo.frames.at(i).bottomRight.x - spriteInfo.frames.at(i).topLeft.x;
         float height =
-            spriteInfo.frames.at(i).y.y - spriteInfo.frames.at(i).x.y;
+            spriteInfo.frames.at(i).bottomRight.y - spriteInfo.frames.at(i).topLeft.y;
         sf::IntRect rectSourceSprite(
-            static_cast<int>(spriteInfo.frames.at(i).x.x),
-            static_cast<int>(spriteInfo.frames.at(i).x.y),
+            static_cast<int>(spriteInfo.frames.at(i).topLeft.x),
+            static_cast<int>(spriteInfo.frames.at(i).topLeft.y),
             static_cast<int>(width), static_cast<int>(height));
         sf::Sprite sprite(m_texture, rectSourceSprite);
         sprite.setScale(spriteInfo.scale, spriteInfo.scale);
@@ -114,9 +135,9 @@ void Renderer::setPosition(
 }
 
 uint32_t Renderer::createSprite(
-    uint32_t idEntity, rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
+    uint32_t idEntity, const std::string &spriteRef, rndr::Vector2<float> pos)
 {
-    auto sprite = std::make_unique<Sprite>(spriteInfo, pos);
+    auto sprite = std::make_unique<Sprite>(m_eltInfo[spriteRef], pos);
     m_spriteMap[idEntity] = std::move(sprite);
     return idEntity;
 }
