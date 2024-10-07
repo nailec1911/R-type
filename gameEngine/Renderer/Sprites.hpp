@@ -7,11 +7,10 @@
 
 #pragma once
 
+#include <string>
 #include <unordered_map>
 
-#include "IRenderer.hpp"
-
-enum elementTypes
+enum spritesTypes
 {
     PLAYER1,
     PLAYER1_UP,
@@ -52,11 +51,10 @@ enum elementTypes
     WALL_1,
     WALL_2,
     WALL_3,
-    NONE,
+    EMPTY,
 };
 
-const std::unordered_map<elementTypes, const std::string> eltTypeToStr
-{
+const std::unordered_map<spritesTypes, const std::string> spriteTypeToStr{
     {PLAYER1, "PLAYER1"},
     {PLAYER1_UP, "PLAYER1_UP"},
     {PLAYER1_DOWN, "PLAYER1_DOWN"},
@@ -96,5 +94,5 @@ const std::unordered_map<elementTypes, const std::string> eltTypeToStr
     {WALL_1, "WALL_1"},
     {WALL_2, "WALL_2"},
     {WALL_3, "WALL_3"},
-    {NONE, "NONE"},
+    {EMPTY, "NONE"},
 };

@@ -6,11 +6,13 @@
 */
 
 #pragma once
+#include <sys/types.h>
+#include <cstdint>
 #include "Managers/Component/ComponentManager.hpp"
+#include "../Renderer/Sprites.hpp"
 #include "Managers/Entity/EntityManager.hpp"
 #include "Managers/System/SystemManager.hpp"
 #include "using.hpp"
-#include "../Renderer/Elements.hpp"
 
 class Mediator
 {
@@ -35,9 +37,9 @@ class Mediator
     }
 
     template <typename T>
-    void RegisterComponent()
+    void RegisterComponent(uint32_t bitPos)
     {
-        mComponentManager->RegisterComponent<T>();
+        mComponentManager->RegisterComponent<T>(bitPos);
     }
 
     template <typename T>
@@ -95,19 +97,38 @@ class Mediator
         return mSystemManager->GetSystem<T>();
     }
 
-    elementTypes GetEntityRole(Entity entity)
+    spritesTypes GetEntitySprite(Entity entity)
     {
         if (mEntityManager->GetSignature(entity).test(PLAYER))
-            return elementTypes::PLAYER1;
+            return spritesTypes::PLAYER1;
         if (mEntityManager->GetSignature(entity).test(WALL))
-            return elementTypes::WALL_1;
+            return spritesTypes::WALL_1;
         if (mEntityManager->GetSignature(entity).test(MONSTER))
-            return elementTypes::RED_MONSTER_LEFT;
-        if (mEntityManager->GetSignature(entity).test(BULLET))
-            return elementTypes::BULLET_P;
+            return spritesTypes::RED_MONSTER_LEFT;
+        if (mEntityManager->GetSignature(entity).test(P_BULLET))
+            return spritesTypes::BULLET_P;
+        if (mEntityManager->GetSignature(entity).test(M_BULLET))
+            return spritesTypes::BULLET_M;
         if (mEntityManager->GetSignature(entity).test(HUD))
-            return elementTypes::BONUS_ITEM;
-        return elementTypes::NONE;
+            return spritesTypes::BONUS_ITEM;
+        return spritesTypes::EMPTY;
+    }
+
+    uint32_t GetEntityRole(Entity entity)
+    {
+        if (mEntityManager->GetSignature(entity).test(PLAYER))
+            return PLAYER;
+        if (mEntityManager->GetSignature(entity).test(WALL))
+            return WALL;
+        if (mEntityManager->GetSignature(entity).test(MONSTER))
+            return MONSTER;
+        if (mEntityManager->GetSignature(entity).test(P_BULLET))
+            return P_BULLET;
+        if (mEntityManager->GetSignature(entity).test(M_BULLET))
+            return M_BULLET;
+        if (mEntityManager->GetSignature(entity).test(HUD))
+            return HUD;
+        return NONE;
     }
 
     std::unordered_map<Entity, Signature> GetEntitiesSignatures()
