@@ -22,7 +22,6 @@ class ComponentManager
         mComponentTypes.insert({typeName, bitPos});
         mComponentArrays.insert(
             {typeName, std::make_shared<ComponentArray<T>>()});
-        ++mNextComponentType;
     }
 
     template <typename T>
@@ -64,7 +63,6 @@ class ComponentManager
     std::unordered_map<const char*, ComponentType> mComponentTypes;
     std::unordered_map<const char*, std::shared_ptr<IComponentArray>>
         mComponentArrays;
-    ComponentType mNextComponentType{};
 
     template <typename T>
     std::shared_ptr<ComponentArray<T>> GetComponentArray()

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <chrono>
+#include <cstddef>
 #include <memory>
 #include <queue>
 #include <unordered_map>
@@ -43,6 +44,7 @@ class InputsPlayer : public System
             newPlayer, Transform{.velX = 0, .velY = 0});
         mediator->AddComponent<Position>(
             newPlayer, Position{.x = 500, .y = 540});
+        mediator->AddComponent<BoundingBox>(newPlayer, BoundingBox{93, 33});
         m_players[cEvent.id] = {newPlayer, {}};
     }
 
@@ -61,6 +63,7 @@ class InputsPlayer : public System
     {
         Entity bullet = mediator->CreateEntity();
         mediator->AddComponent(bullet, BulletPlayer{});
+        mediator->AddComponent(bullet, BoundingBox{50, 50});
         mediator->AddComponent(bullet, Transform{.velX = 4, .velY = 0});
         mediator->AddComponent(
             bullet, Position{.x = position.x, .y = position.y});
@@ -74,10 +77,23 @@ class InputsPlayer : public System
         return duration.count() > 300;
     }
 
+    void eraseDeadPlayers()
+    {
+        for (auto it = m_players.begin(); it != m_players.end();) {
+            Entity playerEntity = it->second.first;
+            if (std::find(m_Entities.begin(), m_Entities.end(), playerEntity) ==
+                m_Entities.end())
+                it = m_players.erase(it);
+            else
+                ++it;
+        }
+    }
+
     void Update(
         const std::shared_ptr<Mediator> &mediator,
         std::queue<clientEvent> &clientsEvents)
     {
+        eraseDeadPlayers();
         resetPlayerVelocity(mediator);
         while (!clientsEvents.empty()) {
             auto cEvent = clientsEvents.front();
@@ -114,14 +130,13 @@ class DestroyBullets : public System
    public:
     void Update(
         const std::shared_ptr<Mediator> &mediator,
-        std::queue<Entity> &entitiesToRemove)
+        std::vector<Entity> &entitiesToRemove)
     {
         for (auto entity : m_Entities) {
             auto &position = mediator->GetComponent<Position>(entity);
             if (position.x > 1940 || position.x < 0 || position.y > 1100 ||
                 position.y < 0) {
-                mediator->DestroyEntity(entity);
-                entitiesToRemove.push(entity);
+                entitiesToRemove.push_back(entity);
             }
         }
     }
@@ -130,32 +145,139 @@ class DestroyBullets : public System
 class CollisionSystem : public System
 {
    public:
-    void Update(const std::shared_ptr<Mediator> &mediator)
+    void Update(
+        const std::shared_ptr<Mediator> &mediator,
+        std::vector<Entity> &entitiesToRemove)
     {
-        std::vector<size_t> indexesToRemove;
-
         for (size_t i = 0; i < this->m_Entities.size(); i += 1) {
-            auto &positionEntityOne =
-                mediator->GetComponent<Position>(m_Entities[i]);
-            auto &boxOne = mediator->GetComponent<BoundingBox>(m_Entities[i]);
-            float rightOne = positionEntityOne.x + boxOne.width;
-            float bottomOne = positionEntityOne.y + boxOne.height;
+            auto &posA = mediator->GetComponent<Position>(m_Entities[i]);
+            auto &boxA = mediator->GetComponent<BoundingBox>(m_Entities[i]);
 
             for (size_t z = i + 1; z < this->m_Entities.size(); z += 1) {
-                auto &positionEntityTwo =
-                    mediator->GetComponent<Position>(m_Entities[z]);
-                auto &boxTwo =
-                    mediator->GetComponent<BoundingBox>(m_Entities[z]);
-                float rightTwo = positionEntityTwo.x + boxTwo.width;
-                float bottomTwo = positionEntityTwo.y + boxTwo.height;
-
-                if (rightOne > positionEntityTwo.x &&
-                    positionEntityOne.x < rightTwo &&
-                    bottomOne > positionEntityTwo.y &&
-                    positionEntityOne.y < bottomTwo) {
-                    // DestroyEntities(mediator, indexesToRemove, i, z);
+                auto &posB = mediator->GetComponent<Position>(m_Entities[z]);
+                auto &boxB = mediator->GetComponent<BoundingBox>(m_Entities[z]);
+                if (collide(posA, boxA, posB, boxB)) {
+                    handleCollide(
+                        mediator, entitiesToRemove, m_Entities[i],
+                        m_Entities[z]);
                 }
             }
         }
+    }
+
+   private:
+    static void handleCollide(
+        const std::shared_ptr<Mediator> &mediator,
+        std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB)
+    {
+        bitToRole roleA =
+            static_cast<bitToRole>(mediator->GetEntityRole(entityA));
+        bitToRole roleB =
+            static_cast<bitToRole>(mediator->GetEntityRole(entityB));
+
+        if (roleA == roleB)
+            return;
+        if (roleA == WALL)
+            return roleAWall(entitiesToRemove, entityA, entityB, roleB);
+        if (roleA == PLAYER)
+            return roleAPlayer(entitiesToRemove, entityA, entityB, roleB);
+        if (roleA == MONSTER)
+            return roleAMonster(entitiesToRemove, entityA, entityB, roleB);
+        if (roleA == P_BULLET)
+            return roleABullet_player(
+                entitiesToRemove, entityA, entityB, roleB);
+        if (roleA == M_BULLET)
+            return roleABullet_monster(
+                entitiesToRemove, entityA, entityB, roleB);
+    }
+
+    static void roleAPlayer(
+        std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
+        bitToRole roleB)
+    {
+        if (roleB == P_BULLET)
+            return;
+        if (roleB == WALL || roleB == MONSTER) {
+            entitiesToRemove.push_back(entityA);
+            return;
+        }
+        if (roleB == M_BULLET) {
+            entitiesToRemove.push_back(entityA);
+            entitiesToRemove.push_back(entityB);
+            return;
+        }
+    }
+
+    static void roleABullet_player(
+        std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
+        bitToRole roleB)
+    {
+        if (roleB == PLAYER)
+            return;
+        if (roleB == WALL) {
+            entitiesToRemove.push_back(entityA);
+            return;
+        }
+        if (roleB == M_BULLET || roleB == MONSTER) {
+            entitiesToRemove.push_back(entityA);
+            entitiesToRemove.push_back(entityB);
+            return;
+        }
+    }
+
+    static void roleABullet_monster(
+        std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
+        bitToRole roleB)
+    {
+        if (roleB == MONSTER)
+            return;
+        if (roleB == WALL) {
+            entitiesToRemove.push_back(entityA);
+            return;
+        }
+        if (roleB == P_BULLET || roleB == PLAYER) {
+            entitiesToRemove.push_back(entityA);
+            entitiesToRemove.push_back(entityB);
+            return;
+        }
+    }
+
+    static void roleAMonster(
+        std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
+        bitToRole roleB)
+    {
+        if (roleB == M_BULLET || roleB == WALL)
+            return;
+        if (roleB == PLAYER) {
+            entitiesToRemove.push_back(entityB);
+            return;
+        }
+        if (roleB == P_BULLET) {
+            entitiesToRemove.push_back(entityA);
+            entitiesToRemove.push_back(entityB);
+            return;
+        }
+    }
+
+    static void roleAWall(
+        std::vector<Entity> &entitiesToRemove, Entity & /*entityA*/,
+        Entity &entityB, bitToRole roleB)
+    {
+        if (roleB == MONSTER)
+            return;
+        entitiesToRemove.push_back(entityB);
+    }
+
+    static bool collide(
+        Position &posA, BoundingBox &boxA, Position &posB,
+        BoundingBox &boxB)
+    {
+        if (posA.x + boxA.width <= posB.x || posB.x + boxB.width <= posA.x) {
+            return false;
+        }
+        if (posA.y + boxA.height <= posB.y || posB.y + boxB.height <= posA.y) {
+            return false;
+        }
+        return true;
     }
 };

@@ -60,8 +60,8 @@ Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
         sf::Sprite sprite(m_texture, rectSourceSprite);
         sprite.setScale(spriteInfo.scale, spriteInfo.scale);
         sprite.setPosition(pos.x, pos.y);
-        sprite.setOrigin(
-            static_cast<float>(width) / 2, static_cast<float>(height) / 2);
+        // sprite.setOrigin(
+            // static_cast<float>(width) / 2, static_cast<float>(height) / 2);
         m_sprites.push_back(sprite);
     }
 }
