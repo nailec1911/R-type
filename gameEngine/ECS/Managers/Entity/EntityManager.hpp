@@ -31,7 +31,7 @@ class EntityManager
 
     void DestroyEntity(Entity entity)
     {
-        mSignatures[entity].reset();
+        mSignatures.erase(entity);
         this->mEntitiesAvailable.push(entity);
         this->mNumberEntity -= 1;
     }

@@ -21,6 +21,11 @@ int main()
 
     rType.initGameRules();
     server.start();
+    Entity monstre = rType.getMediator()->CreateEntity();
+    rType.getMediator()->AddComponent<Position>(monstre, Position{800, 800});
+    rType.getMediator()->AddComponent<Transform>(monstre, Transform{0, 0});
+    rType.getMediator()->AddComponent<BoundingBox>(monstre, BoundingBox{50, 60});
+    rType.getMediator()->AddComponent<Monster>(monstre, Monster{});
     while (true) {
         auto start = chrono::now();
         {

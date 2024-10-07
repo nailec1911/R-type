@@ -12,11 +12,12 @@
 #include <queue>
 #include <thread>
 #include <unordered_map>
+#include <vector>
 
 #include "ECS/Managers/Component/StructComponent.hpp"
 #include "ECS/using.hpp"
-#include "Renderer/Sprites.hpp"
 #include "Renderer/Events.hpp"
+#include "Renderer/Sprites.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
 gameEngine::RTypeGame::RTypeGame()
@@ -31,7 +32,7 @@ gameEngine::RTypeGame::~RTypeGame()
 }
 
 std::unordered_map<uint32_t, SnapshotData>
-gameEngine::RTypeGame::createSnapshots(std::queue<Entity> &entitiesToRemove)
+gameEngine::RTypeGame::createSnapshots(std::vector<Entity> &entitiesToRemove)
 {
     std::unordered_map<uint32_t, SnapshotData> snapshots{};
     std::unordered_map<Entity, Signature> entities =
@@ -39,7 +40,7 @@ gameEngine::RTypeGame::createSnapshots(std::queue<Entity> &entitiesToRemove)
 
     while (!entitiesToRemove.empty()) {
         auto entity = entitiesToRemove.front();
-        entitiesToRemove.pop();
+        entitiesToRemove.erase(entitiesToRemove.begin());
         snapshots[entity] = {spritesTypes::EMPTY, 0, 0, 0, 0, 1};
     }
 
@@ -65,6 +66,8 @@ void gameEngine::RTypeGame::initSystemSignature(const SystemType &type)
     Signature signature;
     if (type == SystemType::MOTION) {
         signature.set(m_mediator->GetComponentType<Player>());
+        signature.set(m_mediator->GetComponentType<BulletPlayer>());
+        signature.set(m_mediator->GetComponentType<BulletMonster>());
         signature.set(m_mediator->GetComponentType<BulletPlayer>());
         signature.set(m_mediator->GetComponentType<BulletMonster>());
         signature.set(m_mediator->GetComponentType<Monster>());
@@ -131,12 +134,16 @@ void gameEngine::RTypeGame::manageTime(void)
 std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::updateSystems(
     std::queue<clientEvent> &clientsEvents)
 {
-    std::queue<Entity> entitiesToRemove{};
+    std::vector<Entity> entitiesToRemove{};
+
     getSystems().getInputsSystem()->Update(getMediator(), clientsEvents);
     getSystems().getMotionSystem()->Update(getMediator());
-    getSystems().getCollisionSystem()->Update(getMediator());
+    getSystems().getCollisionSystem()->Update(getMediator(), entitiesToRemove);
     getSystems().getDestroyBulletSystem()->Update(
         getMediator(), entitiesToRemove);
+    for (auto &entity : entitiesToRemove) {
+        m_mediator->DestroyEntity(entity);
+    }
     auto snapshots = createSnapshots(entitiesToRemove);
     return snapshots;
 }

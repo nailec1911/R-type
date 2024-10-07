@@ -76,7 +76,7 @@ class RTypeGame
     void initHUDEntities(void);
 
     std::unordered_map<uint32_t, SnapshotData> createSnapshots(
-        std::queue<Entity> &entitiesToRemove);
+        std::vector<Entity> &entitiesToRemove);
 
     std::shared_ptr<Mediator> getMediator(void)
     {

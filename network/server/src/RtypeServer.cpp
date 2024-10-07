@@ -15,7 +15,7 @@
 #include <thread>
 
 rtypeNetwork::RtypeServer::RtypeServer(uint16_t port, uint8_t maxClient)
-    : m_maxClient(maxClient), m_gameServ(port)
+    : m_maxClient(maxClient), m_gameServ(port), m_ready(false)
 {
     m_tickRateThread = std::thread([this]() { this->manageTickRate(); });
 }

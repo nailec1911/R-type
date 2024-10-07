@@ -41,6 +41,7 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
             static_cast<float>(item.second.getXY().y)};
         if (renderer.getSpriteMap().find(item.first) ==
             renderer.getSpriteMap().end()) {
+                std::cout << item.second.getType() << std::endl;
             renderer.createSprite(
                 item.first, spriteTypeToStr.at(item.second.getType()), vec);
             continue;
