@@ -32,7 +32,10 @@ struct Player
     uint32_t id;
 };
 
-struct Bullet
+struct BulletPlayer
+{};
+
+struct BulletMonster
 {};
 
 struct Monster

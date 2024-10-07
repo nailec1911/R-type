@@ -9,7 +9,8 @@
 
 #include <cstdint>
 
-#include "../../../gameEngine/Renderer/Elements.hpp"
+#include "../../../gameEngine/Renderer/Sprites.hpp"
+#include "../../../gameEngine/Renderer/IRenderer.hpp"
 
 void rtypeNetwork::RtypeClient::handleMessages(Renderer &renderer)
 {
@@ -41,7 +42,7 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
         if (renderer.getSpriteMap().find(item.first) ==
             renderer.getSpriteMap().end()) {
             renderer.createSprite(
-                item.first, eltTypeToStr.at(item.second.getType()), vec);
+                item.first, spriteTypeToStr.at(item.second.getType()), vec);
             continue;
         }
         renderer.setPosition(item.first, vec);

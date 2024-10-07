@@ -12,6 +12,7 @@
 #include <queue>
 #include <unordered_map>
 
+#include "../../../Renderer/Events.hpp"
 #include "../../Mediator.hpp"
 #include "../Component/StructComponent.hpp"
 #include "System.hpp"
@@ -59,7 +60,7 @@ class InputsPlayer : public System
         const std::shared_ptr<Mediator> &mediator, const Position &position)
     {
         Entity bullet = mediator->CreateEntity();
-        mediator->AddComponent(bullet, Bullet{});
+        mediator->AddComponent(bullet, BulletPlayer{});
         mediator->AddComponent(bullet, Transform{.velX = 4, .velY = 0});
         mediator->AddComponent(
             bullet, Position{.x = position.x, .y = position.y});
@@ -117,7 +118,8 @@ class DestroyBullets : public System
     {
         for (auto entity : m_Entities) {
             auto &position = mediator->GetComponent<Position>(entity);
-            if (position.x > 1940) {
+            if (position.x > 1940 || position.x < 0 || position.y > 1100 ||
+                position.y < 0) {
                 mediator->DestroyEntity(entity);
                 entitiesToRemove.push(entity);
             }

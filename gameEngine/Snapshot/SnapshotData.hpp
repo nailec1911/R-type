@@ -11,7 +11,8 @@
 #include <cstring>
 #include <vector>
 
-#include "../Renderer/Elements.hpp"
+#include "../Renderer/Sprites.hpp"
+#include "../Renderer/IRenderer.hpp"
 
 class SnapshotData
 {
@@ -21,10 +22,10 @@ class SnapshotData
     SnapshotData(SnapshotData &&) = delete;
     SnapshotData &operator=(const SnapshotData &) = default;
     SnapshotData &operator=(SnapshotData &&) = default;
-    SnapshotData(elementTypes type, int x, int y, int vx, int vy, int info)
+    SnapshotData(spritesTypes type, int x, int y, int vx, int vy, int info)
         : m_type(type), m_x(x), m_y(y), m_vx(vx), m_vy(vy), m_destroy(info){};
     SnapshotData(const std::vector<uint8_t> &bytes, size_t & indx)
-        : m_type(static_cast<elementTypes>(extractInt(bytes, indx + 0))),
+        : m_type(static_cast<spritesTypes>(extractInt(bytes, indx + 0))),
           m_x(extractInt(bytes, indx + 4)),
           m_y(extractInt(bytes, indx + 8)),
           m_vx(extractInt(bytes, indx + 12)),
@@ -67,7 +68,7 @@ operator std::vector<uint8_t>() const
         return {m_x, m_y};
     }
 
-    elementTypes getType()
+    spritesTypes getType()
     {
         return m_type;
     }
@@ -87,7 +88,7 @@ operator std::vector<uint8_t>() const
         return value;
     }
 
-    elementTypes m_type;
+    spritesTypes m_type;
     int m_x;
     int m_y;
     int m_vx;

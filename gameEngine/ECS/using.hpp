@@ -16,9 +16,15 @@ const ComponentType MAX_COMPONENTS = 32;
 using Signature = std::bitset<MAX_COMPONENTS>;
 
 enum bitToRole {
+    NONE,
     PLAYER,
-    BULLET,
+    P_BULLET,
     WALL,
     MONSTER,
     HUD,
+    P_BULLET_CHARGED,
+    M_BULLET,
+    TRANSFORM,
+    POSITION,
+    BOUNDING_BOX,
 };

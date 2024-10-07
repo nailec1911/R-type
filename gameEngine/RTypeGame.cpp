@@ -13,8 +13,9 @@
 #include <thread>
 #include <unordered_map>
 
+#include "ECS/Managers/Component/StructComponent.hpp"
 #include "ECS/using.hpp"
-#include "Renderer/Elements.hpp"
+#include "Renderer/Sprites.hpp"
 #include "Renderer/Events.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
@@ -39,15 +40,15 @@ gameEngine::RTypeGame::createSnapshots(std::queue<Entity> &entitiesToRemove)
     while (!entitiesToRemove.empty()) {
         auto entity = entitiesToRemove.front();
         entitiesToRemove.pop();
-        snapshots[entity] = {elementTypes::NONE, 0, 0, 0, 0, 1};
+        snapshots[entity] = {spritesTypes::EMPTY, 0, 0, 0, 0, 1};
     }
 
     for (auto elem : entities) {
-        if (m_mediator->GetEntityRole(elem.first) == elementTypes::NONE)
+        if (m_mediator->GetEntitySprite(elem.first) == spritesTypes::EMPTY)
             continue;
         auto position = m_mediator->GetComponent<Position>(elem.first);
         auto transform = m_mediator->GetComponent<Transform>(elem.first);
-        auto type = m_mediator->GetEntityRole(elem.first);
+        auto type = m_mediator->GetEntitySprite(elem.first);
         snapshots[elem.first] = {
             type,
             static_cast<int>(position.x),
@@ -64,7 +65,8 @@ void gameEngine::RTypeGame::initSystemSignature(const SystemType &type)
     Signature signature;
     if (type == SystemType::MOTION) {
         signature.set(m_mediator->GetComponentType<Player>());
-        signature.set(m_mediator->GetComponentType<Bullet>());
+        signature.set(m_mediator->GetComponentType<BulletPlayer>());
+        signature.set(m_mediator->GetComponentType<BulletMonster>());
         signature.set(m_mediator->GetComponentType<Monster>());
         m_mediator->SetSystemSignature<MotionSystem>(signature);
         return;
@@ -81,7 +83,8 @@ void gameEngine::RTypeGame::initSystemSignature(const SystemType &type)
         return;
     }
     if (type == SystemType::BULLETDESTRUCTION) {
-        signature.set(m_mediator->GetComponentType<Bullet>());
+        signature.set(m_mediator->GetComponentType<BulletPlayer>());
+        signature.set(m_mediator->GetComponentType<BulletMonster>());
         m_mediator->SetSystemSignature<DestroyBullets>(signature);
         return;
     }
@@ -90,14 +93,15 @@ void gameEngine::RTypeGame::initSystemSignature(const SystemType &type)
 void gameEngine::RTypeGame::initGameRules(void)
 {
     m_mediator = std::make_shared<Mediator>();
-    m_mediator->RegisterComponent<Player>();
-    m_mediator->RegisterComponent<Bullet>();
-    m_mediator->RegisterComponent<Wall>();
-    m_mediator->RegisterComponent<Monster>();
-    m_mediator->RegisterComponent<HUDComp>();
-    m_mediator->RegisterComponent<Transform>();
-    m_mediator->RegisterComponent<Position>();
-    m_mediator->RegisterComponent<BoundingBox>();
+    m_mediator->RegisterComponent<Player>(PLAYER);
+    m_mediator->RegisterComponent<BulletPlayer>(P_BULLET);
+    m_mediator->RegisterComponent<BulletMonster>(M_BULLET);
+    m_mediator->RegisterComponent<Wall>(WALL);
+    m_mediator->RegisterComponent<Monster>(MONSTER);
+    m_mediator->RegisterComponent<HUDComp>(HUD);
+    m_mediator->RegisterComponent<Transform>(TRANSFORM);
+    m_mediator->RegisterComponent<Position>(POSITION);
+    m_mediator->RegisterComponent<BoundingBox>(BOUNDING_BOX);
 
     m_systems.initSystems(m_mediator);
 

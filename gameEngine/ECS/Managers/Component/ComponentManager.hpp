@@ -8,17 +8,18 @@
 #pragma once
 #include "../../using.hpp"
 #include "ComponentArray.hpp"
+#include <cstdint>
 #include <memory>
 
 class ComponentManager
 {
    public:
     template <typename T>
-    void RegisterComponent()
+    void RegisterComponent(uint32_t bitPos)
     {
         const char* typeName = typeid(T).name();
 
-        mComponentTypes.insert({typeName, mNextComponentType});
+        mComponentTypes.insert({typeName, bitPos});
         mComponentArrays.insert(
             {typeName, std::make_shared<ComponentArray<T>>()});
         ++mNextComponentType;
