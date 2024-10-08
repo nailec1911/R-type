@@ -22,15 +22,16 @@
 #include "Renderer/Sprites.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
-gameEngine::RTypeGame::RTypeGame()
-{
-    m_timeManagerThread = std::thread([this]() { this->manageTime(); });
-}
-
 gameEngine::RTypeGame::~RTypeGame()
 {
     if (m_timeManagerThread.joinable())
         m_timeManagerThread.join();
+}
+
+void gameEngine::RTypeGame::startGame(std::unordered_map<float, std::vector<entitySpawn>> &level)
+{
+    createFromConfig(level);
+    m_timeManagerThread = std::thread([this]() { this->manageTime(); });
 }
 
 std::unordered_map<uint32_t, SnapshotData>
@@ -73,6 +74,7 @@ void gameEngine::RTypeGame::initSystemSignature(const SystemType &type)
         signature.set(m_mediator->GetComponentType<BulletPlayer>());
         signature.set(m_mediator->GetComponentType<BulletMonster>());
         signature.set(m_mediator->GetComponentType<Monster>());
+        signature.set(m_mediator->GetComponentType<Wall>());
         m_mediator->SetSystemSignature<MotionSystem>(signature);
         return;
     }
@@ -200,8 +202,8 @@ void gameEngine::RTypeGame::createWall(std::pair<float, float> &pos)
     Entity wall = m_mediator->CreateEntity();
     m_mediator->AddComponent<Wall>(wall, {});
     m_mediator->AddComponent<Position>(wall, {pos.first, pos.second});
-    m_mediator->AddComponent<Transform>(wall, {2, 0});
-    m_mediator->AddComponent<BoundingBox>(wall, {100, 100});
+    m_mediator->AddComponent<Transform>(wall, {-0.5, 0});
+    m_mediator->AddComponent<BoundingBox>(wall, {138, 138});
 }
 
 void gameEngine::RTypeGame::createShooterMonster(std::pair<float, float> &pos)

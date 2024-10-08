@@ -14,8 +14,10 @@
 
 #include "ECS/Managers/System/Systems.hpp"
 #include "ECS/Mediator.hpp"
+#include <chrono>
 #include "ECS/using.hpp"
 #include "Snapshot/SnapshotData.hpp"
+#include "../network/server/src/LevelConfigParser.hpp"
 
 namespace gameEngine {
 class SystemsFactory
@@ -77,7 +79,7 @@ class SystemsFactory
 class RTypeGame
 {
    public:
-    RTypeGame();
+    RTypeGame() = default;
     ~RTypeGame();
     RTypeGame(const RTypeGame &) = delete;
     RTypeGame(RTypeGame &&) = delete;
@@ -96,9 +98,17 @@ class RTypeGame
     };
 
     void initGameRules(void);
+    void startGame(std::unordered_map<float, std::vector<entitySpawn>> &level);
     void initSystemSignature(const SystemType &type);
     void initHUDEntities(void);
-
+    void createFromConfig(std::unordered_map<float, std::vector<entitySpawn>> &level)
+    {
+        if (level.find(m_second) == level.end())
+            return;
+        for (auto &elem : level.at(m_second))
+            createEntity(elem.type, elem.vecPos);
+        level.erase(m_second);
+    } 
     std::unordered_map<uint32_t, SnapshotData> createSnapshots(
         std::vector<Entity> &entitiesToRemove);
 

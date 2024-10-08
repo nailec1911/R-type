@@ -16,6 +16,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "../../gameEngine/RTypeGame.cpp")
 find_package(asio REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 add_executable(Server ${SOURCES})
-target_link_libraries(Server PRIVATE asio::asio)
+target_link_libraries(Server PRIVATE asio::asio yaml-cpp)
