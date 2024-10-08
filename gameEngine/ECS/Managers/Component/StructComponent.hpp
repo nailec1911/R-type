@@ -41,6 +41,12 @@ struct BulletMonster
 struct Monster
 {};
 
+struct ShooterMonster
+{};
+
+struct FlyingMonster
+{};
+
 struct Wall
 {};
 

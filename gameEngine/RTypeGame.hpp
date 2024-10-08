@@ -15,6 +15,7 @@
 #include "ECS/Managers/System/Systems.hpp"
 #include "ECS/Mediator.hpp"
 #include "ECS/using.hpp"
+#include "Renderer/IRenderer.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
 namespace gameEngine {
@@ -27,6 +28,8 @@ class SystemsFactory
         inputsSystem = mediator->RegisterSystem<InputsPlayer>();
         collision = mediator->RegisterSystem<CollisionSystem>();
         destroyBullets = mediator->RegisterSystem<DestroyBullets>();
+        shootingMonster = mediator->RegisterSystem<ShootingMonsterSystem>();
+        flyingMonsterSystem = mediator->RegisterSystem<FlyingMonsterSystem>();
     }
     std::shared_ptr<MotionSystem> getMotionSystem(void)
     {
@@ -46,11 +49,23 @@ class SystemsFactory
         return this->destroyBullets;
     }
 
+    std::shared_ptr<ShootingMonsterSystem> getShootingMonsterSystem(void)
+    {
+        return this->shootingMonster;
+    }
+
+    std::shared_ptr<FlyingMonsterSystem> getFlyingMonsterSystem(void)
+    {
+        return this->flyingMonsterSystem;
+    }
+
    private:
     std::shared_ptr<MotionSystem> motion;
     std::shared_ptr<InputsPlayer> inputsSystem;
     std::shared_ptr<CollisionSystem> collision;
     std::shared_ptr<DestroyBullets> destroyBullets;
+    std::shared_ptr<ShootingMonsterSystem> shootingMonster;
+    std::shared_ptr<FlyingMonsterSystem> flyingMonsterSystem;
 };
 
 class RTypeGame
@@ -68,7 +83,9 @@ class RTypeGame
         MOTION,
         INPUTS,
         COLLISION,
-        BULLETDESTRUCTION
+        BULLETDESTRUCTION,
+        SHOOTERMONSTER,
+        FLYINGMONSTER
     };
 
     void initGameRules(void);
@@ -88,12 +105,18 @@ class RTypeGame
         return m_systems;
     }
 
+    void createEntity(const EntityName &name, std::pair<float, float> pos);
+
+    void createWall(std::pair<float, float> &pos);
+    void createShooterMonster(std::pair<float, float> &pos);
+    void createFlyingMonster(std::pair<float, float> &pos);
+
     std::unordered_map<uint32_t, SnapshotData> updateSystems(
         std::queue<clientEvent> &clientsEvents);
 
    protected:
    private:
-    int m_second{};
+    float m_second{};
     time_t m_start_time{};
     std::shared_ptr<Mediator> m_mediator;
     gameEngine::SystemsFactory m_systems;
