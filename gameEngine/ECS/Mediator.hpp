@@ -6,13 +6,13 @@
 */
 
 #pragma once
-#include <sys/types.h>
-#include <cstdint>
 #include "Managers/Component/ComponentManager.hpp"
 #include "../Renderer/Sprites.hpp"
 #include "Managers/Entity/EntityManager.hpp"
 #include "Managers/System/SystemManager.hpp"
 #include "using.hpp"
+#include <cstdint>
+#include <sys/types.h>
 
 class Mediator
 {
