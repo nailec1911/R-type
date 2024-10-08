@@ -1,0 +1,272 @@
+timeline:
+  - time: 0.0 # Time of spawn
+    entities: # List of ennemies
+      - type: "WALL"
+        spawn_x: 690
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 828
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 966
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 1104
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 1242
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 1380
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 1518
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 1656
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 1792
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 1932
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 2070
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 2208
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 2346
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 2484
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 2622
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 3036
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 3174
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 3312
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 3450
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 3588
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 3726
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 3864
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 4002
+        spawn_y: 0
+      - type: "WALL"
+        spawn_x: 690
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 828
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 966
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 1104
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 1242
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 1380
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 1518
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 1656
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 1794
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 3312
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 3450
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 3588
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 3726
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 3864
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 4002
+        spawn_y: 138
+      - type: "WALL"
+        spawn_x: 2622
+        spawn_y: 276
+      - type: "WALL"
+        spawn_x: 2760
+        spawn_y: 276
+      - type: "WALL"
+        spawn_x: 2898
+        spawn_y: 276
+      - type: "WALL"
+        spawn_x: 3036
+        spawn_y: 276
+      - type: "WALL"
+        spawn_x: 3726
+        spawn_y: 276
+      - type: "WALL"
+        spawn_x: 3864
+        spawn_y: 276
+      - type: "WALL"
+        spawn_x: 2622
+        spawn_y: 690
+      - type: "WALL"
+        spawn_x: 2760
+        spawn_y: 690
+      - type: "WALL"
+        spawn_x: 2898
+        spawn_y: 690
+      - type: "WALL"
+        spawn_x: 3036
+        spawn_y: 690
+      - type: "WALL"
+        spawn_x: 3726
+        spawn_y: 690
+      - type: "WALL"
+        spawn_x: 3864
+        spawn_y: 690
+      - type: "WALL"
+        spawn_x: 690
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 828
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 966
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 1104
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 1242
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 1380
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 1518
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 1656
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 1794
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 3312
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 3450
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 3588
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 3726
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 3864
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 4002
+        spawn_y: 828
+      - type: "WALL"
+        spawn_x: 690
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 828
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 966
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 1104
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 1242
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 1380
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 1518
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 1656
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 1794
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 1932
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 2070
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 2208
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 2346
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 2484
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 2622
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 3036
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 3174
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 3312
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 3450
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 3588
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 3726
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 3864
+        spawn_y: 966
+      - type: "WALL"
+        spawn_x: 4002
+        spawn_y: 966
+  - time: 5.0
+    entities:
+      - type: "FLYING_MONSTER"
+        spawn_x: 1000
+        spawn_y: 520

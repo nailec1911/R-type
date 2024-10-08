@@ -205,40 +205,285 @@ BULLET_P:
   height: 4
   scale: 3
 
+JET_REACTOR_P:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
+  frames:
+    - start: [234, 26]
+      end: [264, 41]
+    - start: [200, 21]
+      end: [231, 45]
+    - start: [167, 20]
+      end: [198, 48]
+    - start: [134, 18]
+      end: [165, 49]
+  width: 31
+  height: 31
+  scale: 3
+
+BULLET_P_FIRE:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
+  frames:
+    - start: [233, 85]
+      end: [243, 95]
+    - start: [215, 85]
+      end: [228, 96]
+    - start: [249, 90]
+      end: [264, 93]
+  width: 18
+  height: 10
+  scale: 3
+
+BULLET_P_CHARGED_20:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
+  frames:
+    - start: [232, 103]
+      end: [247, 114]
+    - start: [249, 105]
+      end: [264, 112]
+  width: 15
+  height: 11
+  scale: 3
+
+BULLET_P_CHARGED_40:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
+  frames:
+    - start: [200, 121]
+      end: [231, 130]
+    - start: [233, 120]
+      end: [264, 131]
+  width: 21
+  height: 11
+  scale: 3
+
+BULLET_P_CHARGED_60:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
+  frames:
+    - start: [168, 137]
+      end: [215, 148]
+    - start: [217, 136]
+      end: [264, 149]
+  width: 47
+  height: 13
+  scale: 3
+
+BULLET_P_CHARGED_80:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
+  frames:
+    - start: [136, 154]
+      end: [199, 167]
+    - start: [201, 154]
+      end: [264, 167]
+  width: 63
+  height: 13
+  scale: 3
+
+BULLET_P_CHARGED_100:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
+  frames:
+    - start: [104, 171]
+      end: [183, 184]
+    - start: [185, 170]
+      end: [264, 285]
+  width: 79
+  height: 13
+  scale: 3
+
+CONCENTRATION_BULLET_CHARGED:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
+  frames:
+    - start: [2, 51]
+      end: [32, 82]
+    - start: [34, 54]
+      end: [62, 79]
+    - start: [68, 54]
+      end: [96, 81]
+    - start: [103, 55]
+      end: [127, 79]
+    - start: [135, 56]
+      end: [157, 77]
+    - start: [163, 58]
+      end: [193, 75]
+    - start: [200, 59]
+      end: [222, 73]
+    - start: [233, 60]
+      end: [252, 71]
+  width: 31
+  height: 31
+  scale: 3
+
+BONUS_LEVEL_1:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet2.gif"
+  frames:
+    - start: [279, 35]
+      end: [298, 50]
+    - start: [255, 35]
+      end: [274, 50]
+    - start: [231, 35]
+      end: [250, 50]
+    - start: [207, 35]
+      end: [226, 50]
+    - start: [183, 35]
+      end: [202, 50]
+    - start: [159, 35]
+      end: [178, 50]
+  width: 19
+  height: 15
+  scale: 3
+
+BONUS_ITEM:
+  sprite: "../gameEngine/Renderer/assets/sprites/bonus.png"
+  frames:
+    - start: [24, 182]
+      end: [62, 217]
+  width: 38
+  height: 35
+  scale: 3
+
 RED_MONSTER_LEFT:
   sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet5.gif"
   frames:
     - start: [236, 10]
       end: [256, 23]
-  # {{203, 13}, {223, 19}},
-  # {{170, 12}, {190, 25}},
-  # {{137, 6}, {157, 29}},
-  # {{104, 10}, {124, 23}},
-  # {{71, 16}, {91, 22}},
-  # {{38, 12}, {58, 25}},
-  # {{5, 6}, {25, 29}}},
+    - start: [203, 13]
+      end: [223, 19]
+    - start: [170, 12]
+      end: [190, 25]
+    - start: [137, 6]
+      end: [157, 29]
+    - start: [104, 10]
+      end: [124, 23]
+    - start: [71, 16]
+      end: [91, 22]
+    - start: [38, 12]
+      end: [58, 25]
+    - start: [5, 6]
+      end: [25, 29]
   width: 20
   height: 23
   scale: 3
+
+RED_MONSTER_RIGHT:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet5.gif"
+  frames:
+    - start: [276, 10]
+      end: [296, 23]
+    - start: [309, 13]
+      end: [329, 19]
+    - start: [342, 12]
+      end: [362, 25]
+    - start: [375, 6]
+      end: [395, 29]
+    - start: [408, 10]
+      end: [428, 23]
+    - start: [441, 16]
+      end: [461, 22]
+    - start: [474, 12]
+      end: [494, 25]
+    - start: [507, 6]
+      end: [527, 29]
+  width: 20
+  height: 23
+  scale: 3
+
+MONSTER_DEATH:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
+  frames:
+    - start: [247, 304]
+      end: [264, 318]
+    - start: [217, 300]
+      end: [243, 319]
+    - start: [182, 296]
+      end: [213, 322]
+    - start: [146, 296]
+      end: [127, 366]
+    - start: [109, 296]
+      end: [140, 325]
+    - start: [72, 296]
+      end: [103, 325]
+  width: 31
+  height: 29
+  scale: 3
+
+MONSTER_DEATH_2:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet44.gif"
+  frames:
+    - start: [130, 2]
+      end: [159, 29]
+    - start: [162, 1]
+      end: [192, 32]
+    - start: [194, 1]
+      end: [225, 32]
+    - start: [228, 2]
+      end: [258, 31]
+    - start: [261, 2]
+      end: [291, 31]
+    - start: [294, 1]
+      end: [324, 31]
+  width: 31
+  height: 31
+  scale: 3
+
 BROWN_MONSTER_LEFT:
   sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet7.gif"
   frames:
     - start: [69, 1]
       end: [96, 32]
-#  {{34, 4}, {65, 32}}, {{1, 4}, {32, 32}}},
+    - start: [34, 4]
+      end: [65, 32]
+    - start: [1, 4]
+      end: [32, 32]
   width: 31
   height: 31
   scale: 3
+
+BROWN_MONSTER_RIGHT:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet7.gif"
+  frames:
+    - start: [103, 1]
+      end: [130, 32]
+    - start: [134, 4]
+      end: [165, 32]
+    - start: [167, 4]
+      end: [198, 32]
+  width: 31
+  height: 31
+  scale: 3
+
+GRAY_MONSTER_RIGHT:
+  sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet11.gif"
+  frames:
+    - start: [101, 1]
+      end: [132, 31]
+    - start: [134, 2]
+      end: [165, 31]
+    - start: [167, 1]
+      end: [198, 31]
+  width: 32
+  height: 30
+  scale: 3
+
 BULLET_M:
   sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet43.gif"
   frames:
-  - start: [188, 6]
-    end: [194, 11]
-# {{170, 6}, {176, 11}},
-# {{153, 6}, {159, 11}},
-# {{136, 6}, {142, 11}}},
+    - start: [188, 6]
+      end: [194, 11]
+    - start: [170, 6]
+      end: [176, 11]
+    - start: [153, 6]
+      end: [159, 11]
+    - start: [136, 6]
+      end: [142, 11]
   width: 7
   height: 6
+  scale: 3
+
+WALL_1:
+  sprite: "../gameEngine/Renderer/assets/sprites/walls2.png"
+  frames:
+    - start: [175, 0]
+      end: [221, 46]
+  width: 46
+  height: 46
   scale: 3
 #  const std::unordered_map<elementTypes, rndr::elementInfo> eltInfo{
 #  {PLAYER1,

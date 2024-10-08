@@ -15,14 +15,16 @@
 int main()
 {
     rtypeNetwork::RtypeServer server(4444, 5);
+    LevelConfigParser levelParser("../configLevel1.yml");
+    std::unordered_map<float, std::vector<entitySpawn>> &level1 = levelParser.getLevel();
+
     gameEngine::RTypeGame rType;
     auto tickDuration = rtypeNetwork::RtypeServer::initTickRate();
     auto nextTick = chrono::now();
 
     rType.initGameRules();
     server.start();
-    rType.createEntity(SHOOTER_MONSTER, {1700, 400});
-    rType.createEntity(FLYING_MONSTER, {1700, 800});
+    rType.startGame(level1);
     while (true) {
         auto start = chrono::now();
         {
@@ -30,6 +32,7 @@ int main()
             auto &clientsEvents = server.getClientsEvents();
             auto snapshots = rType.updateSystems(clientsEvents);
             server.setSnapshots(snapshots);
+            rType.createFromConfig(level1);
         }
         auto elapsedTime = chrono::now() - start;
         nextTick += tickDuration;
