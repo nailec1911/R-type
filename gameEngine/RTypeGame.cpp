@@ -19,7 +19,6 @@
 #include "ECS/Managers/System/Systems.hpp"
 #include "ECS/using.hpp"
 #include "Renderer/Events.hpp"
-#include "Renderer/IRenderer.hpp"
 #include "Renderer/Sprites.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
@@ -146,12 +145,13 @@ void gameEngine::RTypeGame::initHUDEntities(void)
 
 void gameEngine::RTypeGame::manageTime(void)
 {
-    const std::chrono::milliseconds interval(1);
+    const std::chrono::seconds interval(1);
     auto start = std::chrono::high_resolution_clock::now();
+
     while (true) {
         auto now = std::chrono::high_resolution_clock::now();
         auto elapsed =
-            std::chrono::duration_cast<std::chrono::milliseconds>(now - start)
+            std::chrono::duration_cast<std::chrono::seconds>(now - start)
                 .count();
         m_second = static_cast<float>(elapsed);
         std::this_thread::sleep_for(interval);
