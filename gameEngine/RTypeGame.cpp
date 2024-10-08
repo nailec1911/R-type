@@ -104,6 +104,11 @@ void gameEngine::RTypeGame::initSystemSignature(const SystemType &type)
         m_mediator->SetSystemSignature<FlyingMonsterSystem>(signature);
         return;
     }
+    if (type == SystemType::PLAYERBORDER) {
+        signature.set(m_mediator->GetComponentType<Player>());
+        m_mediator->SetSystemSignature<PlayerBorderSystem>(signature);
+        return;
+    }
 }
 
 void gameEngine::RTypeGame::initGameRules(void)
@@ -129,6 +134,7 @@ void gameEngine::RTypeGame::initGameRules(void)
     initSystemSignature(SystemType::BULLETDESTRUCTION);
     initSystemSignature(SystemType::SHOOTERMONSTER);
     initSystemSignature(SystemType::FLYINGMONSTER);
+    initSystemSignature(SystemType::PLAYERBORDER);
 }
 
 void gameEngine::RTypeGame::initHUDEntities(void)
@@ -158,12 +164,13 @@ std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::updateSystems(
     std::vector<Entity> entitiesToRemove{};
 
     getSystems().getInputsSystem()->Update(getMediator(), clientsEvents);
-    getSystems().getMotionSystem()->Update(getMediator());
     getSystems().getCollisionSystem()->Update(getMediator(), entitiesToRemove);
     getSystems().getDestroyBulletSystem()->Update(
         getMediator(), entitiesToRemove);
     getSystems().getShootingMonsterSystem()->Update(getMediator());
     getSystems().getFlyingMonsterSystem()->Update(getMediator());
+    getSystems().getMotionSystem()->Update(getMediator());
+    getSystems().getPlayerBorderSystem()->Update(getMediator());
     for (auto &entity : entitiesToRemove) {
         m_mediator->DestroyEntity(entity);
     }
@@ -204,7 +211,7 @@ void gameEngine::RTypeGame::createShooterMonster(std::pair<float, float> &pos)
     m_mediator->AddComponent<ShooterMonster>(monster, {});
     m_mediator->AddComponent<Position>(monster, {pos.first, pos.second});
     m_mediator->AddComponent<Transform>(monster, {0, 0});
-    m_mediator->AddComponent<BoundingBox>(monster, {100, 100});
+    m_mediator->AddComponent<BoundingBox>(monster, {93, 93});
 }
 
 void gameEngine::RTypeGame::createFlyingMonster(std::pair<float, float> &pos)
@@ -214,5 +221,5 @@ void gameEngine::RTypeGame::createFlyingMonster(std::pair<float, float> &pos)
     m_mediator->AddComponent<FlyingMonster>(monster, {});
     m_mediator->AddComponent<Position>(monster, {pos.first, pos.second});
     m_mediator->AddComponent<Transform>(monster, {-1, 3});
-    m_mediator->AddComponent<BoundingBox>(monster, {100, 100});
+    m_mediator->AddComponent<BoundingBox>(monster, {60, 69});
 }
