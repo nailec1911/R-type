@@ -29,6 +29,7 @@ class SystemsFactory
         destroyBullets = mediator->RegisterSystem<DestroyBullets>();
         shootingMonster = mediator->RegisterSystem<ShootingMonsterSystem>();
         flyingMonsterSystem = mediator->RegisterSystem<FlyingMonsterSystem>();
+        playerBorderSystem = mediator->RegisterSystem<PlayerBorderSystem>();
     }
     std::shared_ptr<MotionSystem> getMotionSystem(void)
     {
@@ -58,6 +59,11 @@ class SystemsFactory
         return this->flyingMonsterSystem;
     }
 
+    std::shared_ptr<PlayerBorderSystem> getPlayerBorderSystem(void)
+    {
+        return this->playerBorderSystem;
+    }
+
    private:
     std::shared_ptr<MotionSystem> motion;
     std::shared_ptr<InputsPlayer> inputsSystem;
@@ -65,6 +71,7 @@ class SystemsFactory
     std::shared_ptr<DestroyBullets> destroyBullets;
     std::shared_ptr<ShootingMonsterSystem> shootingMonster;
     std::shared_ptr<FlyingMonsterSystem> flyingMonsterSystem;
+    std::shared_ptr<PlayerBorderSystem> playerBorderSystem;
 };
 
 class RTypeGame
@@ -84,7 +91,8 @@ class RTypeGame
         COLLISION,
         BULLETDESTRUCTION,
         SHOOTERMONSTER,
-        FLYINGMONSTER
+        FLYINGMONSTER,
+        PLAYERBORDER,
     };
 
     void initGameRules(void);

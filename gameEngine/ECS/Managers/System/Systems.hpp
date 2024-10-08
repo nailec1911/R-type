@@ -33,6 +33,35 @@ class MotionSystem : public System
     }
 };
 
+class PlayerBorderSystem : public System
+{
+   public:
+    void Update(const std::shared_ptr<Mediator> &mediator)
+    {
+        for (auto &entity : this->m_Entities) {
+            auto &position = mediator->GetComponent<Position>(entity);
+            auto &box = mediator->GetComponent<BoundingBox>(entity);
+            auto &transform = mediator->GetComponent<Transform>(entity);
+            if (position.x > 1920 - box.width) {
+                position.x = 1920 - box.width;
+                transform.velX = 0;
+            }
+            if (position.x < 0) {
+                position.x = 0;
+                transform.velX = 0;
+            }
+            if (position.y < 0) {
+                position.y = 0;
+                transform.velY = 0;
+            }
+            if (position.y > 1080 - box.height) {
+                position.y = 1080 - box.height;
+                transform.velY = 0;
+            }
+        }
+    }
+};
+
 class FlyingMonsterSystem : public MonstersSystem
 {
    public:
@@ -78,7 +107,7 @@ class ShootingMonsterSystem : public MonstersSystem
         Entity bullet = mediator->CreateEntity();
         mediator->AddComponent(bullet, BulletMonster{});
         mediator->AddComponent(bullet, Transform{.velX = -4, .velY = 0});
-        mediator->AddComponent(bullet, BoundingBox{50, 50});
+        mediator->AddComponent(bullet, BoundingBox{10, 10});
         mediator->AddComponent(
             bullet, Position{.x = position.x, .y = position.y});
     }
@@ -128,7 +157,7 @@ class InputsPlayer : public System
     {
         Entity bullet = mediator->CreateEntity();
         mediator->AddComponent(bullet, BulletPlayer{});
-        mediator->AddComponent(bullet, BoundingBox{50, 50});
+        mediator->AddComponent(bullet, BoundingBox{10, 10});
         mediator->AddComponent(bullet, Transform{.velX = 4, .velY = 0});
         mediator->AddComponent(
             bullet, Position{.x = position.x, .y = position.y});
