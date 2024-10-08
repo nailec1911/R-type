@@ -15,7 +15,6 @@
 #include "ECS/Managers/System/Systems.hpp"
 #include "ECS/Mediator.hpp"
 #include "ECS/using.hpp"
-#include "Renderer/IRenderer.hpp"
 #include "Snapshot/SnapshotData.hpp"
 
 namespace gameEngine {

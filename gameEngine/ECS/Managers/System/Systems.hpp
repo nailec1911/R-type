@@ -33,22 +33,9 @@ class MotionSystem : public System
     }
 };
 
-class FlyingMonsterSystem : public System
+class FlyingMonsterSystem : public MonstersSystem
 {
    public:
-    void addMonsters()
-    {
-        for (auto entity : m_Entities) {
-            if (std::find_if(
-                    m_monster.begin(), m_monster.end(),
-                    [entity](
-                        std::pair<Entity, std::chrono::steady_clock::time_point>
-                            pair) { return pair.first == entity; }) ==
-                m_monster.end()) {
-                m_monster.push_back({entity, {}});
-            };
-        }
-    }
     static bool changeDirection(
         const std::pair<Entity, std::chrono::steady_clock::time_point> &monster)
     {
@@ -58,18 +45,6 @@ class FlyingMonsterSystem : public System
         return duration.count() > 600;
     }
 
-    void eraseMonsters()
-    {
-        for (auto it = m_monster.begin(); it != m_monster.end();) {
-            Entity monsterEntity = it->first;
-            if (std::find(
-                    m_Entities.begin(), m_Entities.end(), monsterEntity) ==
-                m_Entities.end())
-                it = m_monster.erase(it);
-            else
-                ++it;
-        }
-    }
     void Update(const std::shared_ptr<Mediator> &mediator)
     {
         addMonsters();
@@ -83,13 +58,9 @@ class FlyingMonsterSystem : public System
             }
         }
     }
-
-   private:
-    std::vector<std::pair<Entity, std::chrono::steady_clock::time_point>>
-        m_monster;
 };
 
-class ShootingMonsterSystem : public System
+class ShootingMonsterSystem : public MonstersSystem
 {
    public:
     static bool canShoot(
@@ -99,33 +70,6 @@ class ShootingMonsterSystem : public System
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
             testShot - monster.second);
         return duration.count() > 300;
-    }
-
-    void addMonsters()
-    {
-        for (auto entity : m_Entities) {
-            if (std::find_if(
-                    m_monster.begin(), m_monster.end(),
-                    [entity](
-                        std::pair<Entity, std::chrono::steady_clock::time_point>
-                            pair) { return pair.first == entity; }) ==
-                m_monster.end()) {
-                m_monster.push_back({entity, {}});
-            };
-        }
-    }
-
-    void eraseMonsters()
-    {
-        for (auto it = m_monster.begin(); it != m_monster.end();) {
-            Entity monsterEntity = it->first;
-            if (std::find(
-                    m_Entities.begin(), m_Entities.end(), monsterEntity) ==
-                m_Entities.end())
-                it = m_monster.erase(it);
-            else
-                ++it;
-        }
     }
 
     static void createMBullet(
@@ -151,10 +95,6 @@ class ShootingMonsterSystem : public System
             }
         }
     }
-
-   private:
-    std::vector<std::pair<Entity, std::chrono::steady_clock::time_point>>
-        m_monster;
 };
 
 class InputsPlayer : public System
