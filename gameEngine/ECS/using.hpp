@@ -15,7 +15,7 @@ using ComponentType = std::uint8_t;
 const ComponentType MAX_COMPONENTS = 32;
 using Signature = std::bitset<MAX_COMPONENTS>;
 
-enum bitToRole {
+enum EntityName {
     NONE,
     PLAYER,
     P_BULLET,
@@ -27,4 +27,6 @@ enum bitToRole {
     TRANSFORM,
     POSITION,
     BOUNDING_BOX,
+    SHOOTER_MONSTER,
+    FLYING_MONSTER,
 };

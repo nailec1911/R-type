@@ -16,16 +16,13 @@ int main()
 {
     rtypeNetwork::RtypeServer server(4444, 5);
     gameEngine::RTypeGame rType;
-    auto tickDuration = server.initTickRate();
+    auto tickDuration = rtypeNetwork::RtypeServer::initTickRate();
     auto nextTick = chrono::now();
 
     rType.initGameRules();
     server.start();
-    Entity monstre = rType.getMediator()->CreateEntity();
-    rType.getMediator()->AddComponent<Position>(monstre, Position{800, 800});
-    rType.getMediator()->AddComponent<Transform>(monstre, Transform{0, 0});
-    rType.getMediator()->AddComponent<BoundingBox>(monstre, BoundingBox{50, 60});
-    rType.getMediator()->AddComponent<Monster>(monstre, Monster{});
+    rType.createEntity(SHOOTER_MONSTER, {1700, 400});
+    rType.createEntity(FLYING_MONSTER, {1700, 800});
     while (true) {
         auto start = chrono::now();
         {

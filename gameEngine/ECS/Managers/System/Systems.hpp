@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <memory>
@@ -30,6 +31,130 @@ class MotionSystem : public System
             position.y += transform.velY;
         }
     }
+};
+
+class FlyingMonsterSystem : public System
+{
+   public:
+    void addMonsters()
+    {
+        for (auto entity : m_Entities) {
+            if (std::find_if(
+                    m_monster.begin(), m_monster.end(),
+                    [entity](
+                        std::pair<Entity, std::chrono::steady_clock::time_point>
+                            pair) { return pair.first == entity; }) ==
+                m_monster.end()) {
+                m_monster.push_back({entity, {}});
+            };
+        }
+    }
+    static bool changeDirection(
+        const std::pair<Entity, std::chrono::steady_clock::time_point> &monster)
+    {
+        auto testShot = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+            testShot - monster.second);
+        return duration.count() > 600;
+    }
+
+    void eraseMonsters()
+    {
+        for (auto it = m_monster.begin(); it != m_monster.end();) {
+            Entity monsterEntity = it->first;
+            if (std::find(
+                    m_Entities.begin(), m_Entities.end(), monsterEntity) ==
+                m_Entities.end())
+                it = m_monster.erase(it);
+            else
+                ++it;
+        }
+    }
+    void Update(const std::shared_ptr<Mediator> &mediator)
+    {
+        addMonsters();
+        eraseMonsters();
+        for (auto &monster : m_monster) {
+            if (changeDirection(monster)) {
+                auto &transform =
+                    mediator->GetComponent<Transform>(monster.first);
+                transform.velY *= -1;
+                monster.second = std::chrono::steady_clock::now();
+            }
+        }
+    }
+
+   private:
+    std::vector<std::pair<Entity, std::chrono::steady_clock::time_point>>
+        m_monster;
+};
+
+class ShootingMonsterSystem : public System
+{
+   public:
+    static bool canShoot(
+        const std::pair<Entity, std::chrono::steady_clock::time_point> &monster)
+    {
+        auto testShot = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+            testShot - monster.second);
+        return duration.count() > 300;
+    }
+
+    void addMonsters()
+    {
+        for (auto entity : m_Entities) {
+            if (std::find_if(
+                    m_monster.begin(), m_monster.end(),
+                    [entity](
+                        std::pair<Entity, std::chrono::steady_clock::time_point>
+                            pair) { return pair.first == entity; }) ==
+                m_monster.end()) {
+                m_monster.push_back({entity, {}});
+            };
+        }
+    }
+
+    void eraseMonsters()
+    {
+        for (auto it = m_monster.begin(); it != m_monster.end();) {
+            Entity monsterEntity = it->first;
+            if (std::find(
+                    m_Entities.begin(), m_Entities.end(), monsterEntity) ==
+                m_Entities.end())
+                it = m_monster.erase(it);
+            else
+                ++it;
+        }
+    }
+
+    static void createMBullet(
+        const std::shared_ptr<Mediator> &mediator, const Position &position)
+    {
+        Entity bullet = mediator->CreateEntity();
+        mediator->AddComponent(bullet, BulletMonster{});
+        mediator->AddComponent(bullet, Transform{.velX = -4, .velY = 0});
+        mediator->AddComponent(bullet, BoundingBox{50, 50});
+        mediator->AddComponent(
+            bullet, Position{.x = position.x, .y = position.y});
+    }
+
+    void Update(const std::shared_ptr<Mediator> &mediator)
+    {
+        addMonsters();
+        eraseMonsters();
+        for (auto &monster : m_monster) {
+            auto &position = mediator->GetComponent<Position>(monster.first);
+            if (canShoot(monster)) {
+                createMBullet(mediator, position);
+                monster.second = std::chrono::steady_clock::now();
+            }
+        }
+    }
+
+   private:
+    std::vector<std::pair<Entity, std::chrono::steady_clock::time_point>>
+        m_monster;
 };
 
 class InputsPlayer : public System
@@ -170,10 +295,10 @@ class CollisionSystem : public System
         const std::shared_ptr<Mediator> &mediator,
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB)
     {
-        bitToRole roleA =
-            static_cast<bitToRole>(mediator->GetEntityRole(entityA));
-        bitToRole roleB =
-            static_cast<bitToRole>(mediator->GetEntityRole(entityB));
+        EntityName roleA =
+            static_cast<EntityName>(mediator->GetEntityRole(entityA));
+        EntityName roleB =
+            static_cast<EntityName>(mediator->GetEntityRole(entityB));
 
         if (roleA == roleB)
             return;
@@ -193,7 +318,7 @@ class CollisionSystem : public System
 
     static void roleAPlayer(
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
-        bitToRole roleB)
+        EntityName roleB)
     {
         if (roleB == P_BULLET)
             return;
@@ -210,7 +335,7 @@ class CollisionSystem : public System
 
     static void roleABullet_player(
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
-        bitToRole roleB)
+        EntityName roleB)
     {
         if (roleB == PLAYER)
             return;
@@ -227,7 +352,7 @@ class CollisionSystem : public System
 
     static void roleABullet_monster(
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
-        bitToRole roleB)
+        EntityName roleB)
     {
         if (roleB == MONSTER)
             return;
@@ -244,7 +369,7 @@ class CollisionSystem : public System
 
     static void roleAMonster(
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
-        bitToRole roleB)
+        EntityName roleB)
     {
         if (roleB == M_BULLET || roleB == WALL)
             return;
@@ -261,7 +386,7 @@ class CollisionSystem : public System
 
     static void roleAWall(
         std::vector<Entity> &entitiesToRemove, Entity & /*entityA*/,
-        Entity &entityB, bitToRole roleB)
+        Entity &entityB, EntityName roleB)
     {
         if (roleB == MONSTER)
             return;
@@ -269,8 +394,7 @@ class CollisionSystem : public System
     }
 
     static bool collide(
-        Position &posA, BoundingBox &boxA, Position &posB,
-        BoundingBox &boxB)
+        Position &posA, BoundingBox &boxA, Position &posB, BoundingBox &boxB)
     {
         if (posA.x + boxA.width <= posB.x || posB.x + boxB.width <= posA.x) {
             return false;

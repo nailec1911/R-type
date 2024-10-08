@@ -103,6 +103,10 @@ class Mediator
             return spritesTypes::PLAYER1;
         if (mEntityManager->GetSignature(entity).test(WALL))
             return spritesTypes::WALL_1;
+        if (mEntityManager->GetSignature(entity).test(SHOOTER_MONSTER))
+            return spritesTypes::BROWN_MONSTER_LEFT;
+        if (mEntityManager->GetSignature(entity).test(FLYING_MONSTER))
+            return spritesTypes::RED_MONSTER_LEFT;
         if (mEntityManager->GetSignature(entity).test(MONSTER))
             return spritesTypes::RED_MONSTER_LEFT;
         if (mEntityManager->GetSignature(entity).test(P_BULLET))
