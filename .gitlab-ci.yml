@@ -3,14 +3,9 @@ stages:
   - packaging
   - release
 
-default:
-  image: registry.gitlab.com/epitech-it-2027/rts/rts-env:latest
-  tags:
-    - arch
-
-# Step 1: Install dependencies and create build directory
 build:dependencies:
   stage: build
+  image: registry.gitlab.com/epitech-it-2027/rts/rts-env:latest
   before_script:
     - conan profile detect
   script:
