@@ -7,17 +7,17 @@
 
 #pragma once
 
+#include <chrono>
 #include <cstdint>
 #include <queue>
 #include <thread>
 #include <unordered_map>
 
+#include "../network/server/src/LevelConfigParser.hpp"
 #include "ECS/Managers/System/Systems.hpp"
 #include "ECS/Mediator.hpp"
-#include <chrono>
 #include "ECS/using.hpp"
 #include "Snapshot/SnapshotData.hpp"
-#include "../network/server/src/LevelConfigParser.hpp"
 
 namespace gameEngine {
 class SystemsFactory
@@ -32,6 +32,7 @@ class SystemsFactory
         shootingMonster = mediator->RegisterSystem<ShootingMonsterSystem>();
         flyingMonsterSystem = mediator->RegisterSystem<FlyingMonsterSystem>();
         playerBorderSystem = mediator->RegisterSystem<PlayerBorderSystem>();
+        destroyEntities = mediator->RegisterSystem<DestroyEntities>();
     }
     std::shared_ptr<MotionSystem> getMotionSystem(void)
     {
@@ -66,6 +67,11 @@ class SystemsFactory
         return this->playerBorderSystem;
     }
 
+    std::shared_ptr<DestroyEntities> getDestroyEntitiesSystem(void)
+    {
+        return this->destroyEntities;
+    }
+
    private:
     std::shared_ptr<MotionSystem> motion;
     std::shared_ptr<InputsPlayer> inputsSystem;
@@ -74,6 +80,7 @@ class SystemsFactory
     std::shared_ptr<ShootingMonsterSystem> shootingMonster;
     std::shared_ptr<FlyingMonsterSystem> flyingMonsterSystem;
     std::shared_ptr<PlayerBorderSystem> playerBorderSystem;
+    std::shared_ptr<DestroyEntities> destroyEntities;
 };
 
 class RTypeGame
@@ -95,20 +102,22 @@ class RTypeGame
         SHOOTERMONSTER,
         FLYINGMONSTER,
         PLAYERBORDER,
+        DESTROYENTITIES
     };
 
     void initGameRules(void);
     void startGame(std::unordered_map<float, std::vector<entitySpawn>> &level);
     void initSystemSignature(const SystemType &type);
     void initHUDEntities(void);
-    void createFromConfig(std::unordered_map<float, std::vector<entitySpawn>> &level)
+    void createFromConfig(
+        std::unordered_map<float, std::vector<entitySpawn>> &level)
     {
         if (level.find(m_second) == level.end())
             return;
         for (auto &elem : level.at(m_second))
             createEntity(elem.type, elem.vecPos);
         level.erase(m_second);
-    } 
+    }
     std::unordered_map<uint32_t, SnapshotData> createSnapshots(
         std::vector<Entity> &entitiesToRemove);
 
