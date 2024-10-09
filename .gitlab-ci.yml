@@ -6,6 +6,8 @@ stages:
 build:dependencies:
   stage: build
   image: registry.gitlab.com/epitech-it-2027/rts/rts-env:latest
+  tags:
+    - arch
   before_script:
     - conan profile detect
   script:
