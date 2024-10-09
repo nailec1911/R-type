@@ -91,7 +91,6 @@ void gameEngine::RTypeGame::initSystemSignature(const SystemType &type)
     }
     if (type == SystemType::BULLETDESTRUCTION) {
         signature.set(m_mediator->GetComponentType<BulletPlayer>());
-        signature.set(m_mediator->GetComponentType<BulletMonster>());
         m_mediator->SetSystemSignature<DestroyBullets>(signature);
         return;
     }
@@ -108,6 +107,13 @@ void gameEngine::RTypeGame::initSystemSignature(const SystemType &type)
     if (type == SystemType::PLAYERBORDER) {
         signature.set(m_mediator->GetComponentType<Player>());
         m_mediator->SetSystemSignature<PlayerBorderSystem>(signature);
+        return;
+    }
+    if (type == SystemType::DESTROYENTITIES) {
+        signature.set(m_mediator->GetComponentType<Wall>());
+        signature.set(m_mediator->GetComponentType<BulletMonster>());
+        signature.set(m_mediator->GetComponentType<Monster>());
+        m_mediator->SetSystemSignature<DestroyEntities>(signature);
         return;
     }
 }
@@ -136,6 +142,7 @@ void gameEngine::RTypeGame::initGameRules(void)
     initSystemSignature(SystemType::SHOOTERMONSTER);
     initSystemSignature(SystemType::FLYINGMONSTER);
     initSystemSignature(SystemType::PLAYERBORDER);
+    initSystemSignature(SystemType::DESTROYENTITIES);
 }
 
 void gameEngine::RTypeGame::initHUDEntities(void)
@@ -172,6 +179,7 @@ std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::updateSystems(
     getSystems().getShootingMonsterSystem()->Update(getMediator());
     getSystems().getFlyingMonsterSystem()->Update(getMediator());
     getSystems().getMotionSystem()->Update(getMediator());
+    getSystems().getDestroyEntitiesSystem()->Update(getMediator(), entitiesToRemove);
     getSystems().getPlayerBorderSystem()->Update(getMediator());
     for (auto &entity : entitiesToRemove) {
         m_mediator->DestroyEntity(entity);

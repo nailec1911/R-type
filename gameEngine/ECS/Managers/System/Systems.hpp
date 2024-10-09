@@ -226,12 +226,26 @@ class DestroyBullets : public System
         const std::shared_ptr<Mediator> &mediator,
         std::vector<Entity> &entitiesToRemove)
     {
-        for (auto entity : m_Entities) {
+        for (auto &entity : m_Entities) {
             auto &position = mediator->GetComponent<Position>(entity);
-            if (position.x > 1940 || position.x < 0 || position.y > 1100 ||
-                position.y < 0) {
+            if (position.x > 1940 || position.y > 1100)
                 entitiesToRemove.push_back(entity);
-            }
+        }
+    }
+};
+
+class DestroyEntities : public System
+{
+   public:
+    void Update(
+        const std::shared_ptr<Mediator> &mediator,
+        std::vector<Entity> &entitiesToRemove)
+    {
+        for (auto &entity : m_Entities) {
+            auto &position = mediator->GetComponent<Position>(entity);
+            auto &boundingBox = mediator->GetComponent<BoundingBox>(entity);
+            if (position.x < 0 - boundingBox.width)
+                entitiesToRemove.push_back(entity);
         }
     }
 };
