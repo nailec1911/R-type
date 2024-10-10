@@ -86,7 +86,7 @@ class SystemsFactory
 class RTypeGame
 {
    public:
-    RTypeGame() : m_gameHasStarted(false){};
+    RTypeGame() = default;
     ~RTypeGame();
     RTypeGame(const RTypeGame &) = delete;
     RTypeGame(RTypeGame &&) = delete;
@@ -146,6 +146,11 @@ class RTypeGame
         return m_deadPlayers;
     }
 
+    bool isGameDone() const
+    {
+        return m_gameIsDone;
+    }
+
     void createEntity(const EntityName &name, std::pair<float, float> pos);
 
     void createWall(std::pair<float, float> &pos);
@@ -156,7 +161,7 @@ class RTypeGame
         std::queue<clientEvent> &clientsEvents,
         std::vector<uint32_t> &playersToRemove);
 
-    void gameTrigger();
+    void gameTrigger(float winCondition);
 
    protected:
    private:
@@ -167,7 +172,8 @@ class RTypeGame
     std::thread m_timeManagerThread;
     size_t m_nbPlayers{};
     std::vector<uint32_t> m_deadPlayers;
-    bool m_gameHasStarted;
+    bool m_gameHasStarted{};
+    bool m_gameIsDone{};
     bool m_stopTimer{};
 
     void manageTime(void);

@@ -30,6 +30,7 @@ enum class CustomMessageType
     SNAPSHOT,
     SNAP_OK,
     DEAD,
+    WIN,
     NONE,
 };
 

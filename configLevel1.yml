@@ -270,3 +270,4 @@ timeline:
       - type: "FLYING_MONSTER"
         spawn_x: 1000
         spawn_y: 520
+win_condition: 65.0
