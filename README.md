@@ -91,4 +91,4 @@ Create a new branch `feat-<what you want to add>` push, and make a pull request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE.md)
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENSE.md)
