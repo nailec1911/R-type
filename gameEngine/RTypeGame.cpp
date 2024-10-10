@@ -164,7 +164,8 @@ void gameEngine::RTypeGame::manageTime(void)
 }
 
 std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::updateSystems(
-    std::queue<clientEvent> &clientsEvents, std::vector<uint32_t> &playersToRemove)
+    std::queue<clientEvent> &clientsEvents,
+    std::vector<uint32_t> &playersToRemove)
 {
     std::vector<Entity> entitiesToRemove{};
 
@@ -192,14 +193,16 @@ std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::updateSystems(
     return snapshots;
 }
 
-void gameEngine::RTypeGame::gameTrigger()
+void gameEngine::RTypeGame::gameTrigger(float winCondition)
 {
     if (m_nbPlayers > 0 && !m_gameHasStarted) {
         m_gameHasStarted = true;
         m_stopTimer = true;
         startGame();
     }
-    if (m_nbPlayers <= 0 && m_gameHasStarted)
+    if (winCondition <= m_second)
+        m_gameIsDone = true;
+    if ((m_nbPlayers <= 0 && m_gameHasStarted))
         m_stopTimer = false;
 }
 

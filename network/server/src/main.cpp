@@ -20,8 +20,8 @@ int main(int argc, char **argv)
         return 84;
     rtypeNetwork::RtypeServer server(std::stoi(argv[1]), 5);
     LevelConfigParser levelParser("../configLevel1.yml");
-    std::unordered_map<float, std::vector<entitySpawn>> &level1 =
-        levelParser.getLevel();
+    std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>
+        &levelOne = levelParser.getLevel();
 
     gameEngine::RTypeGame rType;
     auto tickDuration = rtypeNetwork::RtypeServer::initTickRate(128);
@@ -33,12 +33,19 @@ int main(int argc, char **argv)
         auto start = chrono::now();
         {
             std::vector<uint32_t> playersToRemove{};
-            rType.gameTrigger();
+            rType.gameTrigger(levelOne.first);
             server.handleMessages();
             auto &clientsEvents = server.getClientsEvents();
-            auto snapshots = rType.updateSystems(clientsEvents, playersToRemove);
-            server.setSnapshots(snapshots, playersToRemove);
-            rType.createFromConfig(level1);
+            if (!rType.isGameDone()) {
+                auto snapshots =
+                    rType.updateSystems(clientsEvents, playersToRemove);
+                server.setSnapshots(snapshots, playersToRemove);
+                rType.createFromConfig(levelOne.second);
+            } else {
+                asun::message<CustomMessageType> msg{};
+                msg.header.id = CustomMessageType::WIN;
+                server.sendMessageToAllClients(msg);
+            }
         }
         auto elapsedTime = chrono::now() - start;
         nextTick += tickDuration;

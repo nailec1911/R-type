@@ -88,6 +88,12 @@ class RtypeServer
         this->m_gameServ.sendMessageToClient(msg, clientId);
     }
 
+        void sendMessageToAllClients(
+        asun::message<CustomMessageType> &msg)
+    {
+        this->m_gameServ.sendMessageToAllClients(msg);
+    }
+
    private:
     uint32_t m_snapId{0};
     uint8_t m_maxClient;

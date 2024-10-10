@@ -157,6 +157,12 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
         this->sendMessage(m_clients[clientId].endpoint, msg);
     }
 
+    void sendMessageToAllClients(asun::message<Tmessage> &msg)
+    {
+        for (auto &client : m_clients)
+            this->sendMessage(client.second.endpoint, msg);
+    }
+
    protected:
    private:
     uint32_t m_lastId{};

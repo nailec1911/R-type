@@ -51,19 +51,20 @@ class LevelConfigParser
                         stringToEnumMap.at(enemyNode["type"].as<std::string>());
                     enemy.vecPos.first = enemyNode["spawn_x"].as<float>();
                     enemy.vecPos.second = enemyNode["spawn_y"].as<float>();
-                    level[time].push_back(enemy);
+                    level.second[time].push_back(enemy);
                 }
             }
         }
+        level.first = config["win_condition"].as<float>();
     }
     ~LevelConfigParser() = default;
-    std::unordered_map<float, std::vector<entitySpawn>> &getLevel()
+    std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>> &getLevel()
     {
         return level;
     }
     void displayLevelConfig()
     {
-        for (const auto &entry : level) {
+        for (const auto &entry : level.second) {
             float time = entry.first;
             const std::vector<entitySpawn> &entities = entry.second;
             std::cout << "Time: " << time << std::endl;
@@ -77,5 +78,5 @@ class LevelConfigParser
 
    protected:
    private:
-    std::unordered_map<float, std::vector<entitySpawn>> level;
+    std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>> level;
 };

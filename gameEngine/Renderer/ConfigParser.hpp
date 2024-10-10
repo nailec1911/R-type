@@ -12,8 +12,6 @@
 #include <unordered_map>
 #include <yaml-cpp/yaml.h>
 
-
-
 inline std::vector<rndr::Frame> parseFrames(const YAML::Node& framesNode) {
     std::vector<rndr::Frame> frames;
 
