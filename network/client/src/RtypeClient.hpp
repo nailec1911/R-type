@@ -13,6 +13,8 @@
 #include "../../../gameEngine/Snapshot/SnapshotData.hpp"
 #include "../../gameServ/Snapshot.hpp"
 #include "AsioUdpClient.hpp"
+bool checkParameters(int argc, char **argv);
+
 
 namespace rtypeNetwork {
 class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
