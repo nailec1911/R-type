@@ -2,17 +2,32 @@ stages:
   - build
   - packaging
   - release
+  - deploy
 
-build:dependencies:
+build:update-dependencies:
+  stage: build
+  tags:
+    - arch
+    - dockerbuild
+  when: manual
+  image: docker
+  services:
+    - docker:dind
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - docker build -t rts .
+    - docker tag rts:latest registry.gitlab.com/epitech-it-2027/rts/rts-env:latest
+    - docker push registry.gitlab.com/epitech-it-2027/rts/rts-env:latest
+
+build:project:
   stage: build
   image: registry.gitlab.com/epitech-it-2027/rts/rts-env:latest
   tags:
     - arch
-  before_script:
-    - conan profile detect
+    - dockerbuild
   script:
     - cd network
-    - conan install . --output-folder=build --build=missing -c tools.system.package_manager:mode=install
+    - cp -r /usr/app/build .
     - cd build
     - cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
     - cmake --build .
