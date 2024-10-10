@@ -8,6 +8,8 @@
 #include <unistd.h>
 
 #include <chrono>
+#include <cstdint>
+#include <vector>
 
 #include "../../../gameEngine/RTypeGame.hpp"
 #include "RtypeServer.hpp"
@@ -16,7 +18,8 @@ int main()
 {
     rtypeNetwork::RtypeServer server(4444, 5);
     LevelConfigParser levelParser("../configLevel1.yml");
-    std::unordered_map<float, std::vector<entitySpawn>> &level1 = levelParser.getLevel();
+    std::unordered_map<float, std::vector<entitySpawn>> &level1 =
+        levelParser.getLevel();
 
     gameEngine::RTypeGame rType;
     auto tickDuration = rtypeNetwork::RtypeServer::initTickRate(128);
@@ -24,14 +27,15 @@ int main()
 
     rType.initGameRules();
     server.start();
-    rType.startGame(level1);
     while (true) {
         auto start = chrono::now();
         {
+            std::vector<uint32_t> playersToRemove{};
+            rType.gameTrigger();
             server.handleMessages();
             auto &clientsEvents = server.getClientsEvents();
-            auto snapshots = rType.updateSystems(clientsEvents);
-            server.setSnapshots(snapshots);
+            auto snapshots = rType.updateSystems(clientsEvents, playersToRemove);
+            server.setSnapshots(snapshots, playersToRemove);
             rType.createFromConfig(level1);
         }
         auto elapsedTime = chrono::now() - start;

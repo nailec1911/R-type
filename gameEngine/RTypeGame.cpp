@@ -9,6 +9,8 @@
 
 #include <chrono>
 #include <cstdint>
+#include <iostream>
+#include <ostream>
 #include <queue>
 #include <thread>
 #include <unordered_map>
@@ -28,9 +30,8 @@ gameEngine::RTypeGame::~RTypeGame()
         m_timeManagerThread.join();
 }
 
-void gameEngine::RTypeGame::startGame(std::unordered_map<float, std::vector<entitySpawn>> &level)
+void gameEngine::RTypeGame::startGame()
 {
-    createFromConfig(level);
     m_timeManagerThread = std::thread([this]() { this->manageTime(); });
 }
 
@@ -53,9 +54,7 @@ gameEngine::RTypeGame::createSnapshots(std::vector<Entity> &entitiesToRemove)
         auto position = m_mediator->GetComponent<Position>(elem.first);
         auto type = m_mediator->GetEntitySprite(elem.first);
         snapshots[elem.first] = {
-            type,
-            static_cast<int>(position.x),
-            static_cast<int>(position.y),
+            type, static_cast<int>(position.x), static_cast<int>(position.y),
             0};
     }
     return snapshots;
@@ -154,7 +153,7 @@ void gameEngine::RTypeGame::manageTime(void)
     const std::chrono::seconds interval(1);
     auto start = std::chrono::high_resolution_clock::now();
 
-    while (true) {
+    while (m_stopTimer) {
         auto now = std::chrono::high_resolution_clock::now();
         auto elapsed =
             std::chrono::duration_cast<std::chrono::seconds>(now - start)
@@ -165,24 +164,43 @@ void gameEngine::RTypeGame::manageTime(void)
 }
 
 std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::updateSystems(
-    std::queue<clientEvent> &clientsEvents)
+    std::queue<clientEvent> &clientsEvents, std::vector<uint32_t> &playersToRemove)
 {
     std::vector<Entity> entitiesToRemove{};
 
-    getSystems().getInputsSystem()->Update(getMediator(), clientsEvents);
+    m_nbPlayers = getSystems().getInputsSystem()->Update(
+        getMediator(), clientsEvents, m_deadPlayers);
     getSystems().getCollisionSystem()->Update(getMediator(), entitiesToRemove);
     getSystems().getDestroyBulletSystem()->Update(
         getMediator(), entitiesToRemove);
     getSystems().getShootingMonsterSystem()->Update(getMediator());
     getSystems().getFlyingMonsterSystem()->Update(getMediator());
-    getSystems().getMotionSystem()->Update(getMediator());
-    getSystems().getDestroyEntitiesSystem()->Update(getMediator(), entitiesToRemove);
+    if (m_nbPlayers > 0)
+        getSystems().getMotionSystem()->Update(getMediator());
+    getSystems().getDestroyEntitiesSystem()->Update(
+        getMediator(), entitiesToRemove);
     getSystems().getPlayerBorderSystem()->Update(getMediator());
     for (auto &entity : entitiesToRemove) {
+        if (m_mediator->GetEntityRole(entity) == PLAYER) {
+            auto &player = m_mediator->GetComponent<Player>(entity);
+            m_deadPlayers.push_back(player.id);
+            playersToRemove.push_back(player.id);
+        }
         m_mediator->DestroyEntity(entity);
     }
     auto snapshots = createSnapshots(entitiesToRemove);
     return snapshots;
+}
+
+void gameEngine::RTypeGame::gameTrigger()
+{
+    if (m_nbPlayers > 0 && !m_gameHasStarted) {
+        m_gameHasStarted = true;
+        m_stopTimer = true;
+        startGame();
+    }
+    if (m_nbPlayers <= 0 && m_gameHasStarted)
+        m_stopTimer = false;
 }
 
 void gameEngine::RTypeGame::createEntity(

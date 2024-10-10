@@ -90,8 +90,7 @@ class Sprite
     Sprite(Sprite &&) = delete;
     Sprite &operator=(const Sprite &) = default;
     Sprite &operator=(Sprite &&) = delete;
-    Sprite(
-        rndr::elementInfo, rndr::Vector2<float> pos);
+    Sprite(rndr::elementInfo, rndr::Vector2<float> pos);
     ~Sprite() = default;
 
     void setSpritePosition(rndr::Vector2<float> newPosition);
@@ -133,8 +132,7 @@ class Renderer final : public rndr::IRenderer
     void setPosition(
         std::uint32_t idSprite, rndr::Vector2<float> newPosition) override;
     uint32_t createSprite(
-        uint32_t idEntity,
-        const std::string &spriteRef,
+        uint32_t idEntity, const std::string &spriteRef,
         rndr::Vector2<float> pos) override;
     void removeSprite(uint32_t idSprite) override;
     void moveSprite(uint32_t idSprite, rndr::Vector2<float> pos) override;
@@ -142,8 +140,9 @@ class Renderer final : public rndr::IRenderer
     void refresh() override;
     void hideSprite(uint32_t idSprite) override;
     void drawSprite(uint32_t idSprite) override;
+    void display() override;
     void drawText(
-        std::string text, rndr::Vector2<float> pos,
+        std::string text, rndr::Vector2<float> pos, int size,
         rndr::Color color = rndr::Color::White) override;
     rndr::Vector2<float> getPostion(uint32_t idSprite) override
     {
@@ -163,7 +162,8 @@ class Renderer final : public rndr::IRenderer
     {
         return m_eltInfo;
     }
-    void setEltInfo(const std::unordered_map<std::string, rndr::elementInfo> &newEltInfo)
+    void setEltInfo(
+        const std::unordered_map<std::string, rndr::elementInfo> &newEltInfo)
     {
         m_eltInfo = newEltInfo;
     }

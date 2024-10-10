@@ -10,9 +10,11 @@
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <queue>
 #include <unordered_map>
+#include <vector>
 
 #include "../../../Renderer/Events.hpp"
 #include "../../Mediator.hpp"
@@ -183,15 +185,21 @@ class InputsPlayer : public System
         }
     }
 
-    void Update(
+    size_t Update(
         const std::shared_ptr<Mediator> &mediator,
-        std::queue<clientEvent> &clientsEvents)
+        std::queue<clientEvent> &clientsEvents,
+        const std::vector<uint32_t> &deadPlayers)
     {
         eraseDeadPlayers();
         resetPlayerVelocity(mediator);
         while (!clientsEvents.empty()) {
             auto cEvent = clientsEvents.front();
             clientsEvents.pop();
+            if (std::find_if(
+                    deadPlayers.begin(), deadPlayers.end(),
+                    [cEvent](uint32_t value) { return cEvent.id == value; }) !=
+                deadPlayers.end())
+                continue;
             if (m_players.find(cEvent.id) == m_players.end())
                 createPlayer(mediator, cEvent);
             auto &transform =
@@ -211,6 +219,7 @@ class InputsPlayer : public System
                 m_players[cEvent.id].second = std::chrono::steady_clock::now();
             }
         }
+        return m_players.size();
     }
 
    private:

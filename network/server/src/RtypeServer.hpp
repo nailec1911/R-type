@@ -57,8 +57,15 @@ class RtypeServer
                 m_snapId, {other1, other2}, eltsMap));
     }
 
-    void setSnapshots(std::unordered_map<uint32_t, SnapshotData> &snapshots)
+    void setSnapshots(
+        std::unordered_map<uint32_t, SnapshotData> &snapshots,
+        std::vector<uint32_t> &playersToRemove)
     {
+        for (auto &clientId : playersToRemove) {
+            asun::message<CustomMessageType> msg{};
+            msg.header.id = CustomMessageType::DEAD;
+            sendMessageToClient(msg, clientId);
+        }
         {
             std::unique_lock<std::mutex> mtx(m_mtx);
             this->m_snapshots.push(snapshots);
@@ -72,6 +79,12 @@ class RtypeServer
         auto tickDuration = std::chrono::duration_cast<chrono::duration>(
             std::chrono::duration<double>(1.0 / tickRate));
         return tickDuration;
+    }
+
+    void sendMessageToClient(
+        asun::message<CustomMessageType> &msg, uint32_t clientId)
+    {
+        this->m_gameServ.sendMessageToClient(msg, clientId);
     }
 
    private:
