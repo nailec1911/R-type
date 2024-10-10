@@ -7,11 +7,11 @@
 
 #pragma once
 
-#include <chrono>
 #include <cstdint>
 #include <queue>
 #include <thread>
 #include <unordered_map>
+#include <vector>
 
 #include "../network/server/src/LevelConfigParser.hpp"
 #include "ECS/Managers/System/Systems.hpp"
@@ -86,7 +86,7 @@ class SystemsFactory
 class RTypeGame
 {
    public:
-    RTypeGame() = default;
+    RTypeGame() : m_gameHasStarted(false){};
     ~RTypeGame();
     RTypeGame(const RTypeGame &) = delete;
     RTypeGame(RTypeGame &&) = delete;
@@ -106,7 +106,7 @@ class RTypeGame
     };
 
     void initGameRules(void);
-    void startGame(std::unordered_map<float, std::vector<entitySpawn>> &level);
+    void startGame();
     void initSystemSignature(const SystemType &type);
     void initHUDEntities(void);
     void createFromConfig(
@@ -131,6 +131,21 @@ class RTypeGame
         return m_systems;
     }
 
+    bool isGameStarted() const
+    {
+        return m_gameHasStarted;
+    }
+
+    size_t getNbPlayers() const
+    {
+        return m_nbPlayers;
+    }
+
+    std::vector<uint32_t> getDeadPlayers() const
+    {
+        return m_deadPlayers;
+    }
+
     void createEntity(const EntityName &name, std::pair<float, float> pos);
 
     void createWall(std::pair<float, float> &pos);
@@ -138,7 +153,10 @@ class RTypeGame
     void createFlyingMonster(std::pair<float, float> &pos);
 
     std::unordered_map<uint32_t, SnapshotData> updateSystems(
-        std::queue<clientEvent> &clientsEvents);
+        std::queue<clientEvent> &clientsEvents,
+        std::vector<uint32_t> &playersToRemove);
+
+    void gameTrigger();
 
    protected:
    private:
@@ -147,6 +165,10 @@ class RTypeGame
     std::shared_ptr<Mediator> m_mediator;
     gameEngine::SystemsFactory m_systems;
     std::thread m_timeManagerThread;
+    size_t m_nbPlayers{};
+    std::vector<uint32_t> m_deadPlayers;
+    bool m_gameHasStarted;
+    bool m_stopTimer{};
 
     void manageTime(void);
 };

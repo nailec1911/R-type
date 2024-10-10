@@ -17,13 +17,13 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <vector>
 
+#include "ConfigParser.hpp"
 #include "Events.hpp"
 #include "IRenderer.hpp"
-#include "ConfigParser.hpp"
-
 
 ConfigParser::ConfigParser(const std::string &filename)
 {
@@ -50,9 +50,10 @@ Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
     m_texture.loadFromFile(spriteInfo.filepath);
 
     for (size_t i = 0; i < m_nbAnim; i++) {
-        float width = spriteInfo.frames.at(i).bottomRight.x - spriteInfo.frames.at(i).topLeft.x;
-        float height =
-            spriteInfo.frames.at(i).bottomRight.y - spriteInfo.frames.at(i).topLeft.y;
+        float width = spriteInfo.frames.at(i).bottomRight.x -
+                      spriteInfo.frames.at(i).topLeft.x;
+        float height = spriteInfo.frames.at(i).bottomRight.y -
+                       spriteInfo.frames.at(i).topLeft.y;
         sf::IntRect rectSourceSprite(
             static_cast<int>(spriteInfo.frames.at(i).topLeft.x),
             static_cast<int>(spriteInfo.frames.at(i).topLeft.y),
@@ -61,7 +62,7 @@ Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
         sprite.setScale(spriteInfo.scale, spriteInfo.scale);
         sprite.setPosition(pos.x, pos.y);
         // sprite.setOrigin(
-            // static_cast<float>(width) / 2, static_cast<float>(height) / 2);
+        // static_cast<float>(width) / 2, static_cast<float>(height) / 2);
         m_sprites.push_back(sprite);
     }
 }
@@ -125,6 +126,10 @@ void Renderer::refresh()
             m_windowSFML.draw(item.second->getSprite());
         }
     }
+}
+
+void Renderer::display()
+{
     m_windowSFML.display();
 }
 
@@ -169,8 +174,20 @@ void Renderer::clear(rndr::Color color)
 }
 
 void Renderer::drawText(
-    std::string /*text*/, rndr::Vector2<float> /*pos*/, rndr::Color /*color*/)
+    std::string text, rndr::Vector2<float> pos, int size, rndr::Color /*color*/)
 {
+    sf::Font font;
+    if (!font.loadFromFile("../gameEngine/Renderer/assets/PixelifySans-Regular.ttf")) {
+        std::cerr << "Error occured when trying to load font." << std::endl;
+        return;
+    }
+    sf::Text newText;
+    newText.setString(text);
+    newText.setFont(font);
+    newText.setCharacterSize(size);
+    newText.setFillColor(sf::Color(255, 255, 255, 128));  
+    newText.setPosition(pos.x, pos.y);
+    m_windowSFML.draw(newText);
 }
 
 void Renderer::loopBackGround()

@@ -34,6 +34,9 @@ int main()
         events = renderer.getEvents();
         eventMessage = inputToMessage(events);
         renderer.refresh();
+        if (client.isPlayerDead())
+            renderer.drawText("You're dead.", rndr::Vector2<float>(420, 400), 200);
+        renderer.display();
         for (const auto& elem : eventMessage) {
             client.sendMessage(elem);
         }

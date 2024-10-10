@@ -152,6 +152,11 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
         return m_clients.size();
     };
 
+    void sendMessageToClient(asun::message<Tmessage> &msg, uint32_t &clientId)
+    {
+        this->sendMessage(m_clients[clientId].endpoint, msg);
+    }
+
    protected:
    private:
     uint32_t m_lastId{};

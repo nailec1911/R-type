@@ -24,6 +24,8 @@ void rtypeNetwork::RtypeClient::handleMessages(Renderer &renderer)
             ok << id;
             sendMessage(ok);
         }
+        if (msg.header.id == CustomMessageType::DEAD)
+            m_isPlayerDead = true;
     }
 };
 
