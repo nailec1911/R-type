@@ -14,9 +14,11 @@
 #include "../../../gameEngine/RTypeGame.hpp"
 #include "RtypeServer.hpp"
 
-int main()
+int main(int argc, char **argv)
 {
-    rtypeNetwork::RtypeServer server(4444, 5);
+    if (!checkParamsServer(argc, argv))
+        return 84;
+    rtypeNetwork::RtypeServer server(std::stoi(argv[1]), 5);
     LevelConfigParser levelParser("../configLevel1.yml");
     std::unordered_map<float, std::vector<entitySpawn>> &level1 =
         levelParser.getLevel();

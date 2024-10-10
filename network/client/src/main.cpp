@@ -13,13 +13,15 @@
 
 std::vector<asun::message<CustomMessageType>> inputToMessage(const std::vector<Event>& events);
 
-int main()
+int main(int argc, char **argv)
 {
+    if (!checkParameters(argc, argv))
+        return 84;
     Renderer renderer({1920, 1080}, "Rtype");
     ConfigParser config("../configEntity.yml");
     renderer.setEltInfo(config.getEltInfo());
     asun::message<CustomMessageType> msg{};
-    rtypeNetwork::RtypeClient client("127.0.0.1", 4444);
+    rtypeNetwork::RtypeClient client(argv[1], std::stoi(argv[2]));
     msg.header.id = CustomMessageType::LOGIN;
     std::vector<asun::message<CustomMessageType>> eventMessage;
     std::vector<Event> events;
