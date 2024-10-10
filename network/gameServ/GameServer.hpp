@@ -33,7 +33,7 @@ template <typename Telement, int nb_others>
 class ClientHistory
 {
    public:
-    ClientHistory() : m_Snapshots({Snapshot<Telement, nb_others>()}) {};
+    ClientHistory() : m_Snapshots({Snapshot<Telement, nb_others>()}){};
     ClientHistory(const ClientHistory &) = delete;
     ClientHistory(ClientHistory &&) = delete;
     ClientHistory &operator=(const ClientHistory &) = default;
@@ -48,7 +48,7 @@ class ClientHistory
         m_Snapshots.push_back(master);
 
         if (snapVec.empty())
-            return  Snapshot<Telement, nb_others>();
+            return Snapshot<Telement, nb_others>();
 
         for (auto &snap : snapVec) {
             if (time(0) - snap.getCreationTime() > 1) {
@@ -83,14 +83,17 @@ template <typename Telement, int nb_others, typename Tmessage>
 class GameServer : public asun::AsioUdpServer<Tmessage>
 {
    public:
-    GameServer(uint16_t port) : asun::AsioUdpServer<Tmessage>(port), m_master(Snapshot<Telement, nb_others>()){};
+    GameServer(uint16_t port)
+        : asun::AsioUdpServer<Tmessage>(port),
+          m_master(Snapshot<Telement, nb_others>()){};
     GameServer(const GameServer &) = delete;
     GameServer(GameServer &&) = delete;
     GameServer &operator=(const GameServer &) = delete;
     GameServer &operator=(GameServer &&) = delete;
     ~GameServer() = default;
 
-    void sendMaster(Tmessage headerId, Snapshot<Telement, nb_others> newSnapshot)
+    void sendMaster(
+        Tmessage headerId, Snapshot<Telement, nb_others> newSnapshot)
     {
         m_master = std::move(newSnapshot);
         for (auto &items : m_clientHistory) {
@@ -180,8 +183,9 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
         sendDeltaDiff(headerId, clientId, oldSnap);
     };
 
-    void sendDeltaDiff(Tmessage headerId,
-        uint32_t clientId, Snapshot<Telement, nb_others> oldSnap)
+    void sendDeltaDiff(
+        Tmessage headerId, uint32_t clientId,
+        Snapshot<Telement, nb_others> oldSnap)
     {
         std::array<int, nb_others> diffOthers{0};
         std::bitset<nb_others> updateOthers;
@@ -196,8 +200,10 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
         }
 
         std::unordered_map<uint32_t, Telement> diffElements;
-        std::unordered_map<uint32_t, Telement> oldElements = oldSnap.getElements();
-        std::unordered_map<uint32_t, Telement> masterElements = m_master.getElements();
+        std::unordered_map<uint32_t, Telement> oldElements =
+            oldSnap.getElements();
+        std::unordered_map<uint32_t, Telement> masterElements =
+            m_master.getElements();
 
         for (auto elt : masterElements) {
             if (elt.second != oldElements[elt.first]) {
@@ -210,6 +216,8 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
         asun::message<Tmessage> msg{};
         msg.header.id = headerId;
         msg << deltaDiff.toMessage();
+        msg.header.checksum = msg.calculateChecksum(
+            reinterpret_cast<const char *>(msg.body.data()), msg.header.size);
         this->sendMessage(m_clients[clientId].endpoint, msg);
     }
 };

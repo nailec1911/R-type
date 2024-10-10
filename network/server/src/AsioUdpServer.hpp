@@ -64,6 +64,7 @@ class AsioUdpServer : public AsioNetworkThread
         : AsioNetworkThread(port),
           m_socket(m_ctx, asio::ip::udp::endpoint(asio::ip::udp::v4(), port))
     {
+        m_socket.set_option(asio::socket_base::send_buffer_size(65536));
         readHeader();
     }
     AsioUdpServer(AsioUdpServer &&) = delete;

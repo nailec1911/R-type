@@ -19,7 +19,7 @@ int main()
     std::unordered_map<float, std::vector<entitySpawn>> &level1 = levelParser.getLevel();
 
     gameEngine::RTypeGame rType;
-    auto tickDuration = rtypeNetwork::RtypeServer::initTickRate();
+    auto tickDuration = rtypeNetwork::RtypeServer::initTickRate(128);
     auto nextTick = chrono::now();
 
     rType.initGameRules();

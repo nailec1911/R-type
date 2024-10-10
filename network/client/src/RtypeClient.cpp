@@ -9,8 +9,8 @@
 
 #include <cstdint>
 
-#include "../../../gameEngine/Renderer/Sprites.hpp"
 #include "../../../gameEngine/Renderer/IRenderer.hpp"
+#include "../../../gameEngine/Renderer/Sprites.hpp"
 
 void rtypeNetwork::RtypeClient::handleMessages(Renderer &renderer)
 {
@@ -39,6 +39,9 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
         rndr::Vector2<float> vec = {
             static_cast<float>(item.second.getXY().x),
             static_cast<float>(item.second.getXY().y)};
+        auto type = item.second.getType();
+        if (spriteTypeToStr.find(type) == spriteTypeToStr.end())
+            continue;
         if (renderer.getSpriteMap().find(item.first) ==
             renderer.getSpriteMap().end()) {
             renderer.createSprite(

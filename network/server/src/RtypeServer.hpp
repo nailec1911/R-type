@@ -67,9 +67,8 @@ class RtypeServer
         m_cond.notify_one();
     }
 
-    static std::chrono::steady_clock::duration initTickRate()
+    static std::chrono::steady_clock::duration initTickRate(int tickRate)
     {
-        const int tickRate = 128;
         auto tickDuration = std::chrono::duration_cast<chrono::duration>(
             std::chrono::duration<double>(1.0 / tickRate));
         return tickDuration;

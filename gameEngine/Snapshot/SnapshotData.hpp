@@ -22,17 +22,15 @@ class SnapshotData
     SnapshotData(SnapshotData &&) = delete;
     SnapshotData &operator=(const SnapshotData &) = default;
     SnapshotData &operator=(SnapshotData &&) = default;
-    SnapshotData(spritesTypes type, int x, int y, int vx, int vy, int info)
-        : m_type(type), m_x(x), m_y(y), m_vx(vx), m_vy(vy), m_destroy(info){};
+    SnapshotData(spritesTypes type, int x, int y, int info)
+        : m_type(type), m_x(x), m_y(y), m_destroy(info){};
     SnapshotData(const std::vector<uint8_t> &bytes, size_t & indx)
         : m_type(static_cast<spritesTypes>(extractInt(bytes, indx + 0))),
           m_x(extractInt(bytes, indx + 4)),
           m_y(extractInt(bytes, indx + 8)),
-          m_vx(extractInt(bytes, indx + 12)),
-          m_vy(extractInt(bytes, indx + 16)),
-          m_destroy(extractInt(bytes, indx + 20))
+          m_destroy(extractInt(bytes, indx + 12))
     {
-        indx += 24;
+        indx += 16;
     }
     ~SnapshotData() = default;
 
@@ -50,8 +48,6 @@ operator std::vector<uint8_t>() const
     appendIntToVector(m_type);
     appendIntToVector(m_x);
     appendIntToVector(m_y);
-    appendIntToVector(m_vx);
-    appendIntToVector(m_vy);
     appendIntToVector(m_destroy);
 
     return res;
@@ -59,8 +55,7 @@ operator std::vector<uint8_t>() const
 
     bool operator==(const SnapshotData &b) const
     {
-        return m_x == b.m_x && m_y == b.m_y && m_vx == b.m_vx &&
-               m_vy == b.m_vy && m_destroy == b.m_destroy;
+        return m_x == b.m_x && m_y == b.m_y && m_destroy == b.m_destroy;
     }
 
     rndr::Vector2<int> getXY()
@@ -91,7 +86,5 @@ operator std::vector<uint8_t>() const
     spritesTypes m_type;
     int m_x;
     int m_y;
-    int m_vx;
-    int m_vy;
     int m_destroy;
 };

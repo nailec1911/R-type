@@ -21,6 +21,7 @@ struct messageHeader
 {
     T id{};
     std::uint32_t size = 0;
+    uint32_t checksum;
 };
 
 template <typename T>
@@ -40,13 +41,6 @@ struct message
            << " Size: " << msg.header.size << std::endl;
         return os;
     };
-
-    friend message<T> &operator<<(message<T> &dest, const message<T> &source)
-    {
-        // TODO
-        (void)dest;
-        (void)source;
-    }
 
     template <typename DataType>
     friend message<T> &operator<<(message<T> &msg, const DataType &data)
@@ -85,6 +79,15 @@ struct message
         msg.header.size = msg.size();
 
         return msg;
+    }
+
+    uint32_t calculateChecksum(const char *data, size_t length)
+    {
+        uint32_t checksum = 0;
+        for (size_t i = 0; i < length; ++i) {
+            checksum += data[i];
+        }
+        return checksum;
     }
 };
 }  // namespace asun
