@@ -8,6 +8,7 @@
 #pragma once
 
 #include <asio.hpp>
+#include <asio/socket_base.hpp>
 #include <cstdint>
 #include <iostream>
 
@@ -27,6 +28,7 @@ class AsioUdpClient : public AsioNetworkThread
           m_socket(m_ctx, m_serverEndpoint.protocol())
     {
         m_socket.connect(m_serverEndpoint);
+        m_socket.set_option(asio::socket_base::receive_buffer_size(65536));
         readHeader();
     }
     AsioUdpClient(AsioUdpClient &&) = delete;
@@ -106,6 +108,12 @@ class AsioUdpClient : public AsioNetworkThread
             m_serverEndpoint,
             [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
+                    uint32_t receivedChecksum = m_readMessage.header.checksum;
+                    uint32_t calculatedChecksum = m_readMessage.calculateChecksum(
+                        reinterpret_cast<const char *>(m_readMessage.body.data()),
+                        m_readMessage.header.size);
+                    if (receivedChecksum != calculatedChecksum)
+                        return readHeader();
                     m_readQueue.push(m_readMessage);
                     readHeader();
                 }

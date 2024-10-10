@@ -44,21 +44,18 @@ gameEngine::RTypeGame::createSnapshots(std::vector<Entity> &entitiesToRemove)
     while (!entitiesToRemove.empty()) {
         auto entity = entitiesToRemove.front();
         entitiesToRemove.erase(entitiesToRemove.begin());
-        snapshots[entity] = {spritesTypes::EMPTY, 0, 0, 0, 0, 1};
+        snapshots[entity] = {spritesTypes::EMPTY, 0, 0, 1};
     }
 
     for (auto elem : entities) {
         if (m_mediator->GetEntitySprite(elem.first) == spritesTypes::EMPTY)
             continue;
         auto position = m_mediator->GetComponent<Position>(elem.first);
-        auto transform = m_mediator->GetComponent<Transform>(elem.first);
         auto type = m_mediator->GetEntitySprite(elem.first);
         snapshots[elem.first] = {
             type,
             static_cast<int>(position.x),
             static_cast<int>(position.y),
-            static_cast<int>(transform.velX),
-            static_cast<int>(transform.velY),
             0};
     }
     return snapshots;

@@ -28,7 +28,7 @@ rtypeNetwork::RtypeServer::~RtypeServer()
 
 void rtypeNetwork::RtypeServer::manageTickRate()
 {
-    auto tickDuration = initTickRate();
+    auto tickDuration = initTickRate(128);
     auto nextTick = chrono::now();
     while (true) {
         auto start = chrono::now();
