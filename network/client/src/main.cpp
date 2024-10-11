@@ -15,10 +15,17 @@ std::vector<asun::message<CustomMessageType>> inputToMessage(
 
 int main(int argc, char** argv)
 {
-    if (!checkParameters(argc, argv))
+    try {
+        checkParametersClient(argc, argv);
+    } catch (const HelpExceptionClient &e) {
+        std::cout << e.what() << std::endl;
+        return 0;
+    } catch (const ErrorParams &p) {
+        std::cout << p.what() << std::endl;
         return 84;
+    }
     Renderer renderer({1920, 1080}, "Rtype");
-    ConfigParser config("../configEntity.yml");
+    ConfigParser config("../configEntities/configEntity.yml");
     renderer.setEltInfo(config.getEltInfo());
     asun::message<CustomMessageType> msg{};
     rtypeNetwork::RtypeClient client(argv[1], std::stoi(argv[2]));

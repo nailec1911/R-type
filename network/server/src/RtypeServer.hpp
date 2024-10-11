@@ -19,8 +19,7 @@
 #include "../../../gameEngine/Renderer/Events.hpp"
 #include "../../../gameEngine/Snapshot/SnapshotData.hpp"
 #include "../../gameServ/GameServer.hpp"
-
-bool checkParamsServer(int argc, char **argv);
+#include "../../Errors.hpp"
 using chrono = std::chrono::steady_clock;
 
 namespace rtypeNetwork {

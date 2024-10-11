@@ -265,7 +265,7 @@ timeline:
       - type: "WALL"
         spawn_x: 4002
         spawn_y: 966
-  - time: 8.0
+  - time: 5.0
     entities:
       - type: "SHOOTER_MONSTER"
         spawn_x: 1920

@@ -16,13 +16,19 @@
 
 int main(int argc, char **argv)
 {
-    if (!checkParamsServer(argc, argv))
+    try {
+        checkParametersServer(argc, argv);
+    } catch (const HelpExceptionServer &e) {
+        std::cout << e.what() << std::endl;
+        return 0;
+    } catch (const ErrorParams &p) {
+        std::cout << p.what() << std::endl;
         return 84;
+    }
     rtypeNetwork::RtypeServer server(std::stoi(argv[1]), 5);
-    LevelConfigParser levelParser("../configLevel1.yml");
+    LevelConfigParser levelParser("../configLevels/configLevel1.yml");
     std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>
         &levelOne = levelParser.getLevel();
-
     gameEngine::RTypeGame rType;
     auto tickDuration = rtypeNetwork::RtypeServer::initTickRate(128);
     auto nextTick = chrono::now();
