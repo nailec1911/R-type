@@ -100,7 +100,7 @@ class ShootingMonsterSystem : public MonstersSystem
         auto testShot = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
             testShot - monster.second);
-        return duration.count() > 300;
+        return duration.count() > 600;
     }
 
     static void createMBullet(

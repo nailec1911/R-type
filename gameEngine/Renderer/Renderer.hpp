@@ -90,7 +90,7 @@ class Sprite
     Sprite(Sprite &&) = delete;
     Sprite &operator=(const Sprite &) = default;
     Sprite &operator=(Sprite &&) = delete;
-    Sprite(rndr::elementInfo, rndr::Vector2<float> pos);
+    Sprite(rndr::elementInfo, rndr::Vector2<float> pos, size_t frameRate);
     ~Sprite() = default;
 
     void setSpritePosition(rndr::Vector2<float> newPosition);
@@ -113,6 +113,8 @@ class Sprite
     sf::Texture m_texture;
     size_t m_nbAnim{};
     size_t m_indexFrame{};
+    size_t m_frameRate;
+    size_t m_triggerNextFrame{};
 };
 
 class Renderer final : public rndr::IRenderer
@@ -152,7 +154,7 @@ class Renderer final : public rndr::IRenderer
     {
         return m_windowSFML.isOpen();
     }
-    std::vector<Event> getEvents();
+    std::vector<Event> getEvents() override;
 
     std::unordered_map<uint32_t, std::unique_ptr<Sprite>> &getSpriteMap()
     {
@@ -182,5 +184,5 @@ class Renderer final : public rndr::IRenderer
     std::unordered_map<std::string, rndr::elementInfo> m_eltInfo;
     float m_deltaTime;
     float m_bgSpeed;
-    int m_frameRate;
+    size_t m_frameRate;
 };
