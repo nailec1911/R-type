@@ -59,15 +59,13 @@ Players control a spaceship, navigating through various levels, defeating enemie
 ### Controls
 
 - Arrow Keys: Move the spaceship (Up, Down, Left, Right)
-- Space: Shoot
-- P: Pause the game
-- Esc: Exit the game
+- B: Shoot
 
 ### Multiplayer
 
 - Ensure the server is running before clients connect.
 - Clients connect to the server using the server's IP address and designated port.
-- Players join a lobby and can start the game once all players are ready.
+- Game start once a player is connected, when others join they start at the first player game state.
 
 ### Level edition
 
