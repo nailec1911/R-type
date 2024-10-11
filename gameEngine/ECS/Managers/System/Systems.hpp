@@ -104,14 +104,18 @@ class ShootingMonsterSystem : public MonstersSystem
     }
 
     static void createMBullet(
-        const std::shared_ptr<Mediator> &mediator, const Position &position)
+        const std::shared_ptr<Mediator> &mediator, const Entity &monster)
     {
+        auto &position = mediator->GetComponent<Position>(monster);
+        auto &boundingBox = mediator->GetComponent<BoundingBox>(monster);
         Entity bullet = mediator->CreateEntity();
         mediator->AddComponent(bullet, BulletMonster{});
         mediator->AddComponent(bullet, Transform{.velX = -4, .velY = 0});
         mediator->AddComponent(bullet, BoundingBox{10, 10});
         mediator->AddComponent(
-            bullet, Position{.x = position.x, .y = position.y});
+            bullet,
+            Position{
+                .x = position.x, .y = position.y + boundingBox.height / 2});
     }
 
     void Update(const std::shared_ptr<Mediator> &mediator)
@@ -119,9 +123,8 @@ class ShootingMonsterSystem : public MonstersSystem
         addMonsters();
         eraseMonsters();
         for (auto &monster : m_monster) {
-            auto &position = mediator->GetComponent<Position>(monster.first);
             if (canShoot(monster)) {
-                createMBullet(mediator, position);
+                createMBullet(mediator, monster.first);
                 monster.second = std::chrono::steady_clock::now();
             }
         }
@@ -155,14 +158,16 @@ class InputsPlayer : public System
     }
 
     static void createBullet(
-        const std::shared_ptr<Mediator> &mediator, const Position &position)
+        const std::shared_ptr<Mediator> &mediator, const Entity &entity)
     {
+        auto &position = mediator->GetComponent<Position>(entity);
+        auto &boundingBox = mediator->GetComponent<BoundingBox>(entity);
         Entity bullet = mediator->CreateEntity();
         mediator->AddComponent(bullet, BulletPlayer{});
         mediator->AddComponent(bullet, BoundingBox{10, 10});
         mediator->AddComponent(bullet, Transform{.velX = 4, .velY = 0});
         mediator->AddComponent(
-            bullet, Position{.x = position.x, .y = position.y});
+            bullet, Position{.x = position.x, .y = position.y + boundingBox.height / 2});
     }
 
     bool canShoot(const clientEvent &cEvent)
@@ -204,8 +209,6 @@ class InputsPlayer : public System
                 createPlayer(mediator, cEvent);
             auto &transform =
                 mediator->GetComponent<Transform>(m_players[cEvent.id].first);
-            auto position =
-                mediator->GetComponent<Position>(m_players[cEvent.id].first);
             if (cEvent.event.key == EventKey::KeyLeft)
                 transform.velX = -4;
             if (cEvent.event.key == EventKey::KeyRight)
@@ -215,7 +218,7 @@ class InputsPlayer : public System
             if (cEvent.event.key == EventKey::KeyDown)
                 transform.velY = 4;
             if (cEvent.event.key == EventKey::KeyB && canShoot(cEvent)) {
-                createBullet(mediator, position);
+                createBullet(mediator, m_players[cEvent.id].first);
                 m_players[cEvent.id].second = std::chrono::steady_clock::now();
             }
         }

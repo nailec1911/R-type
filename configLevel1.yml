@@ -273,4 +273,95 @@ timeline:
       - type: "SHOOTER_MONSTER"
         spawn_x: 1920
         spawn_y: 700
+  - time: 20.0
+    entities:
+      - type: "SHOOTER_MONSTER"
+        spawn_x: 1920
+        spawn_y: 150
+      - type: "SHOOTER_MONSTER"
+        spawn_x: 1920
+        spawn_y: 850
+  - time: 3.0
+    entities:
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 500
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 600
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 700
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 800
+  - time: 2.0
+    entities:
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 500
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 600
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 700
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 800
+  - time: 5.0
+    entities:
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 500
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 600
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 700
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 800
+  - time: 4.0
+    entities:
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 500
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 600
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 700
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 800
+  - time: 6.0
+    entities:
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 500
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 600
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 700
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 800
+  - time: 10.0
+    entities:
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 600
+  - time: 12.0
+    entities:
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 600
+      - type: "FLYING_MONSTER"
+        spawn_x: 1920
+        spawn_y: 700
 win_condition: 65.0

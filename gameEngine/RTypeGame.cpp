@@ -248,6 +248,6 @@ void gameEngine::RTypeGame::createFlyingMonster(std::pair<float, float> &pos)
     m_mediator->AddComponent<Monster>(monster, {});
     m_mediator->AddComponent<FlyingMonster>(monster, {});
     m_mediator->AddComponent<Position>(monster, {pos.first, pos.second});
-    m_mediator->AddComponent<Transform>(monster, {-0.5, 3});
+    m_mediator->AddComponent<Transform>(monster, {-1, 3});
     m_mediator->AddComponent<BoundingBox>(monster, {60, 69});
 }

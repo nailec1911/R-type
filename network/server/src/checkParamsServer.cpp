@@ -5,11 +5,7 @@
 ** checkParamsServer
 */
 #include <stdbool.h>
-#include <iostream>
-#include <sstream>
 #include <string>
-#include <algorithm>
-#include <vector>
 
 bool checkParamsServer(int argc, char **argv)
 {
