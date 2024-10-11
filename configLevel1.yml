@@ -265,9 +265,12 @@ timeline:
       - type: "WALL"
         spawn_x: 4002
         spawn_y: 966
-  - time: 5.0
+  - time: 8.0
     entities:
-      - type: "FLYING_MONSTER"
-        spawn_x: 1000
-        spawn_y: 520
+      - type: "SHOOTER_MONSTER"
+        spawn_x: 1920
+        spawn_y: 300
+      - type: "SHOOTER_MONSTER"
+        spawn_x: 1920
+        spawn_y: 700
 win_condition: 65.0

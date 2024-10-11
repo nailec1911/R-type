@@ -44,8 +44,11 @@ ConfigParser::ConfigParser(const std::string &filename)
     }
 }
 
-Sprite::Sprite(rndr::elementInfo spriteInfo, rndr::Vector2<float> pos)
-    : m_display(true), m_nbAnim(spriteInfo.frames.size())
+Sprite::Sprite(
+    rndr::elementInfo spriteInfo, rndr::Vector2<float> pos, size_t frameRate)
+    : m_display(true),
+      m_nbAnim(spriteInfo.frames.size()),
+      m_frameRate(frameRate)
 {
     m_texture.loadFromFile(spriteInfo.filepath);
 
@@ -92,7 +95,11 @@ sf::Sprite &Sprite::getSprite()
 {
     if (m_nbAnim == 1)
         return m_sprites.at(0);
-    m_indexFrame += 1;
+    if (m_triggerNextFrame == m_frameRate / 4) {
+        m_indexFrame += 1;
+        m_triggerNextFrame = 0;
+    } else
+        m_triggerNextFrame += 1;
     if (m_indexFrame == m_nbAnim)
         m_indexFrame = 0;
     return m_sprites.at(m_indexFrame);
@@ -142,7 +149,8 @@ void Renderer::setPosition(
 uint32_t Renderer::createSprite(
     uint32_t idEntity, const std::string &spriteRef, rndr::Vector2<float> pos)
 {
-    auto sprite = std::make_unique<Sprite>(m_eltInfo[spriteRef], pos);
+    auto sprite =
+        std::make_unique<Sprite>(m_eltInfo[spriteRef], pos, m_frameRate);
     m_spriteMap[idEntity] = std::move(sprite);
     return idEntity;
 }
@@ -177,7 +185,8 @@ void Renderer::drawText(
     std::string text, rndr::Vector2<float> pos, int size, rndr::Color /*color*/)
 {
     sf::Font font;
-    if (!font.loadFromFile("../gameEngine/Renderer/assets/PixelifySans-Regular.ttf")) {
+    if (!font.loadFromFile(
+            "../gameEngine/Renderer/assets/PixelifySans-Regular.ttf")) {
         std::cerr << "Error occured when trying to load font." << std::endl;
         return;
     }
@@ -185,7 +194,7 @@ void Renderer::drawText(
     newText.setString(text);
     newText.setFont(font);
     newText.setCharacterSize(size);
-    newText.setFillColor(sf::Color(255, 255, 255, 128));  
+    newText.setFillColor(sf::Color(255, 255, 255, 128));
     newText.setPosition(pos.x, pos.y);
     m_windowSFML.draw(newText);
 }
