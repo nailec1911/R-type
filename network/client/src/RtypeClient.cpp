@@ -48,11 +48,27 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
             continue;
         if (renderer.getSpriteMap().find(item.first) ==
             renderer.getSpriteMap().end()) {
-            renderer.createSprite(
-                item.first, spriteTypeToStr.at(item.second.getType()), vec);
+            if (type == PLAYER1)
+                type = choosePlayerSprite();
+            renderer.createSprite(item.first, spriteTypeToStr.at(type), vec);
             continue;
         }
         renderer.setPosition(item.first, vec);
     }
     return newSnapshot.getId();
+}
+
+spritesTypes rtypeNetwork::RtypeClient::choosePlayerSprite()
+{
+    spritesTypes type = PLAYER1;
+    if (m_nbPlayers == 1)
+        type = PLAYER2;
+    if (m_nbPlayers == 2)
+        type = PLAYER3;
+    if (m_nbPlayers == 3)
+        type = PLAYER4;
+    if (m_nbPlayers == 4)
+        type = PLAYER5;
+    m_nbPlayers += 1;
+    return type;
 }

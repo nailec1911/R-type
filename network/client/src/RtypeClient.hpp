@@ -43,10 +43,13 @@ class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
     }
 
    private:
-    static uint32_t updateGameData(
+    uint32_t updateGameData(
         const gameServer::Snapshot<SnapshotData, 2> &newSnapshot,
         Renderer &renderer);
+    
+    spritesTypes choosePlayerSprite();
     bool m_isPlayerDead{};
     bool m_hasPlayerWon{};
+    size_t m_nbPlayers{};
 };
 }  // namespace rtypeNetwork

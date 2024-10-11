@@ -41,7 +41,8 @@ std::vector<asun::message<CustomMessageType>> inputToMessage(
             newMsg.header.id = CustomMessageType::NONE;
             break;
         }
-        eventMessages.push_back(newMsg);
+        if (newMsg.header.id != CustomMessageType::NONE)
+            eventMessages.push_back(newMsg);
     }
     return eventMessages;
 }
