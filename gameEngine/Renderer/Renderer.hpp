@@ -113,13 +113,22 @@ class Sprite
     sf::Texture m_texture;
     size_t m_nbAnim{};
     size_t m_indexFrame{};
-    size_t m_frameRate;
+    size_t m_frameRate{};
     size_t m_triggerNextFrame{};
 };
 
 class Renderer final : public rndr::IRenderer
 {
    public:
+    class ErrorRenderer : public std::exception {
+        public:
+            const char* what() const noexcept override
+            {
+                return m_message.c_str();
+            }
+        private:
+            std::string m_message;
+    };
     Renderer() = delete;
     Renderer(
         rndr::Vector2<int> size = {1920, 1080}, std::string title = "",

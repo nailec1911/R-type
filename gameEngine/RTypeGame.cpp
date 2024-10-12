@@ -23,6 +23,17 @@
 #include "Renderer/Events.hpp"
 #include "Renderer/Sprites.hpp"
 #include "Snapshot/SnapshotData.hpp"
+#include <filesystem>
+
+std::vector<std::string> getAllConfigFile(char const *filepath)
+{
+    std::vector<std::string> files;
+
+    for (const auto &elem : std::filesystem::directory_iterator(filepath)) {
+        files.push_back(elem.path().string());
+    }
+    return files;
+}
 
 gameEngine::RTypeGame::~RTypeGame()
 {

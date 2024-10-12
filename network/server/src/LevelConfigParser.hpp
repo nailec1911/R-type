@@ -15,6 +15,8 @@
 
 #include "../../../gameEngine/ECS/using.hpp"
 
+std::vector<std::string> getAllConfigFile(char const *filepath);
+
 static const std::unordered_map<std::string, EntityName> stringToEnumMap = {
     {"NONE", NONE},
     {"PLAYER", PLAYER},
@@ -38,45 +40,41 @@ struct entitySpawn
 
 class LevelConfigParser
 {
-   public:
-    LevelConfigParser(const std::string &filename)
-    {
-        YAML::Node config = YAML::LoadFile(filename);
-        for (const auto &elem : config["timeline"]) {
-            float time = elem["time"].as<float>();
-            if (elem["entities"]) {
-                for (const auto &enemyNode : elem["entities"]) {
-                    entitySpawn enemy;
-                    enemy.type =
-                        stringToEnumMap.at(enemyNode["type"].as<std::string>());
-                    enemy.vecPos.first = enemyNode["spawn_x"].as<float>();
-                    enemy.vecPos.second = enemyNode["spawn_y"].as<float>();
-                    level.second[time].push_back(enemy);
+    public:
+        class ErrorLevelParser : std::exception {
+            public:
+                ErrorLevelParser(const std::string &msg) : m_msg(msg) {}
+                const char *what() const noexcept override
+                {
+                    return m_msg.c_str();
+                }
+            private:
+                std::string m_msg;
+        };
+
+        LevelConfigParser();
+        ~LevelConfigParser() = default;
+        std::vector<std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>> &getLevel()
+        {
+            return m_level;
+        }
+        std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>> &getLevelbyId(int id)
+        {
+            return m_level.at(id);
+        }
+   protected:
+   private:
+        void validateEntity(const YAML::Node& entityNode) 
+        {
+            static const std::vector<std::string> requiredFields = {
+                "type", "spawn_x", "spawn_x"
+            };
+
+            for (const auto& field : requiredFields) {
+                if (!entityNode[field]) {
+                    throw ErrorLevelParser("Error : Missing field '" + field + "' in configuration file.");
                 }
             }
         }
-        level.first = config["win_condition"].as<float>();
-    }
-    ~LevelConfigParser() = default;
-    std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>> &getLevel()
-    {
-        return level;
-    }
-    void displayLevelConfig()
-    {
-        for (const auto &entry : level.second) {
-            float time = entry.first;
-            const std::vector<entitySpawn> &entities = entry.second;
-            std::cout << "Time: " << time << std::endl;
-            for (const auto &entity : entities) {
-                std::cout << "Entity Type: " << entity.type
-                          << " Spawn X: " << entity.vecPos.first
-                          << " Spawn Y: " << entity.vecPos.second << std::endl;
-            }
-        }
-    }
-
-   protected:
-   private:
-    std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>> level;
+    std::vector<std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>> m_level;
 };
