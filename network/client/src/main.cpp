@@ -13,28 +13,16 @@
 std::vector<asun::message<CustomMessageType>> inputToMessage(
     const std::vector<Event>& events);
 
-int main(int argc, char** argv)
+static
+void gameloop(Renderer &renderer,  rtypeNetwork::RtypeClient &client, ConfigParser &config)
 {
-    try {
-        checkParametersClient(argc, argv);
-    } catch (const HelpExceptionClient &e) {
-        std::cout << e.what() << std::endl;
-        return 0;
-    } catch (const ErrorParams &p) {
-        std::cout << p.what() << std::endl;
-        return 84;
-    }
-    Renderer renderer({1920, 1080}, "Rtype");
-    ConfigParser config("../configEntities/configEntity.yml");
-    renderer.setEltInfo(config.getEltInfo());
-    asun::message<CustomMessageType> msg{};
-    rtypeNetwork::RtypeClient client(argv[1], std::stoi(argv[2]));
-    msg.header.id = CustomMessageType::LOGIN;
     std::vector<asun::message<CustomMessageType>> eventMessage;
     std::vector<Event> events;
+    asun::message<CustomMessageType> msg{};
+    msg.header.id = CustomMessageType::LOGIN;
 
     renderer.setBackgrounds(
-        "../gameEngine/Renderer/assets/background_5.png", 50);
+        config.getBackground(), 50);
     client.start();
     client.sendMessage(msg);
     while (renderer.isWindowOpen()) {
@@ -52,6 +40,29 @@ int main(int argc, char** argv)
         for (const auto& elem : eventMessage) {
             client.sendMessage(elem);
         }
+    }
+}
+
+int main(int argc, char** argv)
+{
+    try {
+        checkParametersClient(argc, argv);
+        Renderer renderer({1920, 1080}, "Rtype");
+        ConfigParser config;
+        renderer.setEltInfo(config.getEltInfo());
+        rtypeNetwork::RtypeClient client(argv[1], std::stoi(argv[2]));
+        gameloop(renderer, client, config);
+    } catch (const ErrorParams &p) {
+        std::cout << p.what() << std::endl;
+        return 84;
+    } catch (const ConfigParser::ErrorParser &c) {
+        std::cout << c.what() << std::endl;
+        return 84;
+    } catch (const Renderer::ErrorRenderer &r) {
+        std::cout << r.what() << std::endl;
+        return 84;
+    } catch (const HelpExceptionClient &e) {
+        std::cout << e.what() << std::endl;
     }
     return 0;
 }

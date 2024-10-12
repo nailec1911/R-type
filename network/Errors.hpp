@@ -16,21 +16,21 @@ int checkParametersServer(int argc, char** argv);
 class Error : public std::exception
 {
    public:
-    Error(const std::string& msg, int code) : message(msg), errorCode(code) {}
+    Error(const std::string& msg, int code) : m_message(msg), m_errorCode(code) {}
 
     const char* what() const noexcept override
     {
-        return message.c_str();
+        return m_message.c_str();
     }
 
     int getCode() const
     {
-        return errorCode;
+        return m_errorCode;
     }
 
    private:
-    std::string message;
-    int errorCode;
+    std::string m_message;
+    int m_errorCode;
 };
 
 class ErrorParams : public Error

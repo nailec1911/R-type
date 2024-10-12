@@ -26,6 +26,17 @@ namespace rtypeNetwork {
 class RtypeServer
 {
    public:
+    class ErrorRtypeServer : std::exception {
+        public:
+            ErrorRtypeServer(const std::string &msg) : m_msg(msg) {}
+            
+            const char* what() const noexcept override
+            {
+                return m_msg.c_str();
+            }
+        private:
+            std::string m_msg;
+    };
     RtypeServer(uint16_t port, uint8_t maxClient);
     RtypeServer(RtypeServer &&) = delete;
     RtypeServer(const RtypeServer &) = delete;

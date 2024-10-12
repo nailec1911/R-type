@@ -1,0 +1,64 @@
+background: "../gameEngine/Renderer/assets/background_5.png"
+Entities:
+  BROWN_MONSTER_LEFT:
+    sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet7.gif"
+    frames:
+      - start: [69, 1]
+        end: [96, 32]
+      - start: [34, 4]
+        end: [65, 32]
+      - start: [1, 4]
+        end: [32, 32]
+    width: 31
+    height: 31
+    scale: 3
+  
+  BROWN_MONSTER_RIGHT:
+    sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet7.gif"
+    frames:
+      - start: [103, 1]
+        end: [130, 32]
+      - start: [134, 4]
+        end: [165, 32]
+      - start: [167, 4]
+        end: [198, 32]
+    width: 31
+    height: 31
+    scale: 3
+  
+  GRAY_MONSTER_RIGHT:
+    sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet11.gif"
+    frames:
+      - start: [101, 1]
+        end: [132, 31]
+      - start: [134, 2]
+        end: [165, 31]
+      - start: [167, 1]
+        end: [198, 31]
+    width: 32
+    height: 30
+    scale: 3
+  
+  BULLET_M:
+    sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet43.gif"
+    frames:
+      - start: [188, 6]
+        end: [194, 11]
+      - start: [170, 6]
+        end: [176, 11]
+      - start: [153, 6]
+        end: [159, 11]
+      - start: [136, 6]
+        end: [142, 11]
+    width: 7
+    height: 6
+    scale: 3
+  
+  WALL_1:
+    sprite: "../gameEngine/Renderer/assets/sprites/walls2.png"
+    frames:
+      - start: [175, 0]
+        end: [221, 46]
+    width: 46
+    height: 46
+    scale: 3
