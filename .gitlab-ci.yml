@@ -31,3 +31,40 @@ build:project:
     - cd build
     - cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
     - cmake --build .
+  artifacts:
+    paths:
+      - network/Server
+      - network/Client
+    expire_in: 1 day
+
+build:windows:
+  stage: build
+  tags:
+    - windows  # Tag should match the runner's tag for Windows
+  script:
+    - echo "Setting up Conan profile for MSVC"
+    - conan profile detect --force
+    #- conan profile update settings.compiler="Visual Studio" default
+    #- conan profile update settings.compiler.version=16 default  # Use 16 for Visual Studio 2019
+    #- conan profile update settings.compiler.runtime=MD default
+    #- conan profile update settings.build_type=Release default
+
+    - echo "Installing dependencies with Conan"
+    - cd network
+    - conan install . --output-folder=build --build=missing
+
+    - cd build
+    - cmake .. -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
+    - cmake --build . --config Release
+
+    #- echo "Configuring CMake"
+    #- cmake -G "Visual Studio 17 2022" -A x64 -B ${BUILD_DIR}
+
+    #- echo "Building the project"
+    #- cmake --build ${BUILD_DIR} --config Release
+
+  artifacts:
+    paths:
+      - ${BUILD_DIR}/Release
+    expire_in: 1 day
+  allow_failure: true
