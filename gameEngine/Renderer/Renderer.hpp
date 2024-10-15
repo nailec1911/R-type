@@ -16,6 +16,8 @@
 #include <SFML/Window/Window.hpp>
 #include <cstdint>
 #include <ctime>
+#include <new>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -117,6 +119,51 @@ class Sprite
     size_t m_triggerNextFrame{};
 };
 
+class Text
+{
+   public:
+    Text() = default;
+    Text(const Text &) = default;
+    Text(Text &&) = default;
+    Text &operator=(const Text &) = default;
+    Text &operator=(Text &&) = default;
+    Text(std::string text, rndr::Vector2<float> pos, int size) : m_textString(text), m_pos(pos), m_size(size)
+    {
+        if (!m_font.loadFromFile(
+            "../gameEngine/Renderer/assets/PixelifySans-Regular.ttf")) {
+            std::cerr << "Error occured when trying to load font." << std::endl;
+            return;
+        }
+        m_text.setString(m_textString);
+        m_text.setFont(m_font);
+        m_text.setCharacterSize(m_size);
+        m_text.setFillColor(sf::Color(255, 255, 255, 128));
+        m_text.setPosition(m_pos.x, m_pos.y);
+    }
+    ~Text() = default;
+
+    void setTextPosition(rndr::Vector2<float> newPosition)
+    {
+        m_pos = newPosition;
+    }
+    sf::Text &getText()
+    {
+        return m_text;
+    }
+    rndr::Vector2<float> getTextPosition()
+    {
+        return m_pos;
+    }
+
+   protected:
+   private:
+    sf::Text m_text;
+    std::string m_textString;
+    rndr::Vector2<float> m_pos;
+    int m_size;
+    sf::Font m_font;
+};
+
 class Renderer final : public rndr::IRenderer
 {
    public:
@@ -151,10 +198,8 @@ class Renderer final : public rndr::IRenderer
     void refresh() override;
     void hideSprite(uint32_t idSprite) override;
     void drawSprite(uint32_t idSprite) override;
+    void drawText(const std::string &text) override;
     void display() override;
-    void drawText(
-        std::string text, rndr::Vector2<float> pos, int size,
-        rndr::Color color = rndr::Color::White) override;
     rndr::Vector2<float> getPostion(uint32_t idSprite) override
     {
         return m_spriteMap[idSprite]->getSpritePosition();
@@ -168,6 +213,10 @@ class Renderer final : public rndr::IRenderer
     std::unordered_map<uint32_t, std::unique_ptr<Sprite>> &getSpriteMap()
     {
         return m_spriteMap;
+    }
+    std::unordered_map<std::string, std::unique_ptr<Text>> &getTextMap()
+    {
+        return m_textMap;
     }
     std::unordered_map<std::string, rndr::elementInfo> getEltInfo()
     {
@@ -183,6 +232,7 @@ class Renderer final : public rndr::IRenderer
    private:
     void loopBackGround();
     std::unordered_map<uint32_t, std::unique_ptr<Sprite>> m_spriteMap;
+    std::unordered_map<std::string, std::unique_ptr<Text>> m_textMap;
     std::string m_background;
     sf::RenderWindow m_windowSFML;
     sf::Texture m_bgTexture;

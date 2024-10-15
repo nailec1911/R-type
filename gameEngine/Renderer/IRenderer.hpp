@@ -86,12 +86,11 @@ class IRenderer
     virtual void removeSprite(uint32_t idSprite) = 0;
     virtual void hideSprite(uint32_t idSprite) = 0;
     virtual void drawSprite(uint32_t idSprite) = 0;
+    virtual void drawText(const std::string &text) = 0;
     virtual void display() = 0;
     virtual void moveSprite(uint32_t idSprite, Vector2<float> pos) = 0;
     virtual void clear(Color color = Color::Black) = 0;
     virtual void refresh() = 0;
-    virtual void drawText(
-        std::string text, Vector2<float> pos, int size, Color color = Color::White) = 0;
     virtual Vector2<float> getPostion(uint32_t idSprite) = 0;
     virtual std::vector<Event> getEvents() = 0;
     virtual bool isWindowOpen() = 0;

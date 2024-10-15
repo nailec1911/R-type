@@ -85,6 +85,11 @@ void Renderer::drawSprite(uint32_t idSprite)
     m_windowSFML.draw(m_spriteMap[idSprite]->getSprite());
 }
 
+void Renderer::drawText(const std::string &text)
+{
+    m_windowSFML.draw(m_textMap[text]->getText());
+}
+
 void Renderer::hideSprite(uint32_t idSprite)
 {
     m_spriteMap[idSprite]->setDraw(false);
@@ -98,24 +103,6 @@ void Renderer::moveSprite(uint32_t idSprite, rndr::Vector2<float> pos)
 void Renderer::clear(rndr::Color color)
 {
     m_windowSFML.clear(conv_color.at(color));
-}
-
-void Renderer::drawText(
-    std::string text, rndr::Vector2<float> pos, int size, rndr::Color /*color*/)
-{
-    sf::Font font;
-    if (!font.loadFromFile(
-            "../gameEngine/Renderer/assets/PixelifySans-Regular.ttf")) {
-        std::cerr << "Error occured when trying to load font." << std::endl;
-        return;
-    }
-    sf::Text newText;
-    newText.setString(text);
-    newText.setFont(font);
-    newText.setCharacterSize(size);
-    newText.setFillColor(sf::Color(255, 255, 255, 128));
-    newText.setPosition(pos.x, pos.y);
-    m_windowSFML.draw(newText);
 }
 
 void Renderer::loopBackGround()
