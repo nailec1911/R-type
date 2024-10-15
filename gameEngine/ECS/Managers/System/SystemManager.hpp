@@ -8,7 +8,6 @@
 #pragma once
 #include "../../using.hpp"
 #include "System.hpp"
-#include <algorithm>
 #include <memory>
 #include <unordered_map>
 
@@ -26,7 +25,7 @@ class SystemManager
     }
 
     template <typename T>
-    std::shared_ptr<System> GetSystem()
+    std::shared_ptr<ISystem> GetSystem()
     {
         const char *typeName = typeid(T).name();
 

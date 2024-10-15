@@ -9,8 +9,8 @@
 
 #include <chrono>
 #include <cstdint>
-#include <iostream>
-#include <ostream>
+#include <filesystem>
+#include <memory>
 #include <queue>
 #include <thread>
 #include <unordered_map>
@@ -19,11 +19,12 @@
 
 #include "ECS/Managers/Component/StructComponent.hpp"
 #include "ECS/Managers/System/Systems.hpp"
+#include "ECS/Mediator.hpp"
 #include "ECS/using.hpp"
 #include "Renderer/Events.hpp"
 #include "Renderer/Sprites.hpp"
 #include "Snapshot/SnapshotData.hpp"
-#include <filesystem>
+#include "updateDataStruct.hpp"
 
 std::vector<std::string> getAllConfigFile(char const *filepath)
 {
@@ -140,7 +141,14 @@ void gameEngine::RTypeGame::initGameRules(void)
     m_mediator->RegisterComponent<Position>(POSITION);
     m_mediator->RegisterComponent<BoundingBox>(BOUNDING_BOX);
 
-    m_systems.initSystems(m_mediator);
+    m_systems.addSystem<InputsPlayer>(m_mediator);
+    m_systems.addSystem<CollisionSystem>(m_mediator);
+    m_systems.addSystem<DestroyBullets>(m_mediator);
+    m_systems.addSystem<ShootingMonsterSystem>(m_mediator);
+    m_systems.addSystem<FlyingMonsterSystem>(m_mediator);
+    m_systems.addSystem<MotionSystem>(m_mediator);
+    m_systems.addSystem<DestroyEntities>(m_mediator);
+    m_systems.addSystem<PlayerBorderSystem>(m_mediator);
 
     initSystemSignature(SystemType::MOTION);
     initSystemSignature(SystemType::INPUTS);
@@ -178,29 +186,23 @@ std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::updateSystems(
     std::queue<clientEvent> &clientsEvents,
     std::vector<uint32_t> &playersToRemove)
 {
-    std::vector<Entity> entitiesToRemove{};
+    DataUpdate data = {
+        clientsEvents, m_deadPlayers, {}, m_nbPlayers};
 
-    m_nbPlayers = getSystems().getInputsSystem()->Update(
-        getMediator(), clientsEvents, m_deadPlayers);
-    getSystems().getCollisionSystem()->Update(getMediator(), entitiesToRemove);
-    getSystems().getDestroyBulletSystem()->Update(
-        getMediator(), entitiesToRemove);
-    getSystems().getShootingMonsterSystem()->Update(getMediator());
-    getSystems().getFlyingMonsterSystem()->Update(getMediator());
-    if (m_nbPlayers > 0)
-        getSystems().getMotionSystem()->Update(getMediator());
-    getSystems().getDestroyEntitiesSystem()->Update(
-        getMediator(), entitiesToRemove);
-    getSystems().getPlayerBorderSystem()->Update(getMediator());
-    for (auto &entity : entitiesToRemove) {
+    for (auto system : m_systems.getSystems())
+        system->Update(getMediator(), data);
+    for (auto &entity : data.entitiesToRemove) {
         if (m_mediator->GetEntityRole(entity) == PLAYER) {
             auto &player = m_mediator->GetComponent<Player>(entity);
-            m_deadPlayers.push_back(player.id);
+            data.deadPlayers.push_back(player.id);
             playersToRemove.push_back(player.id);
         }
         m_mediator->DestroyEntity(entity);
     }
-    auto snapshots = createSnapshots(entitiesToRemove);
+    auto snapshots = createSnapshots(data.entitiesToRemove);
+    clientsEvents = {};
+    m_deadPlayers = data.deadPlayers;
+    m_nbPlayers = data.nbPlayers;
     return snapshots;
 }
 
