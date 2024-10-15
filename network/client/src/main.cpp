@@ -35,8 +35,6 @@ void gameloop(Renderer &renderer,  rtypeNetwork::RtypeClient &client, ConfigPars
             renderer.getTextMap()["DEAD"] = std::make_unique<Text>(std::string("You're dead"), rndr::Vector2<float>(500, 400), 200);
             renderer.drawText("DEAD");
         }
-        if (renderer.getTextMap().find("DEAD") != renderer.getTextMap().end())
-            std::cout << renderer.getTextMap().at("DEAD")->getTextPosition().x << std::endl;
         if (client.hasPlayerWon()) {
             renderer.getTextMap()["WIN"] = std::make_unique<Text>("You won", rndr::Vector2<float>(500, 400), 200);
             renderer.drawText("WIN");

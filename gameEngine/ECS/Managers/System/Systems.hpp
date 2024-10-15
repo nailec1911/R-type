@@ -8,24 +8,41 @@
 #pragma once
 
 #include <algorithm>
+#include <any>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <queue>
 #include <unordered_map>
 #include <vector>
 
 #include "../../../Renderer/Events.hpp"
+#include "../../../updateDataStruct.hpp"
 #include "../../Mediator.hpp"
 #include "../Component/StructComponent.hpp"
 #include "System.hpp"
 
+inline std::shared_ptr<Mediator> castAnyTypeMediator(std::any med)
+{
+    try {
+        auto mediator = std::any_cast<std::shared_ptr<Mediator>>(med);
+        return mediator;
+    } catch (const std::bad_any_cast &e) {
+        std::cerr << e.what() << std::endl;
+        return nullptr;
+    }
+}
+
 class MotionSystem : public System
 {
    public:
-    void Update(const std::shared_ptr<Mediator> &mediator)
+    void Update(std::any med, DataUpdate &data) override
     {
+        auto mediator = castAnyTypeMediator(med);
+        if (data.nbPlayers <= 0)
+            return;
         for (Entity const &entity : this->m_Entities) {
             auto &transform = mediator->GetComponent<Transform>(entity);
             auto &position = mediator->GetComponent<Position>(entity);
@@ -38,8 +55,9 @@ class MotionSystem : public System
 class PlayerBorderSystem : public System
 {
    public:
-    void Update(const std::shared_ptr<Mediator> &mediator)
+    void Update(std::any med, DataUpdate &/*data*/) override
     {
+        auto mediator = castAnyTypeMediator(med);
         for (auto &entity : this->m_Entities) {
             auto &position = mediator->GetComponent<Position>(entity);
             auto &box = mediator->GetComponent<BoundingBox>(entity);
@@ -76,8 +94,9 @@ class FlyingMonsterSystem : public MonstersSystem
         return duration.count() > 600;
     }
 
-    void Update(const std::shared_ptr<Mediator> &mediator)
+    void Update(std::any med, DataUpdate &/*data*/) override
     {
+        auto mediator = castAnyTypeMediator(med);
         addMonsters();
         eraseMonsters();
         for (auto &monster : m_monster) {
@@ -104,7 +123,7 @@ class ShootingMonsterSystem : public MonstersSystem
     }
 
     static void createMBullet(
-        const std::shared_ptr<Mediator> &mediator, const Entity &monster)
+        std::shared_ptr<Mediator> &mediator, const Entity &monster)
     {
         auto &position = mediator->GetComponent<Position>(monster);
         auto &boundingBox = mediator->GetComponent<BoundingBox>(monster);
@@ -118,8 +137,9 @@ class ShootingMonsterSystem : public MonstersSystem
                 .x = position.x, .y = position.y + boundingBox.height / 2});
     }
 
-    void Update(const std::shared_ptr<Mediator> &mediator)
+    void Update(std::any med, DataUpdate &/*data*/) override
     {
+        auto mediator = castAnyTypeMediator(med);
         addMonsters();
         eraseMonsters();
         for (auto &monster : m_monster) {
@@ -135,7 +155,7 @@ class InputsPlayer : public System
 {
    public:
     void createPlayer(
-        const std::shared_ptr<Mediator> &mediator, const clientEvent &cEvent)
+        std::shared_ptr<Mediator> &mediator, const clientEvent &cEvent)
     {
         Entity newPlayer = mediator->CreateEntity();
         mediator->AddComponent<Player>(newPlayer, Player{.id = cEvent.id});
@@ -147,7 +167,7 @@ class InputsPlayer : public System
         m_players[cEvent.id] = {newPlayer, {}};
     }
 
-    void resetPlayerVelocity(const std::shared_ptr<Mediator> &mediator)
+    void resetPlayerVelocity(std::shared_ptr<Mediator> &mediator)
     {
         for (auto &player : m_players) {
             auto &tranformComp =
@@ -158,7 +178,7 @@ class InputsPlayer : public System
     }
 
     static void createBullet(
-        const std::shared_ptr<Mediator> &mediator, const Entity &entity)
+        std::shared_ptr<Mediator> &mediator, const Entity &entity)
     {
         auto &position = mediator->GetComponent<Position>(entity);
         auto &boundingBox = mediator->GetComponent<BoundingBox>(entity);
@@ -167,7 +187,9 @@ class InputsPlayer : public System
         mediator->AddComponent(bullet, BoundingBox{10, 10});
         mediator->AddComponent(bullet, Transform{.velX = 4, .velY = 0});
         mediator->AddComponent(
-            bullet, Position{.x = position.x, .y = position.y + boundingBox.height / 2});
+            bullet,
+            Position{
+                .x = position.x, .y = position.y + boundingBox.height / 2});
     }
 
     bool canShoot(const clientEvent &cEvent)
@@ -190,20 +212,18 @@ class InputsPlayer : public System
         }
     }
 
-    size_t Update(
-        const std::shared_ptr<Mediator> &mediator,
-        std::queue<clientEvent> &clientsEvents,
-        const std::vector<uint32_t> &deadPlayers)
+    void Update(std::any med, DataUpdate &data) override
     {
+        auto mediator = castAnyTypeMediator(med);
         eraseDeadPlayers();
         resetPlayerVelocity(mediator);
-        while (!clientsEvents.empty()) {
-            auto cEvent = clientsEvents.front();
-            clientsEvents.pop();
+        while (!data.clientsEvents.empty()) {
+            auto cEvent = data.clientsEvents.front();
+            data.clientsEvents.pop();
             if (std::find_if(
-                    deadPlayers.begin(), deadPlayers.end(),
+                    data.deadPlayers.begin(), data.deadPlayers.end(),
                     [cEvent](uint32_t value) { return cEvent.id == value; }) !=
-                deadPlayers.end())
+                data.deadPlayers.end())
                 continue;
             if (m_players.find(cEvent.id) == m_players.end())
                 createPlayer(mediator, cEvent);
@@ -222,7 +242,7 @@ class InputsPlayer : public System
                 m_players[cEvent.id].second = std::chrono::steady_clock::now();
             }
         }
-        return m_players.size();
+        data.nbPlayers = m_players.size();
     }
 
    private:
@@ -234,14 +254,13 @@ class InputsPlayer : public System
 class DestroyBullets : public System
 {
    public:
-    void Update(
-        const std::shared_ptr<Mediator> &mediator,
-        std::vector<Entity> &entitiesToRemove)
+    void Update(std::any med, DataUpdate &data) override
     {
+        auto mediator = castAnyTypeMediator(med);
         for (auto &entity : m_Entities) {
             auto &position = mediator->GetComponent<Position>(entity);
             if (position.x > 1940 || position.y > 1100)
-                entitiesToRemove.push_back(entity);
+                data.entitiesToRemove.push_back(entity);
         }
     }
 };
@@ -249,15 +268,14 @@ class DestroyBullets : public System
 class DestroyEntities : public System
 {
    public:
-    void Update(
-        const std::shared_ptr<Mediator> &mediator,
-        std::vector<Entity> &entitiesToRemove)
+    void Update(std::any med, DataUpdate &data) override
     {
+        auto mediator = castAnyTypeMediator(med);
         for (auto &entity : m_Entities) {
             auto &position = mediator->GetComponent<Position>(entity);
             auto &boundingBox = mediator->GetComponent<BoundingBox>(entity);
             if (position.x < 0 - boundingBox.width)
-                entitiesToRemove.push_back(entity);
+                data.entitiesToRemove.push_back(entity);
         }
     }
 };
@@ -265,10 +283,9 @@ class DestroyEntities : public System
 class CollisionSystem : public System
 {
    public:
-    void Update(
-        const std::shared_ptr<Mediator> &mediator,
-        std::vector<Entity> &entitiesToRemove)
+    void Update(std::any med, DataUpdate &data) override
     {
+        auto mediator = castAnyTypeMediator(med);
         for (size_t i = 0; i < this->m_Entities.size(); i += 1) {
             auto &posA = mediator->GetComponent<Position>(m_Entities[i]);
             auto &boxA = mediator->GetComponent<BoundingBox>(m_Entities[i]);
@@ -278,7 +295,7 @@ class CollisionSystem : public System
                 auto &boxB = mediator->GetComponent<BoundingBox>(m_Entities[z]);
                 if (collide(posA, boxA, posB, boxB)) {
                     handleCollide(
-                        mediator, entitiesToRemove, m_Entities[i],
+                        mediator, data.entitiesToRemove, m_Entities[i],
                         m_Entities[z]);
                 }
             }
@@ -287,7 +304,7 @@ class CollisionSystem : public System
 
    private:
     static void handleCollide(
-        const std::shared_ptr<Mediator> &mediator,
+        std::shared_ptr<Mediator> &mediator,
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB)
     {
         EntityName roleA =

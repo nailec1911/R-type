@@ -8,13 +8,14 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <queue>
 #include <thread>
 #include <unordered_map>
 #include <vector>
 
 #include "../network/server/src/LevelConfigParser.hpp"
-#include "ECS/Managers/System/Systems.hpp"
+#include "ECS/Managers/System/System.hpp"
 #include "ECS/Mediator.hpp"
 #include "ECS/using.hpp"
 #include "Snapshot/SnapshotData.hpp"
@@ -23,64 +24,20 @@ namespace gameEngine {
 class SystemsFactory
 {
    public:
-    void initSystems(const std::shared_ptr<Mediator> &mediator)
+    template <typename T>
+    void addSystem(const std::shared_ptr<Mediator> &mediator)
     {
-        motion = mediator->RegisterSystem<MotionSystem>();
-        inputsSystem = mediator->RegisterSystem<InputsPlayer>();
-        collision = mediator->RegisterSystem<CollisionSystem>();
-        destroyBullets = mediator->RegisterSystem<DestroyBullets>();
-        shootingMonster = mediator->RegisterSystem<ShootingMonsterSystem>();
-        flyingMonsterSystem = mediator->RegisterSystem<FlyingMonsterSystem>();
-        playerBorderSystem = mediator->RegisterSystem<PlayerBorderSystem>();
-        destroyEntities = mediator->RegisterSystem<DestroyEntities>();
-    }
-    std::shared_ptr<MotionSystem> getMotionSystem(void)
-    {
-        return this->motion;
-    }
-    std::shared_ptr<InputsPlayer> getInputsSystem(void)
-    {
-        return this->inputsSystem;
-    }
-    std::shared_ptr<CollisionSystem> getCollisionSystem(void)
-    {
-        return this->collision;
+        std::shared_ptr<ISystem> system = mediator->RegisterSystem<T>();
+        m_systems.push_back(system);
     }
 
-    std::shared_ptr<DestroyBullets> getDestroyBulletSystem(void)
+    std::vector<std::shared_ptr<ISystem>> getSystems() const
     {
-        return this->destroyBullets;
-    }
-
-    std::shared_ptr<ShootingMonsterSystem> getShootingMonsterSystem(void)
-    {
-        return this->shootingMonster;
-    }
-
-    std::shared_ptr<FlyingMonsterSystem> getFlyingMonsterSystem(void)
-    {
-        return this->flyingMonsterSystem;
-    }
-
-    std::shared_ptr<PlayerBorderSystem> getPlayerBorderSystem(void)
-    {
-        return this->playerBorderSystem;
-    }
-
-    std::shared_ptr<DestroyEntities> getDestroyEntitiesSystem(void)
-    {
-        return this->destroyEntities;
+        return m_systems;
     }
 
    private:
-    std::shared_ptr<MotionSystem> motion;
-    std::shared_ptr<InputsPlayer> inputsSystem;
-    std::shared_ptr<CollisionSystem> collision;
-    std::shared_ptr<DestroyBullets> destroyBullets;
-    std::shared_ptr<ShootingMonsterSystem> shootingMonster;
-    std::shared_ptr<FlyingMonsterSystem> flyingMonsterSystem;
-    std::shared_ptr<PlayerBorderSystem> playerBorderSystem;
-    std::shared_ptr<DestroyEntities> destroyEntities;
+    std::vector<std::shared_ptr<ISystem>> m_systems;
 };
 
 class RTypeGame

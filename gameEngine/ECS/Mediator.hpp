@@ -12,7 +12,6 @@
 #include "Managers/System/SystemManager.hpp"
 #include "using.hpp"
 #include <cstdint>
-#include <sys/types.h>
 
 class Mediator
 {
@@ -92,7 +91,7 @@ class Mediator
     }
 
     template <typename T>
-    std::shared_ptr<System> GetSystem()
+    std::shared_ptr<ISystem> GetSystem()
     {
         return mSystemManager->GetSystem<T>();
     }

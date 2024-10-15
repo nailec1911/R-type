@@ -7,19 +7,32 @@
 
 #pragma once
 #include <algorithm>
+#include <any>
 #include <chrono>
 #include <vector>
 
+#include "../../../updateDataStruct.hpp"
 #include "../../using.hpp"
 
-class System
+class ISystem
 {
    public:
+    virtual ~ISystem() = default;
+    virtual void Update(std::any med, DataUpdate &data) = 0;
+};
+
+class System : public ISystem
+{
+   public:
+    virtual void Update(std::any med, DataUpdate &data) = 0;
     std::vector<Entity> m_Entities;
 };
 
 class MonstersSystem : public System
 {
+   public:
+    virtual void Update(std::any med, DataUpdate &data) = 0;
+
    protected:
     void addMonsters()
     {
