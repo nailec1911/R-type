@@ -41,10 +41,10 @@ struct entitySpawn
 class LevelConfigParser
 {
     public:
-        class ErrorLevelParser : std::exception {
+        class ErrorLevelParser : public std::exception {
             public:
                 ErrorLevelParser(const std::string &msg) : m_msg(msg) {}
-                const char *what() const noexcept override
+                virtual const char *what() const noexcept override
                 {
                     return m_msg.c_str();
                 }
@@ -62,12 +62,10 @@ class LevelConfigParser
         {
             return m_level.at(id);
         }
-   protected:
-   private:
         void validateEntity(const YAML::Node& entityNode) 
         {
             static const std::vector<std::string> requiredFields = {
-                "type", "spawn_x", "spawn_x"
+                "type", "spawn_x", "spawn_y"
             };
 
             for (const auto& field : requiredFields) {
@@ -76,5 +74,7 @@ class LevelConfigParser
                 }
             }
         }
+   protected:
+   private:
     std::vector<std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>> m_level;
 };

@@ -63,6 +63,9 @@ int main(int argc, char** argv)
         return 84;
     } catch (const HelpExceptionClient &e) {
         std::cout << e.what() << std::endl;
+    } catch (const std::exception &err ) {
+        std::cout << "Error : exiting program..." << std::endl;
+        return 84;
     }
     return 0;
 }

@@ -9,6 +9,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <exception>
 #include <vector>
 
 #include "../../../gameEngine/RTypeGame.hpp"
@@ -19,14 +20,13 @@ int main(int argc, char **argv)
 {
     try {
         checkParametersServer(argc, argv);
-        rtypeNetwork::RtypeServer server(std::stoi(argv[1]), 5);
         LevelConfigParser levelParser;
+        rtypeNetwork::RtypeServer server(std::stoi(argv[1]), 5);
         std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>
         &levelOne = levelParser.getLevelbyId(1);
         gameEngine::RTypeGame rType;
         auto tickDuration = rtypeNetwork::RtypeServer::initTickRate(128);
         auto nextTick = chrono::now();
-
         rType.initGameRules();
         server.start();
         while (true) {
@@ -66,6 +66,9 @@ int main(int argc, char **argv)
         return 84;
     } catch (const HelpExceptionServer &e) {
         std::cout << e.what() << std::endl;
+    } catch (std::exception &error) {
+        std::cout << "Error, exiting program..." << std::endl;
+        return 84; 
     }
     return 0;
 }
