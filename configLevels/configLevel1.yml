@@ -1,9 +1,9 @@
 timeline:
   - time: 0.0 # Time of spawn
     entities: # List of ennemies
-      - type: "WALL"
-        spawn_x: 690
-        spawn_y: 0
+      - type: "WALL" # Name of the ennemie
+        spawn_x: 690 # spawn position on axis x
+        spawn_y: 0 # spawn position on axis y
       - type: "WALL"
         spawn_x: 828
         spawn_y: 0
