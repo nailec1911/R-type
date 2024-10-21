@@ -47,13 +47,13 @@ Players control a spaceship, navigating through various levels, defeating enemie
 - Start the server:
 
     ```bash
-    ./rtype_server
+    ./r-type_server
     ```
 
 - Start a client instance:
 
     ```bash
-    ./rtype_client
+    ./r-type_client
     ```
 
 ### Controls
@@ -73,12 +73,12 @@ You can modify configuration files to create your own levels.
 
 ## Documentation
 
-check the doc
+For detailed informations, don't forget to check our [wiki](https://gitlab.com/epitech-it-2027/rts/-/wikis/home) !
 
 ## Contributing
 
-see the doc
-Create a new branch `feat-<what you want to add>` push, and make a pull request.
+if you want to contribute, you can create a new branch `feat-<what you want to add>` push, and make a pull request.
+For more details, check our [Contributing page](https://gitlab.com/epitech-it-2027/rts/-/wikis/home/Getting-started/Contributing).
 
 ## Authors
 
