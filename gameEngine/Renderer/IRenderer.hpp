@@ -34,7 +34,8 @@ struct Frame
     rndr::Vector2<float> bottomRight;
 };
 
-using color_t = u_int8_t;
+using color_t = uint8_t;
+
 enum class Color : color_t
 {
     Black,
@@ -100,4 +101,8 @@ class IRenderer
 };
 }  // namespace rndr
 
-extern "C" std::unique_ptr<rndr::IRenderer> renderer_entrypoint(void);
+#ifdef __linux__
+    extern "C" std::unique_ptr<rndr::IRenderer> renderer_entrypoint(void);
+#else
+    std::unique_ptr<rndr::IRenderer> renderer_entrypoint(void);
+#endif

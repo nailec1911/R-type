@@ -7,7 +7,10 @@
 
 #pragma once
 
-#include <unistd.h>
+#ifdef __linux__
+    #include <unistd.h>
+#endif
+
 #include <array>
 #include <bitset>
 #include <cstddef>
@@ -67,9 +70,8 @@ struct has_vector_constructor<
            std::declval<size_t &>()))>> : std::true_type
 {};
 
-template <
-    typename Telement, int nb_others>
-    // typename Telement, typename Tother, int nb_others, uint32_t sizeTother>
+template <typename Telement, int nb_others>
+// typename Telement, typename Tother, int nb_others, uint32_t sizeTother>
 class Snapshot
 {
     static_assert(
@@ -80,13 +82,14 @@ class Snapshot
         "Telement must have cast operator std::vector<uint8_t> overloaded");
     static_assert(
         has_vector_constructor<Telement>::value,
-        "Telement must have constructo Telement(const std::vector<uint8_t>&, size_t &)");
+        "Telement must have constructo Telement(const std::vector<uint8_t>&, "
+        "size_t &)");
     // static_assert(
-        // has_equal_operator<Tother>::value,
-        // "Tother must have operator== overloaded");
+    // has_equal_operator<Tother>::value,
+    // "Tother must have operator== overloaded");
     // static_assert(
-        // has_vector_conversion<Tother>::value,
-        // "Tother must have cast operator std::vector<uint8_t> overloaded");
+    // has_vector_conversion<Tother>::value,
+    // "Tother must have cast operator std::vector<uint8_t> overloaded");
 
    public:
     Snapshot()
@@ -118,7 +121,7 @@ class Snapshot
                 continue;
             }
             indx += 1;
-            m_otherInfo[i] = extractUint32(bytes , indx);
+            m_otherInfo[i] = extractUint32(bytes, indx);
         }
         uint32_t nbEntity = extractUint32(bytes, indx);
         for (size_t i = 0; i < nbEntity; i++) {
@@ -130,7 +133,6 @@ class Snapshot
                 std::cerr << "Parsing failed" << std::endl;
             }
         }
-
     }
 
     [[nodiscard]] time_t getCreationTime() const
@@ -192,7 +194,8 @@ class Snapshot
     uint32_t m_id{};
     bool m_acknowledge{};
 
-    static std::vector<uint8_t> intToVector(int value) {
+    static std::vector<uint8_t> intToVector(int value)
+    {
         std::vector<uint8_t> vec;
 
         for (size_t i = 0; i < sizeof(int); ++i) {
@@ -201,7 +204,7 @@ class Snapshot
         return vec;
     }
 
-    template<typename T>
+    template <typename T>
     static uint32_t extractValue(
         const std::vector<uint8_t> &bytes, size_t &offset, size_t typeSize)
     {

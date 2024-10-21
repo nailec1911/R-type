@@ -9,10 +9,12 @@
 
 LevelConfigParser::LevelConfigParser()
 {
-    std::vector<std::string> allConfigLevelFiles = getAllConfigFile("../configLevels");
+    std::vector<std::string> allConfigLevelFiles =
+        getAllConfigFile("../configLevels");
 
     for (const auto &elem : allConfigLevelFiles) {
-        std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>> parsedLevel;
+        std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>
+            parsedLevel;
         YAML::Node config = YAML::LoadFile(elem);
         if (!config["timeline"])
             throw ErrorLevelParser("No timeline specified");

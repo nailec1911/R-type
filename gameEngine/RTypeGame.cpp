@@ -186,8 +186,7 @@ std::unordered_map<uint32_t, SnapshotData> gameEngine::RTypeGame::updateSystems(
     std::queue<clientEvent> &clientsEvents,
     std::vector<uint32_t> &playersToRemove)
 {
-    DataUpdate data = {
-        clientsEvents, m_deadPlayers, {}, m_nbPlayers};
+    DataUpdate data = {clientsEvents, m_deadPlayers, {}, m_nbPlayers};
 
     for (auto system : m_systems.getSystems())
         system->Update(getMediator(), data);
