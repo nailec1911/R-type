@@ -5,7 +5,9 @@
 ** main
 */
 
-#include <unistd.h>
+#ifdef __linux__
+    #include <unistd.h>
+#endif
 
 #include <chrono>
 #include <cstdint>
@@ -21,7 +23,7 @@ int main(int argc, char **argv)
     try {
         checkParametersServer(argc, argv);
         LevelConfigParser levelParser;
-        rtypeNetwork::RtypeServer server(std::stoi(argv[1]), 5);
+        rtypeNetwork::RtypeServer server(static_cast<uint64_t>(std::stoi(argv[1])), 5);
         std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>
         &levelOne = levelParser.getLevelbyId(1);
         gameEngine::RTypeGame rType;
@@ -68,7 +70,7 @@ int main(int argc, char **argv)
         std::cout << e.what() << std::endl;
     } catch (std::exception &error) {
         std::cout << "Error, exiting program..." << std::endl;
-        return 84; 
+        return 84;
     }
     return 0;
 }

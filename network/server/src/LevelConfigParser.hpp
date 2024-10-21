@@ -62,7 +62,9 @@ class LevelConfigParser
         {
             return m_level.at(id);
         }
-        void validateEntity(const YAML::Node& entityNode) 
+   protected:
+   private:
+        void validateEntity(const YAML::Node& entityNode)
         {
             static const std::vector<std::string> requiredFields = {
                 "type", "spawn_x", "spawn_y"
@@ -74,7 +76,6 @@ class LevelConfigParser
                 }
             }
         }
-   protected:
-   private:
+
     std::vector<std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>> m_level;
 };

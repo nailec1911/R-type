@@ -10,9 +10,11 @@
 /**
  * @brief Event Key enumeration, any other key should be ignored
  */
+
 #include <cstdint>
 #include <sys/types.h>
-enum class EventKey : u_int8_t
+
+enum class EventKey : uint8_t
 {
     KeyA,
     KeyB,

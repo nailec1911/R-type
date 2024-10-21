@@ -17,17 +17,16 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
 #include <cstdint>
-#include <iostream>
 #include <memory>
 #include <vector>
-#include "ConfigParser.hpp"
+
 #include "Events.hpp"
 #include "IRenderer.hpp"
 
-Renderer::Renderer(rndr::Vector2<int> size, std::string title, int framRate)
+Renderer::Renderer(rndr::Vector2<int> size, std::string title, int frameRate)
     : m_windowSFML(sf::VideoMode(size.x, size.y), title),
-      m_deltaTime(1.0F / static_cast<float>(framRate)),
-      m_frameRate(framRate)
+      m_deltaTime(1.0F / static_cast<float>(frameRate)),
+      m_frameRate(frameRate)
 {
     m_windowSFML.setFramerateLimit(m_frameRate);
     m_windowSize = m_windowSFML.getSize();

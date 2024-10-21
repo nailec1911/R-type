@@ -4,7 +4,7 @@
 ** File description:
 ** IRenderer
 */
-#include <stddef.h>
+
 #include <sys/types.h>
 
 #include <SFML/Graphics.hpp>
@@ -14,9 +14,9 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
 #include <SFML/Window/Window.hpp>
+#include <cstddef>
 #include <cstdint>
 #include <ctime>
-#include <new>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -127,10 +127,11 @@ class Text
     Text(Text &&) = default;
     Text &operator=(const Text &) = default;
     Text &operator=(Text &&) = default;
-    Text(std::string text, rndr::Vector2<float> pos, int size) : m_textString(text), m_pos(pos), m_size(size)
+    Text(std::string text, rndr::Vector2<float> pos, int size)
+        : m_textString(text), m_pos(pos), m_size(size)
     {
         if (!m_font.loadFromFile(
-            "../gameEngine/Renderer/assets/PixelifySans-Regular.ttf")) {
+                "../gameEngine/Renderer/assets/PixelifySans-Regular.ttf")) {
             std::cerr << "Error occured when trying to load font." << std::endl;
             return;
         }
@@ -159,22 +160,24 @@ class Text
    private:
     sf::Text m_text;
     std::string m_textString;
-    rndr::Vector2<float> m_pos;
-    int m_size;
+    rndr::Vector2<float> m_pos{};
+    int m_size{};
     sf::Font m_font;
 };
 
 class Renderer final : public rndr::IRenderer
 {
    public:
-    class ErrorRenderer : public std::exception {
-        public:
-            const char* what() const noexcept override
-            {
-                return m_message.c_str();
-            }
-        private:
-            std::string m_message;
+    class ErrorRenderer : public std::exception
+    {
+       public:
+        const char *what() const noexcept override
+        {
+            return m_message.c_str();
+        }
+
+       private:
+        std::string m_message;
     };
     Renderer() = delete;
     Renderer(
