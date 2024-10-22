@@ -52,6 +52,10 @@ enum class EventKey : uint8_t
     MouseRight,
     MouseMiddle,
     MouseLeft,
+    Num0,
+    Num1,
+    Num2,
+    Num3
 };
 
 /**

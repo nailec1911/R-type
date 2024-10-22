@@ -9,6 +9,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -72,6 +73,10 @@ static const std::map<int, EventKey> convert_event{
     {sf::Keyboard::X, EventKey::KeyX},
     {sf::Keyboard::Y, EventKey::KeyY},
     {sf::Keyboard::Z, EventKey::KeyZ},
+    {sf::Keyboard::Num0, EventKey::Num0},
+    {sf::Keyboard::Num1, EventKey::Num1},
+    {sf::Keyboard::Num2, EventKey::Num2},
+    {sf::Keyboard::Num3, EventKey::Num3},
     {sf::Keyboard::Escape, EventKey::KeyEscape},
     {sf::Keyboard::Up, EventKey::KeyUp},
     {sf::Keyboard::Down, EventKey::KeyDown},
@@ -171,6 +176,7 @@ class Renderer final : public rndr::IRenderer
     class ErrorRenderer : public std::exception
     {
        public:
+       ErrorRenderer(const std::string &msg) : m_message(msg) {}
         const char *what() const noexcept override
         {
             return m_message.c_str();
@@ -238,6 +244,7 @@ class Renderer final : public rndr::IRenderer
     std::unordered_map<std::string, std::unique_ptr<Text>> m_textMap;
     std::string m_background;
     sf::RenderWindow m_windowSFML;
+    sf::Shader m_colorBlindShader;
     sf::Texture m_bgTexture;
     std::pair<sf::Sprite, sf::Sprite> m_bgSprites;
     sf::Vector2u m_windowSize;
