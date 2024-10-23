@@ -7,14 +7,11 @@
 
 #pragma once
 
-#include <asio.hpp>
-#include <asio/socket_base.hpp>
 #include <cstdint>
-#include <iostream>
 
+#include "../../AsioNetworkThread.hpp"
 #include "../../Message.hpp"
 #include "../../ThreadSafeQueue.hpp"
-#include "../../server/src/AsioUdpServer.hpp"
 
 namespace asun {
 
@@ -109,9 +106,11 @@ class AsioUdpClient : public AsioNetworkThread
             [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
                     uint32_t receivedChecksum = m_readMessage.header.checksum;
-                    uint32_t calculatedChecksum = m_readMessage.calculateChecksum(
-                        reinterpret_cast<const char *>(m_readMessage.body.data()),
-                        m_readMessage.header.size);
+                    uint32_t calculatedChecksum =
+                        m_readMessage.calculateChecksum(
+                            reinterpret_cast<const char *>(
+                                m_readMessage.body.data()),
+                            m_readMessage.header.size);
                     if (receivedChecksum != calculatedChecksum)
                         return readHeader();
                     m_readQueue.push(m_readMessage);

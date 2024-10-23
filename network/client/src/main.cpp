@@ -5,48 +5,59 @@
 ** main
 */
 
+#include <vector>
+
+#include "../../../gameEngine/RTypeGame/RTypeGameClient.hpp"
 #include "../../../gameEngine/Renderer/ConfigParser.hpp"
 #include "../../../gameEngine/Renderer/Renderer.hpp"
 #include "../../Message.hpp"
 #include "RtypeClient.hpp"
 
 std::vector<asun::message<CustomMessageType>> inputToMessage(
-    const std::vector<Event>& events);
+    const std::vector<Event> &events);
 
-static
-void gameloop(Renderer &renderer,  rtypeNetwork::RtypeClient &client, ConfigParser &config)
+static void gameloop(
+    Renderer &renderer, rtypeNetwork::RtypeClient &client, ConfigParser &config,
+    gameEngine::RTypeGameClient &rType)
 {
     std::vector<asun::message<CustomMessageType>> eventMessage;
     std::vector<Event> events;
     asun::message<CustomMessageType> msg{};
     msg.header.id = CustomMessageType::LOGIN;
 
-    renderer.setBackgrounds(
-        config.getBackground(), 50);
+    renderer.setBackgrounds(config.getBackground(), 50);
     client.start();
     client.sendMessage(msg);
     while (renderer.isWindowOpen()) {
-        client.handleMessages(renderer);
+        {
+            std::vector<Entity> entitiesToRemove;
+            client.handleMessages(rType, entitiesToRemove);
+            // rType.updateSystems();
+            rType.updateRendererState(renderer, entitiesToRemove);
+        }
         renderer.clear();
         events = renderer.getEvents();
         eventMessage = inputToMessage(events);
         renderer.refresh();
         if (client.isPlayerDead()) {
-            renderer.getTextMap()["DEAD"] = std::make_unique<Text>(std::string("You're dead"), rndr::Vector2<float>(500, 400), 200);
+            renderer.getTextMap()["DEAD"] = std::make_unique<Text>(
+                std::string("You're dead"), rndr::Vector2<float>(450, 400),
+                200);
             renderer.drawText("DEAD");
         }
         if (client.hasPlayerWon()) {
-            renderer.getTextMap()["WIN"] = std::make_unique<Text>("You won", rndr::Vector2<float>(500, 400), 200);
+            renderer.getTextMap()["WIN"] = std::make_unique<Text>(
+                "You won", rndr::Vector2<float>(500, 400), 200);
             renderer.drawText("WIN");
         }
         renderer.display();
-        for (const auto& elem : eventMessage) {
+        for (const auto &elem : eventMessage) {
             client.sendMessage(elem);
         }
     }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     try {
         checkParametersClient(argc, argv);
@@ -54,7 +65,9 @@ int main(int argc, char** argv)
         ConfigParser config;
         renderer.setEltInfo(config.getEltInfo());
         rtypeNetwork::RtypeClient client(argv[1], std::stoi(argv[2]));
-        gameloop(renderer, client, config);
+        gameEngine::RTypeGameClient rType;
+        rType.initGameRules();
+        gameloop(renderer, client, config, rType);
     } catch (const ErrorParams &p) {
         std::cout << p.what() << std::endl;
         return 84;
@@ -66,7 +79,7 @@ int main(int argc, char** argv)
         return 84;
     } catch (const HelpExceptionClient &e) {
         std::cout << e.what() << std::endl;
-    } catch (const std::exception &err ) {
+    } catch (const std::exception &err) {
         std::cout << "Error : exiting program..." << std::endl;
         return 84;
     }

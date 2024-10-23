@@ -5,6 +5,7 @@
 ** main
 */
 
+#include <csignal>
 #ifdef __linux__
     #include <unistd.h>
 #endif
@@ -14,19 +15,19 @@
 #include <exception>
 #include <vector>
 
-#include "../../../gameEngine/RTypeGame.hpp"
-#include "RtypeServer.hpp"
+#include "../../../gameEngine/RTypeGame/RTypeGameServer.hpp"
 #include "LevelConfigParser.hpp"
+#include "RtypeServer.hpp"
 
 int main(int argc, char **argv)
 {
     try {
         checkParametersServer(argc, argv);
         LevelConfigParser levelParser;
-        rtypeNetwork::RtypeServer server(static_cast<uint64_t>(std::stoi(argv[1])), 5);
+        rtypeNetwork::RtypeServer server(static_cast<uint16_t>(std::stoi(argv[1])), 5); // NOLINT
         std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>
         &levelOne = levelParser.getLevelbyId(1);
-        gameEngine::RTypeGame rType;
+        gameEngine::RTypeGameServer rType;
         auto tickDuration = rtypeNetwork::RtypeServer::initTickRate(128);
         auto nextTick = chrono::now();
         rType.initGameRules();
@@ -58,18 +59,18 @@ int main(int argc, char **argv)
             }
         }
     } catch (const ErrorParams &p) {
-        std::cout << p.what() << std::endl;
+        std::cerr << p.what() << std::endl;
         return 84;
     } catch (const LevelConfigParser::ErrorLevelParser &l) {
-        std::cout << l.what() << std::endl;
+        std::cerr << l.what() << std::endl;
         return 84;
     } catch (const rtypeNetwork::RtypeServer::ErrorRtypeServer &s) {
-        std::cout << s.what() << std::endl;
+        std::cerr << s.what() << std::endl;
         return 84;
     } catch (const HelpExceptionServer &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
     } catch (std::exception &error) {
-        std::cout << "Error, exiting program..." << std::endl;
+        std::cerr << "Error, exiting program..." << std::endl;
         return 84;
     }
     return 0;
