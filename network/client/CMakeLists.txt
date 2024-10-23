@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(Client)
+project(r-type_client)
 
 # Set CMake output directory for executables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
@@ -37,15 +37,15 @@ find_package(SFML 2.5 COMPONENTS system window graphics network audio REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
 # Create executable target
-add_executable(Client ${SOURCES})
+add_executable(r-type_client ${SOURCES})
 
 # Link external libraries
-target_link_libraries(Client PRIVATE asio::asio sfml-system sfml-window sfml-graphics sfml-network sfml-audio yaml-cpp)
+target_link_libraries(r-type_client PRIVATE asio::asio sfml-system sfml-window sfml-graphics sfml-network sfml-audio yaml-cpp)
 
 # MSVC-specific settings: set output to the correct folder
 if (MSVC)
   # Use multithreaded runtime
-  target_compile_options(Client PRIVATE /MT)  # or /MD for dynamic CRT
+  target_compile_options(r-type_client PRIVATE /MT)  # or /MD for dynamic CRT
   # Set C++ standard for MSVC
-  target_compile_features(Client PRIVATE cxx_std_20)
+  target_compile_features(r-type_client PRIVATE cxx_std_20)
 endif()
