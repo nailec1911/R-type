@@ -57,7 +57,7 @@ class HelpExceptionClient : public std::exception
     const char* what() const noexcept override
     {
         return (
-            "Usage: ./Client [IP ADDRESS] [PORT]\n"
+            "Usage: ./r-type_client [IP ADDRESS] [PORT]\n"
             "    IP ADDRESS: The IP address of the server to connect to.\n"
             "    PORT: The port on which the server will listen for incoming "
             "connections.\n"
@@ -72,7 +72,7 @@ class HelpExceptionServer : public std::exception
     const char* what() const noexcept override
     {
         return (
-            "Usage: ./Server [PORT]\n"
+            "Usage: ./r-type_server [PORT]\n"
             "    PORT: The port on which the server will listen for incoming "
             "connections.\n"
             "Place your Entity configuration file in the configEntities folder\n"

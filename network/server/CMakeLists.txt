@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(Server)
+project(r-type_server)
 
 # Set CMake output directory for executables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
@@ -36,15 +36,15 @@ find_package(asio REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
 # Create executable target
-add_executable(Server ${SOURCES})
+add_executable(r-type_server ${SOURCES})
 
 # Link external libraries
-target_link_libraries(Server PRIVATE asio::asio yaml-cpp)
+target_link_libraries(r-type_server PRIVATE asio::asio yaml-cpp)
 
 # MSVC-specific settings: set output to the correct folder
 if (MSVC)
   # Use multithreaded runtime
-  target_compile_options(Server PRIVATE /MT)  # or /MD for dynamic CRT
+  target_compile_options(r-type_server PRIVATE /MT)  # or /MD for dynamic CRT
   # Set C++ standard for MSVC
-  target_compile_features(Server PRIVATE cxx_std_20)
+  target_compile_features(r-type_server PRIVATE cxx_std_20)
 endif()

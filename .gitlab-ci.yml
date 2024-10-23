@@ -33,8 +33,8 @@ build:project:
     - cmake --build .
   artifacts:
     paths:
-      - network/Server
-      - network/Client
+      - network/r-type_server
+      - network/r-type_client
     expire_in: 1 day
 
 build:windows:
