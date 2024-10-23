@@ -30,7 +30,8 @@ build:project:
     - cp -r /usr/app/build .
     - cd build
     - cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-    - cmake --build .
+    #- cmake --build .
+    - make -j8
   artifacts:
     paths:
       - network/r-type_server
