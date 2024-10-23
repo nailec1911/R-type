@@ -8,12 +8,14 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
+#include "../../../gameEngine/RTypeGame/RTypeGameClient.hpp"
 #include "../../../gameEngine/Renderer/Renderer.hpp"
 #include "../../../gameEngine/Snapshot/SnapshotData.hpp"
+#include "../../Errors.hpp"
 #include "../../gameServ/Snapshot.hpp"
 #include "AsioUdpClient.hpp"
-#include "../../Errors.hpp"
 
 namespace rtypeNetwork {
 class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
@@ -29,7 +31,7 @@ class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
     RtypeClient &operator=(const RtypeClient &) = delete;
     ~RtypeClient() override = default;
 
-    void handleMessages(Renderer &renderer);
+    void handleMessages(gameEngine::RTypeGameClient &rType, std::vector<Entity> &entitiesToRemove);
 
     bool isPlayerDead() const
     {
@@ -44,11 +46,9 @@ class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
    private:
     uint32_t updateGameData(
         const gameServer::Snapshot<SnapshotData, 2> &newSnapshot,
-        Renderer &renderer);
-    
-    spritesTypes choosePlayerSprite();
+        gameEngine::RTypeGameClient &rType, std::vector<Entity> &entitiesToRemove);
+
     bool m_isPlayerDead{};
     bool m_hasPlayerWon{};
-    size_t m_nbPlayers{};
 };
 }  // namespace rtypeNetwork

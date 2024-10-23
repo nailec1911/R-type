@@ -55,7 +55,7 @@ class MotionSystem : public System
 class PlayerBorderSystem : public System
 {
    public:
-    void Update(std::any med, DataUpdate &/*data*/) override
+    void Update(std::any med, DataUpdate & /*data*/) override
     {
         auto mediator = castAnyTypeMediator(med);
         for (auto &entity : this->m_Entities) {
@@ -94,7 +94,7 @@ class FlyingMonsterSystem : public MonstersSystem
         return duration.count() > 600;
     }
 
-    void Update(std::any med, DataUpdate &/*data*/) override
+    void Update(std::any med, DataUpdate & /*data*/) override
     {
         auto mediator = castAnyTypeMediator(med);
         addMonsters();
@@ -137,7 +137,7 @@ class ShootingMonsterSystem : public MonstersSystem
                 .x = position.x, .y = position.y + boundingBox.height / 2});
     }
 
-    void Update(std::any med, DataUpdate &/*data*/) override
+    void Update(std::any med, DataUpdate & /*data*/) override
     {
         auto mediator = castAnyTypeMediator(med);
         addMonsters();
@@ -303,6 +303,11 @@ class CollisionSystem : public System
     }
 
    private:
+    static bool isMonster(EntityName role)
+    {
+        return role == MONSTER || role == SHOOTER_MONSTER ||
+               role == FLYING_MONSTER;
+    }
     static void handleCollide(
         std::shared_ptr<Mediator> &mediator,
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB)
@@ -318,7 +323,7 @@ class CollisionSystem : public System
             return roleAWall(entitiesToRemove, entityA, entityB, roleB);
         if (roleA == PLAYER)
             return roleAPlayer(entitiesToRemove, entityA, entityB, roleB);
-        if (roleA == MONSTER)
+        if (isMonster(roleA))
             return roleAMonster(entitiesToRemove, entityA, entityB, roleB);
         if (roleA == P_BULLET)
             return roleABullet_player(
@@ -334,7 +339,7 @@ class CollisionSystem : public System
     {
         if (roleB == P_BULLET)
             return;
-        if (roleB == WALL || roleB == MONSTER) {
+        if (roleB == WALL || isMonster(roleB)) {
             entitiesToRemove.push_back(entityA);
             return;
         }
@@ -355,7 +360,7 @@ class CollisionSystem : public System
             entitiesToRemove.push_back(entityA);
             return;
         }
-        if (roleB == M_BULLET || roleB == MONSTER) {
+        if (roleB == M_BULLET || isMonster(roleB)) {
             entitiesToRemove.push_back(entityA);
             entitiesToRemove.push_back(entityB);
             return;
@@ -366,7 +371,7 @@ class CollisionSystem : public System
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
         EntityName roleB)
     {
-        if (roleB == MONSTER)
+        if (isMonster(roleB))
             return;
         if (roleB == WALL) {
             entitiesToRemove.push_back(entityA);
@@ -400,7 +405,7 @@ class CollisionSystem : public System
         std::vector<Entity> &entitiesToRemove, Entity & /*entityA*/,
         Entity &entityB, EntityName roleB)
     {
-        if (roleB == MONSTER)
+        if (isMonster(roleB))
             return;
         entitiesToRemove.push_back(entityB);
     }

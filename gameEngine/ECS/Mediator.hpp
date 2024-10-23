@@ -6,12 +6,13 @@
 */
 
 #pragma once
-#include "Managers/Component/ComponentManager.hpp"
+#include <cstdint>
+
 #include "../Renderer/Sprites.hpp"
+#include "Managers/Component/ComponentManager.hpp"
 #include "Managers/Entity/EntityManager.hpp"
 #include "Managers/System/SystemManager.hpp"
 #include "using.hpp"
-#include <cstdint>
 
 class Mediator
 {
@@ -26,6 +27,11 @@ class Mediator
     Entity CreateEntity()
     {
         return mEntityManager->CreateEntity();
+    }
+
+    Entity CreateEntityById(Entity id)
+    {
+        return mEntityManager->CreateEntityById(id);
     }
 
     void DestroyEntity(Entity entity)
@@ -117,12 +123,16 @@ class Mediator
         return spritesTypes::EMPTY;
     }
 
-    uint32_t GetEntityRole(Entity entity)
+    EntityName GetEntityRole(Entity entity)
     {
         if (mEntityManager->GetSignature(entity).test(PLAYER))
             return PLAYER;
         if (mEntityManager->GetSignature(entity).test(WALL))
             return WALL;
+        if (mEntityManager->GetSignature(entity).test(SHOOTER_MONSTER))
+            return SHOOTER_MONSTER;
+        if (mEntityManager->GetSignature(entity).test(FLYING_MONSTER))
+            return FLYING_MONSTER;
         if (mEntityManager->GetSignature(entity).test(MONSTER))
             return MONSTER;
         if (mEntityManager->GetSignature(entity).test(P_BULLET))

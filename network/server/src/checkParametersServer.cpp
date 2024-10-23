@@ -4,19 +4,14 @@
 ** File description:
 ** checkParametersServer
 */
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <algorithm>
-#include <filesystem>
-#include <vector>
-#include <cstring>
-#include <stdbool.h>
+
 #include "../../Errors.hpp"
+
+#include <cstring>
 
 int checkParametersServer(int argc, char **argv)
 {
-    if ((argc == 2 && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0))) {
+    if ((argc == 2 && (std::strcmp(argv[1], "-h") == 0 || std::strcmp(argv[1], "--help") == 0))) {
         throw HelpExceptionServer();
         return 0;
     }

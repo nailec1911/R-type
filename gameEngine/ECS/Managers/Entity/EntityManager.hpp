@@ -7,7 +7,8 @@
 
 #pragma once
 #include "../../using.hpp"
-#include <queue>
+#include <vector>
+#include <algorithm>
 #include <unordered_map>
 
 class EntityManager
@@ -16,7 +17,7 @@ class EntityManager
     EntityManager() : mNumberEntity(0)
     {
         for (Entity entity = 0; entity < 500; entity += 1) {
-            mEntitiesAvailable.push(entity);
+            mEntitiesAvailable.push_back(entity);
         }
     }
     Entity CreateEntity()
@@ -24,15 +25,25 @@ class EntityManager
         if (this->mNumberEntity >= MAX_ENTITIES)
             return 0;
         Entity id = this->mEntitiesAvailable.front();
-        this->mEntitiesAvailable.pop();
+        this->mEntitiesAvailable.erase(this->mEntitiesAvailable.begin());
         this->mNumberEntity += 1;
+        return id;
+    }
+
+    Entity CreateEntityById(Entity id)
+    {
+        auto it = std::find(mEntitiesAvailable.begin(), mEntitiesAvailable.end(), id);
+        if (it == mEntitiesAvailable.end())
+            return 0; //ERROR
+        mEntitiesAvailable.erase(it);
+        mNumberEntity += 1;
         return id;
     }
 
     void DestroyEntity(Entity entity)
     {
         mSignatures.erase(entity);
-        this->mEntitiesAvailable.push(entity);
+        this->mEntitiesAvailable.push_back(entity);
         this->mNumberEntity -= 1;
     }
 
@@ -52,7 +63,7 @@ class EntityManager
     }
 
    private:
-    std::queue<Entity> mEntitiesAvailable;
+    std::vector<Entity> mEntitiesAvailable;
     std::unordered_map<Entity, Signature> mSignatures;
     std::uint32_t mNumberEntity;
 };

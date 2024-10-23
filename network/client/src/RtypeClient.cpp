@@ -8,17 +8,19 @@
 #include "RtypeClient.hpp"
 
 #include <cstdint>
+#include <vector>
 
-#include "../../../gameEngine/Renderer/IRenderer.hpp"
-#include "../../../gameEngine/Renderer/Sprites.hpp"
+#include "../../../gameEngine/ECS/Managers/Component/StructComponent.hpp"
 
-void rtypeNetwork::RtypeClient::handleMessages(Renderer &renderer)
+void rtypeNetwork::RtypeClient::handleMessages(
+    gameEngine::RTypeGameClient &rType, std::vector<Entity> &entitiesToRemove)
 {
     while (getSizeReadQueue() > 0) {
         auto msg = popReadQueue();
         if (msg.header.id == CustomMessageType::SNAPSHOT) {
             uint32_t id = updateGameData(
-                gameServer::Snapshot<SnapshotData, 2>(msg.body), renderer);
+                gameServer::Snapshot<SnapshotData, 2>(msg.body), rType,
+                entitiesToRemove);
             asun::message<CustomMessageType> ok;
             ok.header.id = CustomMessageType::SNAP_OK;
             ok << id;
@@ -33,42 +35,27 @@ void rtypeNetwork::RtypeClient::handleMessages(Renderer &renderer)
 
 uint32_t rtypeNetwork::RtypeClient::updateGameData(
     const gameServer::Snapshot<SnapshotData, 2> &newSnapshot,
-    Renderer &renderer)
+    gameEngine::RTypeGameClient &rType, std::vector<Entity> &entitiesToRemove)
 {
+    auto entities = rType.getMediator()->GetEntitiesSignatures();
+
     for (auto item : newSnapshot.getElements()) {
         if (item.second.getDestroy() == 1) {
-            renderer.getSpriteMap().erase(item.first);
+            rType.getMediator()->DestroyEntity(item.first);
+            entitiesToRemove.push_back(item.first);
             continue;
         }
-        rndr::Vector2<float> vec = {
-            static_cast<float>(item.second.getXY().x),
-            static_cast<float>(item.second.getXY().y)};
         auto type = item.second.getType();
-        if (spriteTypeToStr.find(type) == spriteTypeToStr.end())
-            continue;
-        if (renderer.getSpriteMap().find(item.first) ==
-            renderer.getSpriteMap().end()) {
-            if (type == PLAYER1)
-                type = choosePlayerSprite();
-            renderer.createSprite(item.first, spriteTypeToStr.at(type), vec);
+        auto pos = item.second.getXY();
+        if (entities.find(item.first) == entities.end()) {
+            rType.createEntity(
+                type, {pos.x, pos.y}, static_cast<int>(item.first));
             continue;
         }
-        renderer.setPosition(item.first, vec);
+        auto &position =
+            rType.getMediator()->GetComponent<Position>(item.first);
+        position.x = static_cast<float>(pos.x);
+        position.y = static_cast<float>(pos.y);
     }
     return newSnapshot.getId();
-}
-
-spritesTypes rtypeNetwork::RtypeClient::choosePlayerSprite()
-{
-    spritesTypes type = PLAYER1;
-    if (m_nbPlayers == 1)
-        type = PLAYER2;
-    if (m_nbPlayers == 2)
-        type = PLAYER3;
-    if (m_nbPlayers == 3)
-        type = PLAYER4;
-    if (m_nbPlayers == 4)
-        type = PLAYER5;
-    m_nbPlayers += 1;
-    return type;
 }

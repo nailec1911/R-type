@@ -29,7 +29,7 @@ else()
 endif()
 
 # Include source files
-file(GLOB_RECURSE SOURCES "src/*.cpp" "../../gameEngine/RTypeGame.cpp")
+file(GLOB_RECURSE SOURCES "src/*.cpp" "../../gameEngine/RTypeGame/RTypeGameServer.cpp" "../../gameEngine/RTypeGame/ARTypeGame.cpp")
 
 # Find and link libraries
 find_package(asio REQUIRED)
