@@ -118,6 +118,8 @@ class RtypeServer
 
     void handleClientLogin(
         uint32_t clientId, asun::message<CustomMessageType> &msg);
+    void handleClientLogout(
+        uint32_t clientId, asun::message<CustomMessageType> &msg);
     void handleClientMove(
         uint32_t clientId, asun::message<CustomMessageType> &msg);
     void handleClientShoot(

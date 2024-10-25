@@ -63,6 +63,10 @@ void rtypeNetwork::RtypeServer::handleMessages()
             handleClientLogin(clientId, content);
             continue;
         }
+        if (content.header.id == CustomMessageType::LOGOUT) {
+            handleClientLogout(clientId, content);
+            continue;
+        }
         if (!isClientConnected(clientId)) {
             std::cerr << "why is this client not connected" << clientId
                       << std::endl;
@@ -98,6 +102,15 @@ void rtypeNetwork::RtypeServer::handleClientLogin(
     }
     std::cerr << "There is already 5 players." << std::endl;
     m_gameServ.removeClient(clientId);
+}
+
+void rtypeNetwork::RtypeServer::handleClientLogout(
+    uint32_t clientId, asun::message<CustomMessageType> & /*msg*/)
+{
+    m_gameServ.removeClient(clientId);
+    auto newEnd = std::remove(m_connectedClients.begin(), m_connectedClients.end(), clientId);
+    m_connectedClients.erase(newEnd, m_connectedClients.end());
+    std::cerr << "[-] User disconnected" << std::endl;
 }
 
 void rtypeNetwork::RtypeServer::handleClientMove(
