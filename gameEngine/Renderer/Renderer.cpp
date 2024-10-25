@@ -192,7 +192,7 @@ std::vector<Event> Renderer::getEvents()
     while (m_windowSFML.pollEvent(event)) {
         switch (event.type) {
             case sf::Event::Closed:
-                m_windowSFML.close();
+                events.push_back({convert_event.at(sf::Keyboard::Q), EventState::KeyPressed});
                 break;
             default:
                 break;

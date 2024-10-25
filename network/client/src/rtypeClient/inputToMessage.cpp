@@ -11,7 +11,7 @@
 #include "../RtypeClient.hpp"
 
 std::vector<asun::message<CustomMessageType>> inputToMessage(
-    const std::vector<Event>& events)
+    const std::vector<Event>& events, sf::RenderWindow &windowSFML)
 {
     std::vector<asun::message<CustomMessageType>> eventMessages;
     for (auto elem : events) {
@@ -36,6 +36,10 @@ std::vector<asun::message<CustomMessageType>> inputToMessage(
             break;
         case EventKey::KeyB:
             newMsg.header.id = CustomMessageType::SHOOT;
+            break;
+        case EventKey::KeyQ:
+            newMsg.header.id = CustomMessageType::LOGOUT;
+            windowSFML.close();
             break;
         default:
             newMsg.header.id = CustomMessageType::NONE;

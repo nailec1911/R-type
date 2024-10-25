@@ -14,7 +14,7 @@
 #include "RtypeClient.hpp"
 
 std::vector<asun::message<CustomMessageType>> inputToMessage(
-    const std::vector<Event> &events);
+    const std::vector<Event> &events, sf::RenderWindow &windowSFML);
 
 static void gameloop(
     Renderer &renderer, rtypeNetwork::RtypeClient &client, ConfigParser &config,
@@ -37,7 +37,7 @@ static void gameloop(
         }
         renderer.clear();
         events = renderer.getEvents();
-        eventMessage = inputToMessage(events);
+        eventMessage = inputToMessage(events, renderer.getWindowSFML());
         renderer.refresh();
         if (client.isPlayerDead()) {
             renderer.getTextMap()["DEAD"] = std::make_unique<Text>(

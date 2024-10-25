@@ -30,6 +30,7 @@ enum class CustomMessageType
     OK,
     KO,
     LOGIN,
+    LOGOUT,
     SNAPSHOT,
     SNAP_OK,
     DEAD,
