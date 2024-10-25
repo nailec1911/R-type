@@ -30,6 +30,11 @@ void rtypeNetwork::RtypeClient::handleMessages(
             m_isPlayerDead = true;
         if (msg.header.id == CustomMessageType::WIN && !m_isPlayerDead)
             m_hasPlayerWon = true;
+        if (msg.header.id == CustomMessageType::YOUR_PLAYER) {
+            Entity playerId = 0;
+            msg >> playerId;
+            setPlayerEntityId(playerId);
+        }
     }
 };
 
@@ -39,6 +44,8 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
 {
     auto entities = rType.getMediator()->GetEntitiesSignatures();
 
+    uint32_t tick = newSnapshot.getOthers()[0];
+
     for (auto item : newSnapshot.getElements()) {
         if (item.second.getDestroy() == 1) {
             rType.getMediator()->DestroyEntity(item.first);
@@ -47,15 +54,33 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
         }
         auto type = item.second.getType();
         auto pos = item.second.getXY();
+        auto vel = item.second.getVelocity();
+        // if (type != PLAYER && type != FLYING_MONSTER) {
+        // }
         if (entities.find(item.first) == entities.end()) {
+            pos.x += static_cast<int>(
+                         vel.x *
+                         static_cast<float>((tick - item.second.getTick()))) *
+                     1 / 60;
+            pos.y += static_cast<int>(
+                         vel.y *
+                         static_cast<float>((tick - item.second.getTick()))) *
+                     1 / 60;
+            if (type == PLAYER)
+                rType.getNbPlayers() += 1;
             rType.createEntity(
-                type, {pos.x, pos.y}, static_cast<int>(item.first));
+                type, {pos.x, pos.y}, static_cast<int>(item.first),
+                item.second.getTick());
             continue;
         }
         auto &position =
             rType.getMediator()->GetComponent<Position>(item.first);
         position.x = static_cast<float>(pos.x);
         position.y = static_cast<float>(pos.y);
+        auto &velocity =
+            rType.getMediator()->GetComponent<Transform>(item.first);
+        velocity.velX = static_cast<float>(vel.x);
+        velocity.velY = static_cast<float>(vel.y);
     }
     return newSnapshot.getId();
 }

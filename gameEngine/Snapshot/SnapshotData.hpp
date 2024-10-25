@@ -6,13 +6,14 @@
 */
 
 #pragma once
+
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <vector>
 
-#include "../Renderer/IRenderer.hpp"
 #include "../ECS/using.hpp"
+#include "../Renderer/IRenderer.hpp"
 
 class SnapshotData
 {
@@ -24,8 +25,8 @@ class SnapshotData
     SnapshotData &operator=(SnapshotData &&) = default;
 
     SnapshotData(
-        EntityName type, int16_t x, int16_t y, int16_t speed_x,
-        int16_t speed_y, int tick, int info)
+        EntityName type, int16_t x, int16_t y, float speed_x,
+        float speed_y, uint32_t tick, int info)
         : m_type(type),
           m_x(x),
           m_y(y),
@@ -37,9 +38,9 @@ class SnapshotData
         : m_type(static_cast<EntityName>(extractVal<int>(bytes, indx))),
           m_x(extractVal<int16_t>(bytes, indx)),
           m_y(extractVal<int16_t>(bytes, indx)),
-          m_speedX(extractVal<int16_t>(bytes, indx)),
-          m_speedY(extractVal<int16_t>(bytes, indx)),
-          m_tick(extractVal<int>(bytes, indx)),
+          m_speedX(extractVal(bytes, indx)),
+          m_speedY(extractVal(bytes, indx)),
+          m_tick(extractVal<uint32_t>(bytes, indx)),
           m_destroy(extractVal<int>(bytes, indx))
     {
     }
@@ -64,8 +65,7 @@ class SnapshotData
     bool operator==(const SnapshotData &b) const
     {
         return m_x == b.m_x && m_y == b.m_y && m_speedX == b.m_speedX &&
-               m_speedY == b.m_speedY && m_tick == b.m_tick &&
-               m_destroy == b.m_destroy;
+               m_speedY == b.m_speedY && m_destroy == b.m_destroy;
     }
 
     rndr::Vector2<int> getXY()
@@ -78,14 +78,19 @@ class SnapshotData
         return m_type;
     }
 
-    rndr::Vector2<int16_t> getVelocity()
+    rndr::Vector2<float> getVelocity() const
     {
         return {m_speedX, m_speedY};
     }
 
-    int getDestroy() const
+    [[nodiscard]] int getDestroy() const
     {
         return m_destroy;
+    }
+
+    [[nodiscard]] uint32_t getTick() const
+    {
+        return m_tick;
     }
 
    private:
@@ -102,6 +107,16 @@ class SnapshotData
         return value;
     }
 
+    static float extractVal(const std::vector<uint8_t> &bytes, size_t &offset)
+    {
+        static_assert(sizeof(float) == 4, "Float must be 4 bytes");
+
+        float value = 0.0F;
+        std::memcpy(&value, &bytes[offset], sizeof(float));
+        offset += sizeof(float);
+        return value;
+    }
+
     template <typename T>
     static void appendToVector(std::vector<uint8_t> &res, T value)
     {
@@ -112,11 +127,22 @@ class SnapshotData
         }
     }
 
+    static void appendToVector(std::vector<uint8_t> &res, float value)
+    {
+        static_assert(sizeof(float) == 4, "Float must be 4 bytes");
+
+        uint8_t byteArray[sizeof(float)];
+        std::memcpy(byteArray, &value, sizeof(float));
+        for (size_t i = 0; i < sizeof(float); ++i) {
+            res.push_back(byteArray[i]);
+        }
+    }
+
     EntityName m_type;
     int16_t m_x;
     int16_t m_y;
-    int16_t m_speedX;
-    int16_t m_speedY;
-    int m_tick;
+    float m_speedX;
+    float m_speedY;
+    uint32_t m_tick;
     int m_destroy;
 };

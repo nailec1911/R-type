@@ -35,6 +35,7 @@ enum class CustomMessageType
     SNAP_OK,
     DEAD,
     WIN,
+    YOUR_PLAYER,
     NONE,
 };
 

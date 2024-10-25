@@ -7,9 +7,11 @@
 
 #include "RTypeGameClient.hpp"
 
+#include <cstdint>
 #include <vector>
 
 #include "../ECS/Managers/Component/StructComponent.hpp"
+#include "../ECS/Managers/System/Systems.hpp"
 
 void gameEngine::RTypeGameClient::updateRendererState(
     Renderer &renderer, std::vector<Entity> &entitiesToRemove)
@@ -51,12 +53,37 @@ spritesTypes gameEngine::RTypeGameClient::choosePlayerSprite()
     return type;
 }
 
-void gameEngine::RTypeGameClient::updateSystems()
+void gameEngine::RTypeGameClient::updateSystems(
+    uint32_t tick, std::vector<Event> &events, int playerEntityId)
 {
-    DataUpdate data = {{}, {}, {}, m_nbPlayers};
+    DataUpdate data = {{},   {}, {},     m_nbPlayers,
+                       tick, {}, events, playerEntityId};
 
-    for (auto &system : m_systems.getSystems()) {
+    for (auto &system : m_systems.getSystems())
         system->Update(m_mediator, data);
-    }
-    m_nbPlayers = data.nbPlayers;
+}
+
+void gameEngine::RTypeGameClient::initGameRules(void)
+{
+    m_mediator = std::make_shared<Mediator>();
+    m_mediator->RegisterComponent<Player>(PLAYER);
+    m_mediator->RegisterComponent<Chrono>(CHRONO);
+    m_mediator->RegisterComponent<BulletPlayer>(P_BULLET);
+    m_mediator->RegisterComponent<BulletMonster>(M_BULLET);
+    m_mediator->RegisterComponent<Wall>(WALL);
+    m_mediator->RegisterComponent<Monster>(MONSTER);
+    m_mediator->RegisterComponent<ShooterMonster>(SHOOTER_MONSTER);
+    m_mediator->RegisterComponent<FlyingMonster>(FLYING_MONSTER);
+    m_mediator->RegisterComponent<HUDComp>(HUD);
+    m_mediator->RegisterComponent<Transform>(TRANSFORM);
+    m_mediator->RegisterComponent<Position>(POSITION);
+    m_mediator->RegisterComponent<BoundingBox>(BOUNDING_BOX);
+
+    m_systems.addSystem<InputsPlayerClient>(m_mediator);
+    m_systems.addSystem<MotionSystem>(m_mediator);
+    m_systems.addSystem<PlayerBorderSystem>(m_mediator);
+
+    initSystemSignature(SystemType::MOTION);
+    initSystemSignature(SystemType::INPUTS_CLIENT);
+    initSystemSignature(SystemType::PLAYERBORDER);
 }

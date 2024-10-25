@@ -7,7 +7,10 @@
 
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <vector>
+
 #include "../Renderer/Renderer.hpp"
 #include "ARTypeGame.hpp"
 
@@ -18,9 +21,16 @@ class RTypeGameClient : public gameEngine::ARTypeGame
     RTypeGameClient() = default;
     ~RTypeGameClient() = default;
 
-    void updateRendererState(Renderer &renderer, std::vector<Entity> &entitiesToRemove);
-    void updateSystems();
+    void initGameRules(void) override;
+    void updateRendererState(
+        Renderer &renderer, std::vector<Entity> &entitiesToRemove);
+    void updateSystems(uint32_t tick, std::vector<Event> &events, int playerEntityId);
     spritesTypes choosePlayerSprite();
+
+    size_t &getNbPlayers()
+    {
+        return m_nbPlayers;
+    }
 
    protected:
    private:

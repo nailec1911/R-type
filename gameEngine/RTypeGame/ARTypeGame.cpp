@@ -7,11 +7,8 @@
 
 #include "ARTypeGame.hpp"
 
-#include <memory>
-
 #include "../ECS/Managers/Component/StructComponent.hpp"
 #include "../ECS/Managers/System/Systems.hpp"
-#include "../ECS/Mediator.hpp"
 
 gameEngine::ARTypeGame::ARTypeGame() {}
 
@@ -34,6 +31,12 @@ void gameEngine::ARTypeGame::initSystemSignature(const SystemType &type)
     if (type == SystemType::INPUTS) {
         signature.set(m_mediator->GetComponentType<Player>());
         m_mediator->SetSystemSignature<InputsPlayer>(signature);
+        return;
+    }
+
+    if (type == SystemType::INPUTS_CLIENT) {
+        signature.set(m_mediator->GetComponentType<Player>());
+        m_mediator->SetSystemSignature<InputsPlayerClient>(signature);
         return;
     }
 
@@ -71,131 +74,116 @@ void gameEngine::ARTypeGame::initSystemSignature(const SystemType &type)
     }
 }
 
-void gameEngine::ARTypeGame::initGameRules(void)
-{
-    m_mediator = std::make_shared<Mediator>();
-    m_mediator->RegisterComponent<Player>(PLAYER);
-    m_mediator->RegisterComponent<BulletPlayer>(P_BULLET);
-    m_mediator->RegisterComponent<BulletMonster>(M_BULLET);
-    m_mediator->RegisterComponent<Wall>(WALL);
-    m_mediator->RegisterComponent<Monster>(MONSTER);
-    m_mediator->RegisterComponent<ShooterMonster>(SHOOTER_MONSTER);
-    m_mediator->RegisterComponent<FlyingMonster>(FLYING_MONSTER);
-    m_mediator->RegisterComponent<HUDComp>(HUD);
-    m_mediator->RegisterComponent<Transform>(TRANSFORM);
-    m_mediator->RegisterComponent<Position>(POSITION);
-    m_mediator->RegisterComponent<BoundingBox>(BOUNDING_BOX);
-
-    m_systems.addSystem<InputsPlayer>(m_mediator);
-    m_systems.addSystem<CollisionSystem>(m_mediator);
-    m_systems.addSystem<DestroyBullets>(m_mediator);
-    m_systems.addSystem<ShootingMonsterSystem>(m_mediator);
-    m_systems.addSystem<FlyingMonsterSystem>(m_mediator);
-    m_systems.addSystem<MotionSystem>(m_mediator);
-    m_systems.addSystem<DestroyEntities>(m_mediator);
-    m_systems.addSystem<PlayerBorderSystem>(m_mediator);
-
-    initSystemSignature(SystemType::MOTION);
-    initSystemSignature(SystemType::INPUTS);
-    initSystemSignature(SystemType::COLLISION);
-    initSystemSignature(SystemType::BULLETDESTRUCTION);
-    initSystemSignature(SystemType::SHOOTERMONSTER);
-    initSystemSignature(SystemType::FLYINGMONSTER);
-    initSystemSignature(SystemType::PLAYERBORDER);
-    initSystemSignature(SystemType::DESTROYENTITIES);
-}
-
 void gameEngine::ARTypeGame::createEntity(
-    const EntityName &name, std::pair<float, float> pos, int id)
+    const EntityName &name, std::pair<float, float> pos, int id, uint32_t tick)
 {
     if (name == WALL) {
-        createWall(pos, id);
+        createWall(pos, id, tick);
         return;
     }
     if (name == SHOOTER_MONSTER) {
-        createShooterMonster(pos, id);
+        createShooterMonster(pos, id, tick);
         return;
     }
     if (name == FLYING_MONSTER) {
-        createFlyingMonster(pos, id);
+        createFlyingMonster(pos, id, tick);
         return;
     }
     if (name == PLAYER) {
-        createPlayer(pos, id);
+        createPlayer(pos, id, tick);
         return;
     }
     if (name == M_BULLET) {
-        createMBullet(pos, id);
+        createMBullet(pos, id, tick);
         return;
     }
     if (name == P_BULLET) {
-        createPBullet(pos, id);
+        createPBullet(pos, id, tick);
         return;
     }
 }
 
-void gameEngine::ARTypeGame::createWall(std::pair<float, float> &pos, int id)
+void gameEngine::ARTypeGame::createWall(
+    std::pair<float, float> &pos, int id, uint32_t tick)
 {
     Entity wall =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    m_mediator->AddComponent(wall, Chrono{tick});
     m_mediator->AddComponent<Wall>(wall, {});
-    m_mediator->AddComponent<Position>(wall, {pos.first, pos.second});
-    m_mediator->AddComponent<Transform>(wall, {-0.5, 0});
+    m_mediator->AddComponent<Position>(
+        wall, {pos.first, pos.second, pos.first, pos.second});
+    m_mediator->AddComponent<Transform>(wall, {-100, 0});
     m_mediator->AddComponent<BoundingBox>(wall, {138, 138});
 }
 
 void gameEngine::ARTypeGame::createShooterMonster(
-    std::pair<float, float> &pos, int id)
+    std::pair<float, float> &pos, int id, uint32_t tick)
 {
     Entity monster =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    m_mediator->AddComponent(monster, Chrono{tick});
     m_mediator->AddComponent<Monster>(monster, {});
     m_mediator->AddComponent<ShooterMonster>(monster, {});
-    m_mediator->AddComponent<Position>(monster, {pos.first, pos.second});
-    m_mediator->AddComponent<Transform>(monster, {-0.5, 0});
+    m_mediator->AddComponent<Position>(
+        monster, {pos.first, pos.second, pos.first, pos.second});
+    m_mediator->AddComponent<Transform>(monster, {-100, 0});
     m_mediator->AddComponent<BoundingBox>(monster, {93, 93});
 }
 
 void gameEngine::ARTypeGame::createFlyingMonster(
-    std::pair<float, float> &pos, int id)
+    std::pair<float, float> &pos, int id, uint32_t tick)
 {
     Entity monster =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    m_mediator->AddComponent(monster, Chrono{tick});
     m_mediator->AddComponent<Monster>(monster, {});
     m_mediator->AddComponent<FlyingMonster>(monster, {});
-    m_mediator->AddComponent<Position>(monster, {pos.first, pos.second});
-    m_mediator->AddComponent<Transform>(monster, {-1, 3});
+    m_mediator->AddComponent<Position>(
+        monster, {pos.first, pos.second, pos.first, pos.second});
+    m_mediator->AddComponent<Transform>(monster, {-200, 150});
     m_mediator->AddComponent<BoundingBox>(monster, {60, 69});
 }
 
-void gameEngine::ARTypeGame::createPlayer(std::pair<float, float> &pos, int id)
+void gameEngine::ARTypeGame::createPlayer(
+    std::pair<float, float> &pos, int id, uint32_t tick)
 {
     Entity newPlayer =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    m_mediator->AddComponent(newPlayer, Chrono{tick});
     m_mediator->AddComponent<Player>(newPlayer, {});
     m_mediator->AddComponent<Transform>(
         newPlayer, Transform{.velX = 0, .velY = 0});
     m_mediator->AddComponent<Position>(
-        newPlayer, Position{.x = pos.first, .y = pos.second});
+        newPlayer, Position{
+                       .x = pos.first,
+                       .y = pos.second,
+                       .initX = pos.first,
+                       .initY = pos.second});
     m_mediator->AddComponent<BoundingBox>(newPlayer, BoundingBox{93, 33});
 }
 
-void gameEngine::ARTypeGame::createMBullet(std::pair<float, float> &pos, int id)
+void gameEngine::ARTypeGame::createMBullet(
+    std::pair<float, float> &pos, int id, uint32_t tick)
 {
     Entity bullet =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    m_mediator->AddComponent(bullet, Chrono{tick});
     m_mediator->AddComponent(bullet, BulletMonster{});
-    m_mediator->AddComponent(bullet, Transform{.velX = -4, .velY = 0});
+    m_mediator->AddComponent(bullet, Transform{.velX = -800, .velY = 0});
     m_mediator->AddComponent(bullet, BoundingBox{10, 10});
-    m_mediator->AddComponent<Position>(bullet, {pos.first, pos.second});
+    m_mediator->AddComponent<Position>(
+        bullet, {pos.first, pos.second, pos.first, pos.second});
 }
 
-void gameEngine::ARTypeGame::createPBullet(std::pair<float, float> &pos, int id)
+void gameEngine::ARTypeGame::createPBullet(
+    std::pair<float, float> &pos, int id, uint32_t tick)
 {
     Entity bullet =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    m_mediator->AddComponent(bullet, Chrono{tick});
     m_mediator->AddComponent(bullet, BulletPlayer{});
     m_mediator->AddComponent(bullet, BoundingBox{10, 10});
-    m_mediator->AddComponent(bullet, Transform{.velX = 4, .velY = 0});
-    m_mediator->AddComponent(bullet, Position{pos.first, pos.second});
+    m_mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
+    m_mediator->AddComponent(
+        bullet, Position{pos.first, pos.second, pos.first, pos.second});
 }

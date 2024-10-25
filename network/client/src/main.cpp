@@ -21,7 +21,7 @@ static void gameloop(
     gameEngine::RTypeGameClient &rType)
 {
     std::vector<asun::message<CustomMessageType>> eventMessage;
-    std::vector<Event> events;
+    std::vector<Event> events{};
     asun::message<CustomMessageType> msg{};
     msg.header.id = CustomMessageType::LOGIN;
 
@@ -29,15 +29,14 @@ static void gameloop(
     client.start();
     client.sendMessage(msg);
     while (renderer.isWindowOpen()) {
+        events = renderer.getEvents();
         {
             std::vector<Entity> entitiesToRemove;
             client.handleMessages(rType, entitiesToRemove);
-            // rType.updateSystems();
+            rType.updateSystems(0, events, client.getPlayerEntityId());
             rType.updateRendererState(renderer, entitiesToRemove);
         }
         renderer.clear();
-        events = renderer.getEvents();
-        eventMessage = inputToMessage(events, renderer.getWindowSFML());
         renderer.refresh();
         if (client.isPlayerDead()) {
             renderer.getTextMap()["DEAD"] = std::make_unique<Text>(
@@ -51,6 +50,7 @@ static void gameloop(
             renderer.drawText("WIN");
         }
         renderer.display();
+        eventMessage = inputToMessage(events, renderer.getWindowSFML());
         for (const auto &elem : eventMessage) {
             client.sendMessage(elem);
         }
