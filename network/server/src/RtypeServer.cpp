@@ -27,7 +27,7 @@ rtypeNetwork::RtypeServer::~RtypeServer()
 
 void rtypeNetwork::RtypeServer::manageTickRate()
 {
-    auto tickDuration = initTickRate(128);
+    auto tickDuration = initTickRate(60);
     auto nextTick = chrono::now();
     while (true) {
         auto start = chrono::now();
@@ -37,7 +37,7 @@ void rtypeNetwork::RtypeServer::manageTickRate()
             while (!m_snapshots.empty()) {
                 auto snap = m_snapshots.front();
                 m_snapshots.pop();
-                this->sendMaster(snap, 1, 2);
+                this->sendMaster(snap, m_tick, 2);
             }
             m_ready = false;
         }

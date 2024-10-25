@@ -22,7 +22,7 @@ class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
 {
    public:
     RtypeClient(const std::string &ip, uint16_t port)
-        : asun::AsioUdpClient<CustomMessageType>(ip, port)
+        : asun::AsioUdpClient<CustomMessageType>(ip, port), m_playerEntityId(-1)
     {
     }
     RtypeClient(RtypeClient &&) = delete;
@@ -43,6 +43,16 @@ class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
         return m_hasPlayerWon;
     }
 
+    void setPlayerEntityId(Entity id)
+    {
+        m_playerEntityId = id;
+    }
+
+    int getPlayerEntityId() const
+    {
+        return m_playerEntityId;
+    }
+
    private:
     uint32_t updateGameData(
         const gameServer::Snapshot<SnapshotData, 2> &newSnapshot,
@@ -50,5 +60,6 @@ class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
 
     bool m_isPlayerDead{};
     bool m_hasPlayerWon{};
+    int m_playerEntityId;
 };
 }  // namespace rtypeNetwork

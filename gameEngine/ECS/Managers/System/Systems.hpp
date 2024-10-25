@@ -38,45 +38,58 @@ inline std::shared_ptr<Mediator> castAnyTypeMediator(std::any med)
 class MotionSystem : public System
 {
    public:
-    void Update(std::any med, DataUpdate &data) override
+    void Update(std::any med, DataUpdate & /*data*/) override
     {
+        // if (data.nbPlayers <= 0)
+        //     return;
         auto mediator = castAnyTypeMediator(med);
-        if (data.nbPlayers <= 0)
-            return;
+        auto start = chrono::now();
+        auto deltaDiff = start - m_lastUpdate;
         for (Entity const &entity : this->m_Entities) {
             auto &transform = mediator->GetComponent<Transform>(entity);
             auto &position = mediator->GetComponent<Position>(entity);
-            position.x += transform.velX;
-            position.y += transform.velY;
+            position.x += transform.velX *
+                          std::chrono::duration<float>(deltaDiff).count();
+            position.y += transform.velY *
+                          std::chrono::duration<float>(deltaDiff).count();
         }
+        m_lastUpdate = start;
     }
+
+   private:
+    std::chrono::steady_clock::time_point m_lastUpdate;
 };
 
 class PlayerBorderSystem : public System
 {
    public:
-    void Update(std::any med, DataUpdate & /*data*/) override
+    void Update(std::any med, DataUpdate &data) override
     {
         auto mediator = castAnyTypeMediator(med);
         for (auto &entity : this->m_Entities) {
             auto &position = mediator->GetComponent<Position>(entity);
             auto &box = mediator->GetComponent<BoundingBox>(entity);
             auto &transform = mediator->GetComponent<Transform>(entity);
+            auto &chrono = mediator->GetComponent<Chrono>(entity);
             if (position.x > 1920 - box.width) {
                 position.x = 1920 - box.width;
                 transform.velX = 0;
+                chrono.update(data.tick);
             }
             if (position.x < 0) {
                 position.x = 0;
                 transform.velX = 0;
+                chrono.update(data.tick);
             }
             if (position.y < 0) {
                 position.y = 0;
                 transform.velY = 0;
+                chrono.update(data.tick);
             }
             if (position.y > 1080 - box.height) {
                 position.y = 1080 - box.height;
                 transform.velY = 0;
+                chrono.update(data.tick);
             }
         }
     }
@@ -94,7 +107,7 @@ class FlyingMonsterSystem : public MonstersSystem
         return duration.count() > 600;
     }
 
-    void Update(std::any med, DataUpdate & /*data*/) override
+    void Update(std::any med, DataUpdate &data) override
     {
         auto mediator = castAnyTypeMediator(med);
         addMonsters();
@@ -103,7 +116,9 @@ class FlyingMonsterSystem : public MonstersSystem
             if (changeDirection(monster)) {
                 auto &transform =
                     mediator->GetComponent<Transform>(monster.first);
+                auto &chrono = mediator->GetComponent<Chrono>(monster.first);
                 transform.velY *= -1;
+                chrono.update(data.tick);
                 monster.second = std::chrono::steady_clock::now();
             }
         }
@@ -123,28 +138,32 @@ class ShootingMonsterSystem : public MonstersSystem
     }
 
     static void createMBullet(
-        std::shared_ptr<Mediator> &mediator, const Entity &monster)
+        std::shared_ptr<Mediator> &mediator, const Entity &monster,
+        uint32_t tick)
     {
         auto &position = mediator->GetComponent<Position>(monster);
         auto &boundingBox = mediator->GetComponent<BoundingBox>(monster);
         Entity bullet = mediator->CreateEntity();
         mediator->AddComponent(bullet, BulletMonster{});
-        mediator->AddComponent(bullet, Transform{.velX = -4, .velY = 0});
+        mediator->AddComponent(bullet, Chrono{tick});
+        mediator->AddComponent(bullet, Transform{.velX = -800, .velY = 0});
         mediator->AddComponent(bullet, BoundingBox{10, 10});
         mediator->AddComponent(
-            bullet,
-            Position{
-                .x = position.x, .y = position.y + boundingBox.height / 2});
+            bullet, Position{
+                        .x = position.x,
+                        .y = position.y + boundingBox.height / 2,
+                        .initX = position.x,
+                        .initY = position.y + boundingBox.height / 2});
     }
 
-    void Update(std::any med, DataUpdate & /*data*/) override
+    void Update(std::any med, DataUpdate &data) override
     {
         auto mediator = castAnyTypeMediator(med);
         addMonsters();
         eraseMonsters();
         for (auto &monster : m_monster) {
             if (canShoot(monster)) {
-                createMBullet(mediator, monster.first);
+                createMBullet(mediator, monster.first, data.tick);
                 monster.second = std::chrono::steady_clock::now();
             }
         }
@@ -155,41 +174,51 @@ class InputsPlayer : public System
 {
    public:
     void createPlayer(
-        std::shared_ptr<Mediator> &mediator, const clientEvent &cEvent)
+        std::shared_ptr<Mediator> &mediator, const clientEvent &cEvent,
+        DataUpdate &data)
     {
         Entity newPlayer = mediator->CreateEntity();
         mediator->AddComponent<Player>(newPlayer, Player{.id = cEvent.id});
         mediator->AddComponent<Transform>(
             newPlayer, Transform{.velX = 0, .velY = 0});
         mediator->AddComponent<Position>(
-            newPlayer, Position{.x = 500, .y = 540});
+            newPlayer,
+            Position{.x = 500, .y = 540, .initX = 500, .initY = 540});
         mediator->AddComponent<BoundingBox>(newPlayer, BoundingBox{93, 33});
         m_players[cEvent.id] = {newPlayer, {}};
+        data.clientsIdByEntities[cEvent.id] = newPlayer;
     }
 
-    void resetPlayerVelocity(std::shared_ptr<Mediator> &mediator)
+    void resetPlayerVelocity(
+        std::shared_ptr<Mediator> &mediator, DataUpdate &data)
     {
         for (auto &player : m_players) {
             auto &tranformComp =
                 mediator->GetComponent<Transform>(player.second.first);
+            auto &chrono = mediator->GetComponent<Chrono>(player.second.first);
             tranformComp.velX = 0;
             tranformComp.velY = 0;
+            chrono.update(data.tick);
         }
     }
 
     static void createBullet(
-        std::shared_ptr<Mediator> &mediator, const Entity &entity)
+        std::shared_ptr<Mediator> &mediator, const Entity &entity,
+        uint32_t tick)
     {
         auto &position = mediator->GetComponent<Position>(entity);
         auto &boundingBox = mediator->GetComponent<BoundingBox>(entity);
         Entity bullet = mediator->CreateEntity();
+        mediator->AddComponent(bullet, Chrono{tick});
         mediator->AddComponent(bullet, BulletPlayer{});
         mediator->AddComponent(bullet, BoundingBox{10, 10});
-        mediator->AddComponent(bullet, Transform{.velX = 4, .velY = 0});
+        mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
         mediator->AddComponent(
-            bullet,
-            Position{
-                .x = position.x, .y = position.y + boundingBox.height / 2});
+            bullet, Position{
+                        .x = position.x,
+                        .y = position.y + boundingBox.height / 2,
+                        .initX = position.x,
+                        .initY = position.y + boundingBox.height / 2});
     }
 
     bool canShoot(const clientEvent &cEvent)
@@ -216,7 +245,7 @@ class InputsPlayer : public System
     {
         auto mediator = castAnyTypeMediator(med);
         eraseDeadPlayers();
-        resetPlayerVelocity(mediator);
+        resetPlayerVelocity(mediator, data);
         while (!data.clientsEvents.empty()) {
             auto cEvent = data.clientsEvents.front();
             data.clientsEvents.pop();
@@ -226,19 +255,30 @@ class InputsPlayer : public System
                 data.deadPlayers.end())
                 continue;
             if (m_players.find(cEvent.id) == m_players.end())
-                createPlayer(mediator, cEvent);
+                createPlayer(mediator, cEvent, data);
             auto &transform =
                 mediator->GetComponent<Transform>(m_players[cEvent.id].first);
-            if (cEvent.event.key == EventKey::KeyLeft)
-                transform.velX = -4;
-            if (cEvent.event.key == EventKey::KeyRight)
-                transform.velX = 4;
-            if (cEvent.event.key == EventKey::KeyUp)
-                transform.velY = -4;
-            if (cEvent.event.key == EventKey::KeyDown)
-                transform.velY = 4;
+            auto &chrono =
+                mediator->GetComponent<Chrono>(m_players[cEvent.id].first);
+
+            if (cEvent.event.key == EventKey::KeyLeft) {
+                transform.velX = -600;
+                chrono.update(data.tick);
+            }
+            if (cEvent.event.key == EventKey::KeyRight) {
+                transform.velX = 600;
+                chrono.update(data.tick);
+            }
+            if (cEvent.event.key == EventKey::KeyUp) {
+                transform.velY = -600;
+                chrono.update(data.tick);
+            }
+            if (cEvent.event.key == EventKey::KeyDown) {
+                transform.velY = 600;
+                chrono.update(data.tick);
+            }
             if (cEvent.event.key == EventKey::KeyB && canShoot(cEvent)) {
-                createBullet(mediator, m_players[cEvent.id].first);
+                createBullet(mediator, m_players[cEvent.id].first, data.tick);
                 m_players[cEvent.id].second = std::chrono::steady_clock::now();
             }
         }
@@ -249,6 +289,34 @@ class InputsPlayer : public System
     std::unordered_map<
         size_t, std::pair<Entity, std::chrono::steady_clock::time_point>>
         m_players;
+};
+
+class InputsPlayerClient : public System
+{
+   public:
+    void Update(std::any med, DataUpdate &data) override
+    {
+        auto mediator = castAnyTypeMediator(med);
+        if (data.playerEntityId == -1)
+            return;
+        for (auto &entity : m_Entities) {
+            if (entity != static_cast<Entity>(data.playerEntityId))
+                continue;
+            auto &transform = mediator->GetComponent<Transform>(entity);
+            transform.velX = 0;
+            transform.velY = 0;
+            for (auto &event : data.events) {
+                if (event.key == EventKey::KeyLeft)
+                    transform.velX = -600;
+                if (event.key == EventKey::KeyRight)
+                    transform.velX = 600;
+                if (event.key == EventKey::KeyUp)
+                    transform.velY = -600;
+                if (event.key == EventKey::KeyDown)
+                    transform.velY = 600;
+            }
+        }
+    }
 };
 
 class DestroyBullets : public System

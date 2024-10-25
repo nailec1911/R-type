@@ -7,10 +7,13 @@
 
 #pragma once
 
+#include <cstdint>
 #include <queue>
+#include <unordered_map>
+#include <vector>
 
-#include "Renderer/Events.hpp"
 #include "ECS/using.hpp"
+#include "Renderer/Events.hpp"
 
 struct DataUpdate
 {
@@ -18,4 +21,8 @@ struct DataUpdate
     std::vector<uint32_t> deadPlayers;
     std::vector<Entity> entitiesToRemove;
     size_t nbPlayers;
+    uint32_t tick;
+    std::unordered_map<uint32_t, Entity> clientsIdByEntities;
+    std::vector<Event> events;
+    int playerEntityId;
 };

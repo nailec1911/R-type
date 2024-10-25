@@ -7,6 +7,7 @@
 
 #pragma once
 #include <bitset>
+#include <chrono>
 #include <cstdint>
 
 using Entity = std::uint32_t;
@@ -15,9 +16,13 @@ using ComponentType = std::uint8_t;
 const ComponentType MAX_COMPONENTS = 32;
 using Signature = std::bitset<MAX_COMPONENTS>;
 
-enum EntityName {
+using chrono = std::chrono::steady_clock;
+
+enum EntityName
+{
     NONE,
     PLAYER,
+    CHRONO,
     P_BULLET,
     WALL,
     MONSTER,
@@ -30,3 +35,10 @@ enum EntityName {
     SHOOTER_MONSTER,
     FLYING_MONSTER,
 };
+
+inline std::chrono::steady_clock::duration initTickRate(int tickRate)
+{
+    auto tickDuration = std::chrono::duration_cast<chrono::duration>(
+        std::chrono::duration<double>(1.0 / tickRate));
+    return tickDuration;
+}

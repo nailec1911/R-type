@@ -38,6 +38,7 @@ class ARTypeGame
     {
         MOTION,
         INPUTS,
+        INPUTS_CLIENT,
         COLLISION,
         BULLETDESTRUCTION,
         SHOOTERMONSTER,
@@ -45,17 +46,20 @@ class ARTypeGame
         PLAYERBORDER,
         DESTROYENTITIES
     };
-    void initGameRules(void);
+    virtual void initGameRules(void) = 0;
     void initSystemSignature(const SystemType &type);
     void createEntity(
-        const EntityName &name, std::pair<float, float> pos, int id);
+        const EntityName &name, std::pair<float, float> pos, int id,
+        uint32_t tick);
 
-    void createWall(std::pair<float, float> &pos, int id);
-    void createShooterMonster(std::pair<float, float> &pos, int id);
-    void createFlyingMonster(std::pair<float, float> &pos, int id);
-    void createPlayer(std::pair<float, float> &pos, int id);
-    void createMBullet(std::pair<float, float> &pos, int id);
-    void createPBullet(std::pair<float, float> &pos, int id);
+    void createWall(std::pair<float, float> &pos, int id, uint32_t tick);
+    void createShooterMonster(
+        std::pair<float, float> &pos, int id, uint32_t tick);
+    void createFlyingMonster(
+        std::pair<float, float> &pos, int id, uint32_t tick);
+    void createPlayer(std::pair<float, float> &pos, int id, uint32_t tick);
+    void createMBullet(std::pair<float, float> &pos, int id, uint32_t tick);
+    void createPBullet(std::pair<float, float> &pos, int id, uint32_t tick);
 
     SystemsFactory getSystems(void)
     {

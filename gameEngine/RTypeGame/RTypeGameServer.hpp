@@ -14,9 +14,9 @@
 #include <vector>
 
 #include "../../network/server/src/LevelConfigParser.hpp"
-#include "ARTypeGame.hpp"
 #include "../ECS/using.hpp"
 #include "../Snapshot/SnapshotData.hpp"
+#include "ARTypeGame.hpp"
 
 namespace gameEngine {
 
@@ -33,16 +33,18 @@ class RTypeGameServer : public ARTypeGame
     void startGame();
     void initHUDEntities(void);
     void createFromConfig(
-        std::unordered_map<float, std::vector<entitySpawn>> &level)
+        std::unordered_map<float, std::vector<entitySpawn>> &level,
+        uint32_t tick)
     {
         if (level.find(m_second) == level.end())
             return;
+
         for (auto &elem : level.at(m_second))
-            createEntity(elem.type, elem.vecPos, -1);
+            createEntity(elem.type, elem.vecPos, -1, tick);
         level.erase(m_second);
     }
     std::unordered_map<uint32_t, SnapshotData> createSnapshots(
-        std::vector<Entity> &entitiesToRemove);
+        std::vector<Entity> &entitiesToRemove, uint32_t tick);
 
     bool isGameStarted() const
     {
@@ -66,9 +68,11 @@ class RTypeGameServer : public ARTypeGame
 
     std::unordered_map<uint32_t, SnapshotData> updateSystems(
         std::queue<clientEvent> &clientsEvents,
-        std::vector<uint32_t> &playersToRemove);
+        std::vector<uint32_t> &playersToRemove, uint32_t tick,
+        std::unordered_map<uint32_t, Entity> &clientsIdByEntities);
 
     void gameTrigger(float winCondition);
+    void initGameRules(void) override;
 
    protected:
    private:

@@ -9,33 +9,36 @@
 
 #include <algorithm>
 #include <condition_variable>
+#include <cstddef>
 #include <cstdint>
 #include <mutex>
 #include <queue>
+#include <string>
 #include <thread>
 #include <unordered_map>
 #include <vector>
 
 #include "../../../gameEngine/Renderer/Events.hpp"
 #include "../../../gameEngine/Snapshot/SnapshotData.hpp"
-#include "../../gameServ/GameServer.hpp"
 #include "../../Errors.hpp"
-using chrono = std::chrono::steady_clock;
+#include "../../gameServ/GameServer.hpp"
 
 namespace rtypeNetwork {
 class RtypeServer
 {
    public:
-    class ErrorRtypeServer : std::exception {
-        public:
-            ErrorRtypeServer(const std::string &msg) : m_msg(msg) {}
-            
-            const char* what() const noexcept override
-            {
-                return m_msg.c_str();
-            }
-        private:
-            std::string m_msg;
+    class ErrorRtypeServer : std::exception
+    {
+       public:
+        ErrorRtypeServer(const std::string &msg) : m_msg(msg) {}
+
+        const char *what() const noexcept override
+        {
+            return m_msg.c_str();
+        }
+
+       private:
+        std::string m_msg;
     };
     RtypeServer(uint16_t port, uint8_t maxClient);
     RtypeServer(RtypeServer &&) = delete;
@@ -57,25 +60,35 @@ class RtypeServer
     }
 
     void sendMaster(
-        const std::unordered_map<uint32_t, SnapshotData> &eltsMap, int other1,
-        int other2)
+        const std::unordered_map<uint32_t, SnapshotData> &eltsMap,
+        uint32_t tick, int other2)
     {
         m_snapId++;
 
         m_gameServ.sendMaster(
             CustomMessageType::SNAPSHOT,
             gameServer::Snapshot<SnapshotData, 2>(
-                m_snapId, {other1, other2}, eltsMap));
+                m_snapId, {static_cast<int>(tick), other2}, eltsMap));
     }
 
     void setSnapshots(
         std::unordered_map<uint32_t, SnapshotData> &snapshots,
-        std::vector<uint32_t> &playersToRemove)
+        std::vector<uint32_t> &playersToRemove,
+        std::unordered_map<uint32_t, Entity> &clientsIdByEntities)
     {
         for (auto &clientId : playersToRemove) {
             asun::message<CustomMessageType> msg{};
             msg.header.id = CustomMessageType::DEAD;
             sendMessageToClient(msg, clientId);
+        }
+        for (auto &clientsPlayers : clientsIdByEntities) {
+            asun::message<CustomMessageType> msg{};
+            msg.header.id = CustomMessageType::YOUR_PLAYER;
+            msg << clientsPlayers.second;
+            msg.header.checksum = msg.calculateChecksum(
+                reinterpret_cast<const char *>(msg.body.data()),
+                msg.header.size);
+            sendMessageToClient(msg, clientsPlayers.first);
         }
         {
             std::unique_lock<std::mutex> mtx(m_mtx);
@@ -83,13 +96,7 @@ class RtypeServer
             m_ready = true;
         }
         m_cond.notify_one();
-    }
-
-    static std::chrono::steady_clock::duration initTickRate(int tickRate)
-    {
-        auto tickDuration = std::chrono::duration_cast<chrono::duration>(
-            std::chrono::duration<double>(1.0 / tickRate));
-        return tickDuration;
+        m_tick += 1;
     }
 
     void sendMessageToClient(
@@ -98,10 +105,19 @@ class RtypeServer
         this->m_gameServ.sendMessageToClient(msg, clientId);
     }
 
-        void sendMessageToAllClients(
-        asun::message<CustomMessageType> &msg)
+    void sendMessageToAllClients(asun::message<CustomMessageType> &msg)
     {
         this->m_gameServ.sendMessageToAllClients(msg);
+    }
+
+    uint32_t getTick() const
+    {
+        return m_tick;
+    }
+
+    size_t getNbClientConnected() const
+    {
+        return m_connectedClients.size();
     }
 
    private:
@@ -113,6 +129,7 @@ class RtypeServer
     std::thread m_tickRateThread;
     std::condition_variable m_cond;
     std::mutex m_mtx;
+    uint32_t m_tick{};
     bool m_ready;
     std::queue<std::unordered_map<uint32_t, SnapshotData>> m_snapshots;
 
