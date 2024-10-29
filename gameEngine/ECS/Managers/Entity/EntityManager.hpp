@@ -31,7 +31,7 @@ class EntityManager
     Entity CreateEntity()
     {
         if (this->mNumberEntity >= MAX_ENTITIES)
-            return 0;
+            return ENTITY_ERROR;
         Entity id = this->mEntitiesAvailable.front();
         this->mEntitiesAvailable.erase(this->mEntitiesAvailable.begin());
         this->mNumberEntity += 1;
@@ -42,7 +42,7 @@ class EntityManager
     {
         auto it = std::find(mEntitiesAvailable.begin(), mEntitiesAvailable.end(), id);
         if (it == mEntitiesAvailable.end())
-            return 0; //ERROR
+            return ENTITY_ERROR;
         mEntitiesAvailable.erase(it);
         mNumberEntity += 1;
         return id;
