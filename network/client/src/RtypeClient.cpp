@@ -58,25 +58,27 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
         auto vel = item.second.getVelocity();
 
         if (entities.find(item.first) == entities.end()) {
-            pos.x += static_cast<int>(vel.x * (tick - item.second.getTick())) *
-                     1 / 32;
-            pos.y += static_cast<int>(vel.y * (tick - item.second.getTick())) *
-                     1 / 32;
+            pos.first +=
+                static_cast<int>(vel.first * (tick - item.second.getTick())) *
+                1 / 32;
+            pos.second +=
+                static_cast<int>(vel.second * (tick - item.second.getTick())) *
+                1 / 32;
             if (type == PLAYER)
                 rType.getNbPlayers() += 1;
             rType.createEntity(
-                type, {pos.x, pos.y}, static_cast<int>(item.first),
+                type, {pos.first, pos.second}, static_cast<int>(item.first),
                 item.second.getTick());
             continue;
         }
         auto &position =
             rType.getMediator()->GetComponent<Position>(item.first);
-        position.x = static_cast<float>(pos.x);
-        position.y = static_cast<float>(pos.y);
+        position.x = static_cast<float>(pos.first);
+        position.y = static_cast<float>(pos.second);
         auto &velocity =
             rType.getMediator()->GetComponent<Transform>(item.first);
-        velocity.velX = vel.x;
-        velocity.velY = vel.y;
+        velocity.velX = vel.first;
+        velocity.velY = vel.second;
     }
     return newSnapshot.getId();
 }
