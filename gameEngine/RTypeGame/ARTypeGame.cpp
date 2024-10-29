@@ -108,7 +108,7 @@ void gameEngine::ARTypeGame::createWall(
 {
     Entity wall =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
-    m_mediator->AddComponent(wall, Chrono{tick});
+    m_mediator->AddComponent<Chrono>(wall, tick);
     m_mediator->AddComponent<Wall>(wall, {});
     m_mediator->AddComponent<Position>(
         wall, {pos.first, pos.second, pos.first, pos.second});

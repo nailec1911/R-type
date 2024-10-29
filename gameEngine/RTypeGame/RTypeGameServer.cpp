@@ -55,8 +55,7 @@ gameEngine::RTypeGameServer::createSnapshots(
     while (!entitiesToRemove.empty()) {
         auto entity = entitiesToRemove.front();
         entitiesToRemove.erase(entitiesToRemove.begin());
-        snapshots[entity] = {
-            m_mediator->GetEntityRole(entity), 0, 0, 0, 0, 0, 1};
+        snapshots[entity] = {DESTROY, 0, 0, 0, 0, 0};
     }
 
     for (auto elem : entities) {
@@ -65,18 +64,22 @@ gameEngine::RTypeGameServer::createSnapshots(
             continue;
         auto position = m_mediator->GetComponent<Position>(elem.first);
         auto speed = m_mediator->GetComponent<Transform>(elem.first);
-        auto chrono = m_mediator->GetComponent<Chrono>(elem.first);
+        auto &chrono = m_mediator->GetComponent<Chrono>(elem.first);
 
         snapshots[elem.first] = {
             role,
-            static_cast<int16_t>(chrono.wasUpdated() ? position.x : position.initX),
-            static_cast<int16_t>(chrono.wasUpdated() ? position.y : position.initY),
+            static_cast<int16_t>(
+                chrono.wasUpdated() || role == PLAYER || role == FLYING_MONSTER
+                    ? position.x
+                    : position.initX),
+            static_cast<int16_t>(
+                chrono.wasUpdated() || role == PLAYER || role == FLYING_MONSTER
+                    ? position.y
+                    : position.initY),
             speed.velX,
             speed.velY,
-            chrono.getLastUpdate(),
-            0};
+            chrono.getLastUpdate()};
         chrono.setNotUpdated();
-
     }
     return snapshots;
 }
@@ -110,7 +113,8 @@ gameEngine::RTypeGameServer::updateSystems(
     std::vector<uint32_t> &playersToRemove, uint32_t tick,
     std::unordered_map<uint32_t, Entity> &clientsIdByEntities)
 {
-    DataUpdate data = {clientsEvents, m_deadPlayers, {}, m_nbPlayers, tick, {}, {}, {}};
+    DataUpdate data = {
+        clientsEvents, m_deadPlayers, {}, m_nbPlayers, tick, {}, {}, {}};
 
     for (auto &system : m_systems.getSystems())
         system->Update(getMediator(), data);

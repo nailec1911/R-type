@@ -11,6 +11,9 @@
     #include <unistd.h>
 #endif
 
+#include <zstd.h>
+#include <zstd_errors.h>
+
 #include <array>
 #include <bitset>
 #include <cstddef>
@@ -115,21 +118,23 @@ class Snapshot
     ~Snapshot() = default;
     Snapshot(const std::vector<uint8_t> &bytes)
     {
+        auto msg = uncompressData(bytes);
+
         size_t indx = 0;
-        m_id = extractUint32(bytes, indx);
+        m_id = extractUint32(msg, indx);
         for (int i = 0; i < nb_others; i++) {
-            if (bytes.at(indx) == 0) {
+            if (msg.at(indx) == 0) {
                 indx += 1;
                 continue;
             }
             indx += 1;
-            m_otherInfo[i] = extractUint32(bytes, indx);
+            m_otherInfo[i] = extractUint32(msg, indx);
         }
-        uint32_t nbEntity = extractUint32(bytes, indx);
+        uint32_t nbEntity = extractUint32(msg, indx);
         for (size_t i = 0; i < nbEntity; i++) {
-            uint32_t id = extractUint32(bytes, indx);
+            uint32_t id = extractUint32(msg, indx);
             try {
-                m_eltsMap[id] = Telement(bytes, indx);
+                m_eltsMap[id] = Telement(msg, indx);
             } catch (const std::out_of_range &e) {
                 std::cerr << e.what() << std::endl;
                 std::cerr << "Parsing failed" << std::endl;
@@ -184,7 +189,8 @@ class Snapshot
             auto toAdd = static_cast<std::vector<uint8_t>>(elt.second);
             res.insert(res.end(), toAdd.begin(), toAdd.end());
         }
-        return res;
+        auto p = compressData(res);
+        return p;
     }
 
    protected:
@@ -195,6 +201,42 @@ class Snapshot
     std::time_t m_timestamp{};
     uint32_t m_id{};
     bool m_acknowledge{};
+
+    std::vector<uint8_t> compressData(
+        const std::vector<uint8_t> &serializedData)
+    {
+        size_t maxCompressedSize = ZSTD_compressBound(serializedData.size());
+        std::vector<uint8_t> compressedData(maxCompressedSize);
+        size_t compressedSize = ZSTD_compress(
+            compressedData.data(), maxCompressedSize, serializedData.data(),
+            serializedData.size(), 1);
+        if (ZSTD_isError(compressedSize) != 0)
+            throw std::runtime_error("Compression failed");
+        compressedData.resize(compressedSize);
+        return compressedData;
+    }
+
+    std::vector<uint8_t> uncompressData(
+        const std::vector<uint8_t> &compressedData)
+    {
+        size_t decompressedSize = ZSTD_getFrameContentSize(
+            compressedData.data(), compressedData.size());
+
+        if (decompressedSize == ZSTD_CONTENTSIZE_ERROR)
+            throw std::runtime_error(
+                "Invalid compressed data: cannot determine original size");
+        if (decompressedSize == ZSTD_CONTENTSIZE_UNKNOWN)
+            throw std::runtime_error("Compressed data size is unknown");
+
+        std::vector<uint8_t> decompressedData(decompressedSize);
+        size_t result = ZSTD_decompress(
+            decompressedData.data(), decompressedSize, compressedData.data(),
+            compressedData.size());
+
+        if (ZSTD_isError(result) != 0)
+            throw std::runtime_error("Decompression failed");
+        return decompressedData;
+    }
 
     static std::vector<uint8_t> intToVector(int value)
     {

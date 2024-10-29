@@ -3,6 +3,8 @@ project(r-type_server)
 
 # Set CMake output directory for executables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+# include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+# conan_basic_setup()
 
 # Default to Release build if no build type is specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -34,12 +36,14 @@ file(GLOB_RECURSE SOURCES "src/*.cpp" "../../gameEngine/RTypeGame/RTypeGameServe
 # Find and link libraries
 find_package(asio REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(Zstd REQUIRED)
 
 # Create executable target
 add_executable(r-type_server ${SOURCES})
 
 # Link external libraries
 target_link_libraries(r-type_server PRIVATE asio::asio yaml-cpp)
+target_link_libraries(r-type_server PRIVATE zstd::libzstd_static)
 
 # MSVC-specific settings: set output to the correct folder
 if (MSVC)

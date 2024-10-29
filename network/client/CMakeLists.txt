@@ -35,12 +35,14 @@ file(GLOB_RECURSE SOURCES "src/*.cpp" "../../gameEngine/*.cpp")
 find_package(asio REQUIRED)
 find_package(SFML 2.5 COMPONENTS system window graphics network audio REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(Zstd REQUIRED)
 
 # Create executable target
 add_executable(r-type_client ${SOURCES})
 
 # Link external libraries
 target_link_libraries(r-type_client PRIVATE asio::asio sfml-system sfml-window sfml-graphics sfml-network sfml-audio yaml-cpp)
+target_link_libraries(r-type_client PRIVATE zstd::libzstd_static)
 
 # MSVC-specific settings: set output to the correct folder
 if (MSVC)

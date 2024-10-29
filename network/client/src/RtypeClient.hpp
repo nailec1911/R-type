@@ -55,7 +55,7 @@ class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
 
    private:
     uint32_t updateGameData(
-        const gameServer::Snapshot<SnapshotData, 2> &newSnapshot,
+        const gameServer::Snapshot<SnapshotData, 1> &newSnapshot,
         gameEngine::RTypeGameClient &rType, std::vector<Entity> &entitiesToRemove);
 
     bool m_isPlayerDead{};
