@@ -10,10 +10,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 #include <vector>
 
 #include "../ECS/using.hpp"
-#include "../Renderer/IRenderer.hpp"
 
 class SnapshotData
 {
@@ -71,7 +71,7 @@ class SnapshotData
         return role && pos && speed;
     }
 
-    rndr::Vector2<int> getXY()
+    std::pair<int, int> getXY()
     {
         return {m_x, m_y};
     }
@@ -81,7 +81,7 @@ class SnapshotData
         return m_type;
     }
 
-    rndr::Vector2<int16_t> getVelocity() const
+    [[nodiscard]] std::pair<int16_t, int16_t> getVelocity() const
     {
         return {m_speedX, m_speedY};
     }
