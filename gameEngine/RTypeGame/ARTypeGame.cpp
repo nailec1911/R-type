@@ -108,6 +108,8 @@ void gameEngine::ARTypeGame::createWall(
 {
     Entity wall =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    if (wall == ENTITY_ERROR)
+        return;
     m_mediator->AddComponent<Chrono>(wall, tick);
     m_mediator->AddComponent<Wall>(wall, {});
     m_mediator->AddComponent<Position>(
@@ -121,6 +123,8 @@ void gameEngine::ARTypeGame::createShooterMonster(
 {
     Entity monster =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    if (monster == ENTITY_ERROR)
+        return;
     m_mediator->AddComponent(monster, Chrono{tick});
     m_mediator->AddComponent<Monster>(monster, {});
     m_mediator->AddComponent<ShooterMonster>(monster, {});
@@ -135,6 +139,8 @@ void gameEngine::ARTypeGame::createFlyingMonster(
 {
     Entity monster =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    if (monster == ENTITY_ERROR)
+        return;
     m_mediator->AddComponent(monster, Chrono{tick});
     m_mediator->AddComponent<Monster>(monster, {});
     m_mediator->AddComponent<FlyingMonster>(monster, {});
@@ -149,6 +155,8 @@ void gameEngine::ARTypeGame::createPlayer(
 {
     Entity newPlayer =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    if (newPlayer == ENTITY_ERROR)
+        return;
     m_mediator->AddComponent(newPlayer, Chrono{tick});
     m_mediator->AddComponent<Player>(newPlayer, {});
     m_mediator->AddComponent<Transform>(
@@ -167,6 +175,8 @@ void gameEngine::ARTypeGame::createMBullet(
 {
     Entity bullet =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    if (bullet == ENTITY_ERROR)
+        return;
     m_mediator->AddComponent(bullet, Chrono{tick});
     m_mediator->AddComponent(bullet, BulletMonster{});
     m_mediator->AddComponent(bullet, Transform{.velX = -800, .velY = 0});
@@ -180,6 +190,8 @@ void gameEngine::ARTypeGame::createPBullet(
 {
     Entity bullet =
         id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    if (bullet == ENTITY_ERROR)
+        return;
     m_mediator->AddComponent(bullet, Chrono{tick});
     m_mediator->AddComponent(bullet, BulletPlayer{});
     m_mediator->AddComponent(bullet, BoundingBox{10, 10});

@@ -12,10 +12,10 @@
 
 using Entity = std::uint32_t;
 const Entity MAX_ENTITIES = 500;
+const Entity ENTITY_ERROR = UINT32_MAX;
 using ComponentType = std::uint8_t;
 const ComponentType MAX_COMPONENTS = 32;
 using Signature = std::bitset<MAX_COMPONENTS>;
-
 using chrono = std::chrono::steady_clock;
 
 enum EntityName : uint8_t

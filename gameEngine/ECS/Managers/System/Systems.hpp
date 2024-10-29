@@ -144,6 +144,8 @@ class ShootingMonsterSystem : public MonstersSystem
         auto &position = mediator->GetComponent<Position>(monster);
         auto &boundingBox = mediator->GetComponent<BoundingBox>(monster);
         Entity bullet = mediator->CreateEntity();
+        if (bullet == ENTITY_ERROR)
+            return;
         mediator->AddComponent(bullet, BulletMonster{});
         mediator->AddComponent(bullet, Chrono{tick});
         mediator->AddComponent(bullet, Transform{.velX = -800, .velY = 0});
@@ -178,6 +180,8 @@ class InputsPlayer : public System
         DataUpdate &data)
     {
         Entity newPlayer = mediator->CreateEntity();
+        if (newPlayer == ENTITY_ERROR)
+            return;
         mediator->AddComponent<Player>(newPlayer, Player{.id = cEvent.id});
         mediator->AddComponent<Transform>(
             newPlayer, Transform{.velX = 0, .velY = 0});
@@ -209,6 +213,8 @@ class InputsPlayer : public System
         auto &position = mediator->GetComponent<Position>(entity);
         auto &boundingBox = mediator->GetComponent<BoundingBox>(entity);
         Entity bullet = mediator->CreateEntity();
+        if (bullet == ENTITY_ERROR)
+            return;
         mediator->AddComponent(bullet, Chrono{tick});
         mediator->AddComponent(bullet, BulletPlayer{});
         mediator->AddComponent(bullet, BoundingBox{10, 10});

@@ -87,6 +87,8 @@ gameEngine::RTypeGameServer::createSnapshots(
 void gameEngine::RTypeGameServer::initHUDEntities(void)
 {
     Entity score = m_mediator->CreateEntity();
+    if (score == ENTITY_ERROR)
+        return;
     m_mediator->AddComponent<HUDComp>(score, HUDComp{.body = "Score: "});
     m_mediator->AddComponent<Position>(
         score, Position{.x = 0, .y = 0, .initX = 0, .initY = 0});
