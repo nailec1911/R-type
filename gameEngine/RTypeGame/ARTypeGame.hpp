@@ -32,7 +32,11 @@ class ARTypeGame
 {
    public:
     ARTypeGame();
-    ~ARTypeGame();
+    ARTypeGame(const ARTypeGame &) = default;
+    ARTypeGame(ARTypeGame &&) = delete;
+    ARTypeGame &operator=(const ARTypeGame &) = default;
+    ARTypeGame &operator=(ARTypeGame &&) = delete;
+    virtual ~ARTypeGame();
 
     enum class SystemType
     {

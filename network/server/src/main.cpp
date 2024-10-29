@@ -28,7 +28,7 @@ int launchGame(
     gameEngine::RTypeGameServer rType;
     rType.initGameRules();
 
-    auto tickDuration = initTickRate(60);
+    auto tickDuration = initTickRate(32);
     auto nextTick = chrono::now();
 
     std::cout << "Game start" << std::endl;
@@ -88,6 +88,7 @@ int main(int argc, char **argv)
         std::cerr << e.what() << std::endl;
     } catch (std::exception &error) {
         std::cerr << "Error, exiting program..." << std::endl;
+        std::cerr << error.what() << std::endl;
         return 84;
     }
     return 0;

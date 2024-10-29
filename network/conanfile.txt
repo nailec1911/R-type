@@ -2,6 +2,7 @@
 asio/1.31.0
 sfml/2.6.1
 yaml-cpp/0.8.0
+zstd/1.5.2
 
 [generators]
 CMakeDeps

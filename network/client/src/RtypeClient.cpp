@@ -17,9 +17,10 @@ void rtypeNetwork::RtypeClient::handleMessages(
 {
     while (getSizeReadQueue() > 0) {
         auto msg = popReadQueue();
+
         if (msg.header.id == CustomMessageType::SNAPSHOT) {
             uint32_t id = updateGameData(
-                gameServer::Snapshot<SnapshotData, 2>(msg.body), rType,
+                gameServer::Snapshot<SnapshotData, 1>(msg.body), rType,
                 entitiesToRemove);
             asun::message<CustomMessageType> ok;
             ok.header.id = CustomMessageType::SNAP_OK;
@@ -39,7 +40,7 @@ void rtypeNetwork::RtypeClient::handleMessages(
 };
 
 uint32_t rtypeNetwork::RtypeClient::updateGameData(
-    const gameServer::Snapshot<SnapshotData, 2> &newSnapshot,
+    const gameServer::Snapshot<SnapshotData, 1> &newSnapshot,
     gameEngine::RTypeGameClient &rType, std::vector<Entity> &entitiesToRemove)
 {
     auto entities = rType.getMediator()->GetEntitiesSignatures();
@@ -47,7 +48,7 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
     uint32_t tick = newSnapshot.getOthers()[0];
 
     for (auto item : newSnapshot.getElements()) {
-        if (item.second.getDestroy() == 1) {
+        if (item.second.getType() == DESTROY) {
             rType.getMediator()->DestroyEntity(item.first);
             entitiesToRemove.push_back(item.first);
             continue;
@@ -55,17 +56,12 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
         auto type = item.second.getType();
         auto pos = item.second.getXY();
         auto vel = item.second.getVelocity();
-        // if (type != PLAYER && type != FLYING_MONSTER) {
-        // }
+
         if (entities.find(item.first) == entities.end()) {
-            pos.x += static_cast<int>(
-                         vel.x *
-                         static_cast<float>((tick - item.second.getTick()))) *
-                     1 / 60;
-            pos.y += static_cast<int>(
-                         vel.y *
-                         static_cast<float>((tick - item.second.getTick()))) *
-                     1 / 60;
+            pos.x += static_cast<int>(vel.x * (tick - item.second.getTick())) *
+                     1 / 32;
+            pos.y += static_cast<int>(vel.y * (tick - item.second.getTick())) *
+                     1 / 32;
             if (type == PLAYER)
                 rType.getNbPlayers() += 1;
             rType.createEntity(
@@ -79,8 +75,8 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
         position.y = static_cast<float>(pos.y);
         auto &velocity =
             rType.getMediator()->GetComponent<Transform>(item.first);
-        velocity.velX = static_cast<float>(vel.x);
-        velocity.velY = static_cast<float>(vel.y);
+        velocity.velX = vel.x;
+        velocity.velY = vel.y;
     }
     return newSnapshot.getId();
 }

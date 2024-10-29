@@ -25,24 +25,24 @@ class SnapshotData
     SnapshotData &operator=(SnapshotData &&) = default;
 
     SnapshotData(
-        EntityName type, int16_t x, int16_t y, float speed_x,
-        float speed_y, uint32_t tick, int info)
+        EntityName type, int16_t x, int16_t y, int16_t speed_x, int16_t speed_y,
+        uint32_t tick)
         : m_type(type),
           m_x(x),
           m_y(y),
           m_speedX(speed_x),
           m_speedY(speed_y),
-          m_tick(tick),
-          m_destroy(info){};
+          m_tick(tick){};
     SnapshotData(const std::vector<uint8_t> &bytes, size_t &indx)
-        : m_type(static_cast<EntityName>(extractVal<int>(bytes, indx))),
-          m_x(extractVal<int16_t>(bytes, indx)),
-          m_y(extractVal<int16_t>(bytes, indx)),
-          m_speedX(extractVal(bytes, indx)),
-          m_speedY(extractVal(bytes, indx)),
-          m_tick(extractVal<uint32_t>(bytes, indx)),
-          m_destroy(extractVal<int>(bytes, indx))
+        : m_type(static_cast<EntityName>(extractVal<uint8_t>(bytes, indx)))
     {
+        if (m_type == DESTROY)
+            return;
+        m_x = extractVal<int16_t>(bytes, indx);
+        m_y = extractVal<int16_t>(bytes, indx);
+        m_speedX = extractVal<int16_t>(bytes, indx);
+        m_speedY = extractVal<int16_t>(bytes, indx);
+        m_tick = extractVal<uint32_t>(bytes, indx);
     }
 
     ~SnapshotData() = default;
@@ -51,21 +51,24 @@ class SnapshotData
     {
         std::vector<uint8_t> res;
 
-        appendToVector(res, static_cast<int>(m_type));
+        appendToVector(res, static_cast<uint8_t>(m_type));
+        if (m_type == DESTROY)
+            return res;
         appendToVector(res, m_x);
         appendToVector(res, m_y);
         appendToVector(res, m_speedX);
         appendToVector(res, m_speedY);
         appendToVector(res, m_tick);
-        appendToVector(res, m_destroy);
 
         return res;
     }
 
     bool operator==(const SnapshotData &b) const
     {
-        return m_x == b.m_x && m_y == b.m_y && m_speedX == b.m_speedX &&
-               m_speedY == b.m_speedY && m_destroy == b.m_destroy;
+        auto role = m_type == b.m_type;
+        auto pos = m_x == b.m_x && m_y == b.m_y;
+        auto speed = m_speedX == b.m_speedX && m_speedY == b.m_speedY;
+        return role && pos && speed;
     }
 
     rndr::Vector2<int> getXY()
@@ -78,14 +81,9 @@ class SnapshotData
         return m_type;
     }
 
-    rndr::Vector2<float> getVelocity() const
+    rndr::Vector2<int16_t> getVelocity() const
     {
         return {m_speedX, m_speedY};
-    }
-
-    [[nodiscard]] int getDestroy() const
-    {
-        return m_destroy;
     }
 
     [[nodiscard]] uint32_t getTick() const
@@ -141,8 +139,7 @@ class SnapshotData
     EntityName m_type;
     int16_t m_x;
     int16_t m_y;
-    float m_speedX;
-    float m_speedY;
+    int16_t m_speedX;
+    int16_t m_speedY;
     uint32_t m_tick;
-    int m_destroy;
 };

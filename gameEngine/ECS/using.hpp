@@ -18,9 +18,10 @@ using Signature = std::bitset<MAX_COMPONENTS>;
 
 using chrono = std::chrono::steady_clock;
 
-enum EntityName
+enum EntityName : uint8_t
 {
     NONE,
+    DESTROY,
     PLAYER,
     CHRONO,
     P_BULLET,

@@ -7,6 +7,7 @@
 
 #pragma once
 #include "../../using.hpp"
+#include <iostream>
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
@@ -20,6 +21,13 @@ class EntityManager
             mEntitiesAvailable.push_back(entity);
         }
     }
+
+    EntityManager(const EntityManager &) = default;
+    EntityManager(EntityManager &&) = delete;
+    EntityManager &operator=(const EntityManager &) = default;
+    EntityManager &operator=(EntityManager &&) = delete;
+    ~EntityManager() = default;
+
     Entity CreateEntity()
     {
         if (this->mNumberEntity >= MAX_ENTITIES)
@@ -42,7 +50,10 @@ class EntityManager
 
     void DestroyEntity(Entity entity)
     {
-        mSignatures.erase(entity);
+        if (mSignatures.erase(entity) == 0) {
+            std::cout << "erase failed" << std::endl;
+            return;
+        }
         this->mEntitiesAvailable.push_back(entity);
         this->mNumberEntity -= 1;
     }

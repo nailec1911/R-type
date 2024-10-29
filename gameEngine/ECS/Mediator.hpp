@@ -24,6 +24,12 @@ class Mediator
         mSystemManager = std::make_unique<SystemManager>();
     }
 
+    Mediator(const Mediator &) = delete;
+    Mediator(Mediator &&) = delete;
+    Mediator &operator=(const Mediator &) = delete;
+    Mediator &operator=(Mediator &&) = delete;
+    ~Mediator() = default;
+
     Entity CreateEntity()
     {
         return mEntityManager->CreateEntity();

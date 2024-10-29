@@ -61,14 +61,14 @@ class RtypeServer
 
     void sendMaster(
         const std::unordered_map<uint32_t, SnapshotData> &eltsMap,
-        uint32_t tick, int other2)
+        uint32_t tick)
     {
         m_snapId++;
 
         m_gameServ.sendMaster(
             CustomMessageType::SNAPSHOT,
-            gameServer::Snapshot<SnapshotData, 2>(
-                m_snapId, {static_cast<int>(tick), other2}, eltsMap));
+            gameServer::Snapshot<SnapshotData, 1>(
+                m_snapId, {static_cast<int>(tick)}, eltsMap));
     }
 
     void setSnapshots(
@@ -124,7 +124,7 @@ class RtypeServer
     uint32_t m_snapId{0};
     uint8_t m_maxClient;
     std::queue<clientEvent> m_clientsEvents;
-    gameServer::GameServer<SnapshotData, 2, CustomMessageType> m_gameServ;
+    gameServer::GameServer<SnapshotData, 1, CustomMessageType> m_gameServ;
     std::vector<uint32_t> m_connectedClients;
     std::thread m_tickRateThread;
     std::condition_variable m_cond;

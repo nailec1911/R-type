@@ -25,18 +25,18 @@ struct BoundingBox
 
 struct Transform
 {
-    float velX;
-    float velY;
+    int16_t velX;
+    int16_t velY;
 };
 
 class Chrono
 {
    public:
     Chrono() = default;
-    Chrono(uint32_t tick) : m_tick(tick), m_last_update(tick){};
-    Chrono(Chrono &&) = default;
+    Chrono(uint32_t tick) : m_tick(tick), m_last_update(tick), m_was_updated(true){};
+    Chrono(Chrono &&) = delete;
     Chrono(const Chrono &) = default;
-    Chrono &operator=(Chrono &&) = default;
+    Chrono &operator=(Chrono &&) = delete;
     Chrono &operator=(const Chrono &) = default;
     ~Chrono() = default;
 
@@ -62,7 +62,7 @@ class Chrono
    private:
     uint32_t m_tick{};
     uint32_t m_last_update{};
-    bool m_was_updated;
+    bool m_was_updated {};
 };
 
 struct Player
