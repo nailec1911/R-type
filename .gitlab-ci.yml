@@ -34,8 +34,8 @@ build:project:
     - make -j8
   artifacts:
     paths:
-      - network/r-type_server
-      - network/r-type_client
+      - network/bin/r-type_server
+      - network/bin/r-type_client
     expire_in: 1 day
 
 build:windows:
