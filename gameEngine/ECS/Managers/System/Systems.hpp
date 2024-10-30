@@ -57,7 +57,7 @@ class MotionSystem : public System
     }
 
    private:
-    std::chrono::steady_clock::time_point m_lastUpdate;
+    std::chrono::steady_clock::time_point m_lastUpdate{chrono::now()};
 };
 
 class PlayerBorderSystem : public System
