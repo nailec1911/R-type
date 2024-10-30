@@ -30,6 +30,7 @@
 enum class CustomMessageType
 {
     SHOOT,
+    BIG_SHOOT,
     MOVE,
     OK,
     KO,

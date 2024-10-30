@@ -8,7 +8,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER1_UP:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -21,7 +21,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER1_DOWN:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -34,7 +34,7 @@ Entities:
     width: 31
     height: 13
     scale: 3
-  
+
   PLAYER2:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -43,7 +43,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER2_UP:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -56,7 +56,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER2_DOWN:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -69,7 +69,7 @@ Entities:
     width: 31
     height: 13
     scale: 3
-  
+
   PLAYER3:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -78,7 +78,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER3_UP:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -91,7 +91,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER3_DOWN:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -104,7 +104,7 @@ Entities:
     width: 31
     height: 13
     scale: 3
-  
+
   PLAYER4:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -113,7 +113,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER4_UP:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -126,7 +126,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER4_DOWN:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -139,7 +139,7 @@ Entities:
     width: 31
     height: 13
     scale: 3
-  
+
   PLAYER5:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -148,7 +148,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER5_UP:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -161,7 +161,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER5_DOWN:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet42.gif"
     frames:
@@ -174,7 +174,7 @@ Entities:
     width: 31
     height: 11
     scale: 3
-  
+
   PLAYER_DEATH:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
@@ -197,7 +197,7 @@ Entities:
     width: 79
     height: 13
     scale: 3
-  
+
   BULLET_P:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
@@ -206,7 +206,7 @@ Entities:
     width: 15
     height: 4
     scale: 3
-  
+
   JET_REACTOR_P:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
@@ -221,7 +221,7 @@ Entities:
     width: 31
     height: 31
     scale: 3
-  
+
   BULLET_P_FIRE:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
@@ -234,7 +234,7 @@ Entities:
     width: 18
     height: 10
     scale: 3
-  
+
   BULLET_P_CHARGED_20:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
@@ -245,7 +245,7 @@ Entities:
     width: 15
     height: 11
     scale: 3
-  
+
   BULLET_P_CHARGED_40:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
@@ -256,7 +256,7 @@ Entities:
     width: 21
     height: 11
     scale: 3
-  
+
   BULLET_P_CHARGED_60:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
@@ -267,7 +267,7 @@ Entities:
     width: 47
     height: 13
     scale: 3
-  
+
   BULLET_P_CHARGED_80:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
@@ -278,18 +278,18 @@ Entities:
     width: 63
     height: 13
     scale: 3
-  
+
   BULLET_P_CHARGED_100:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
       - start: [104, 171]
         end: [183, 184]
       - start: [185, 170]
-        end: [264, 285]
+        end: [264, 185]
     width: 79
     height: 13
     scale: 3
-  
+
   CONCENTRATION_BULLET_CHARGED:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
@@ -312,7 +312,7 @@ Entities:
     width: 31
     height: 31
     scale: 3
-  
+
   BONUS_LEVEL_1:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet2.gif"
     frames:
@@ -331,7 +331,7 @@ Entities:
     width: 19
     height: 15
     scale: 3
-  
+
   BONUS_ITEM:
     sprite: "../gameEngine/Renderer/assets/sprites/bonus.png"
     frames:
@@ -340,7 +340,7 @@ Entities:
     width: 38
     height: 35
     scale: 3
-  
+
   RED_MONSTER_LEFT:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet5.gif"
     frames:
@@ -363,7 +363,7 @@ Entities:
     width: 20
     height: 23
     scale: 3
-  
+
   RED_MONSTER_RIGHT:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet5.gif"
     frames:
@@ -386,7 +386,7 @@ Entities:
     width: 20
     height: 23
     scale: 3
-  
+
   MONSTER_DEATH:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet1.gif"
     frames:
@@ -405,7 +405,7 @@ Entities:
     width: 31
     height: 29
     scale: 3
-  
+
   MONSTER_DEATH_2:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet44.gif"
     frames:

@@ -37,6 +37,9 @@ std::vector<asun::message<CustomMessageType>> inputToMessage(
         case EventKey::KeyB:
             newMsg.header.id = CustomMessageType::SHOOT;
             break;
+        case EventKey::KeySpace:
+            newMsg.header.id = CustomMessageType::BIG_SHOOT;
+            break;
         case EventKey::KeyQ:
             newMsg.header.id = CustomMessageType::LOGOUT;
             windowSFML.close();

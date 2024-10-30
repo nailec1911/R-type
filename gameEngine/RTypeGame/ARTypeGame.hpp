@@ -64,6 +64,7 @@ class ARTypeGame
     void createPlayer(std::pair<float, float> &pos, int id, uint32_t tick);
     void createMBullet(std::pair<float, float> &pos, int id, uint32_t tick);
     void createPBullet(std::pair<float, float> &pos, int id, uint32_t tick);
+    void createBigPBullet(std::pair<float, float> &pos, int id, uint32_t tick);
 
     SystemsFactory getSystems(void)
     {

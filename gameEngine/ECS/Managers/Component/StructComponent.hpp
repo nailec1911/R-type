@@ -73,6 +73,9 @@ struct Player
 struct BulletPlayer
 {};
 
+struct BigBulletPlayer
+{};
+
 struct BulletMonster
 {};
 

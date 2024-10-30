@@ -79,6 +79,9 @@ void rtypeNetwork::RtypeServer::handleMessages()
             case CustomMessageType::SHOOT:
                 handleClientShoot(clientId, content);
                 break;
+            case CustomMessageType::BIG_SHOOT:
+                handleClientBigShoot(clientId, content);
+                break;
             case CustomMessageType::SNAP_OK:
                 handleClientSnapOk(clientId, content);
                 break;
@@ -146,6 +149,15 @@ void rtypeNetwork::RtypeServer::handleClientShoot(
         {.id = clientId,
          .event =
              Event{.key = EventKey::KeyB, .state = EventState::KeyPressed}});
+}
+
+void rtypeNetwork::RtypeServer::handleClientBigShoot(
+uint32_t clientId, asun::message<CustomMessageType> & /*msg*/)
+{
+    m_clientsEvents.push(
+        {.id = clientId,
+         .event =
+             Event{.key = EventKey::KeySpace, .state = EventState::KeyPressed}});
 }
 
 void rtypeNetwork::RtypeServer::handleClientSnapOk(
