@@ -20,8 +20,7 @@ void gameEngine::ARTypeGame::initSystemSignature(const SystemType &type)
     if (type == SystemType::MOTION) {
         signature.set(m_mediator->GetComponentType<Player>());
         signature.set(m_mediator->GetComponentType<BulletPlayer>());
-        signature.set(m_mediator->GetComponentType<BulletMonster>());
-        signature.set(m_mediator->GetComponentType<BulletPlayer>());
+        signature.set(m_mediator->GetComponentType<BigBulletPlayer>());
         signature.set(m_mediator->GetComponentType<BulletMonster>());
         signature.set(m_mediator->GetComponentType<Monster>());
         signature.set(m_mediator->GetComponentType<Wall>());
@@ -47,6 +46,7 @@ void gameEngine::ARTypeGame::initSystemSignature(const SystemType &type)
     }
     if (type == SystemType::BULLETDESTRUCTION) {
         signature.set(m_mediator->GetComponentType<BulletPlayer>());
+        signature.set(m_mediator->GetComponentType<BigBulletPlayer>());
         m_mediator->SetSystemSignature<DestroyBullets>(signature);
         return;
     }
@@ -99,6 +99,10 @@ void gameEngine::ARTypeGame::createEntity(
     }
     if (name == P_BULLET) {
         createPBullet(pos, id, tick);
+        return;
+    }
+    if (name == P_BULLET_CHARGED) {
+        createBigPBullet(pos, id, tick);
         return;
     }
 }
@@ -197,5 +201,20 @@ void gameEngine::ARTypeGame::createPBullet(
     m_mediator->AddComponent(bullet, BoundingBox{10, 10});
     m_mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
     m_mediator->AddComponent(
-        bullet, Position{pos.first, pos.second, pos.first, pos.second});
+        bullet, Position{pos.first + 93, pos.second, pos.first + 93, pos.second});
+}
+
+void gameEngine::ARTypeGame::createBigPBullet(
+    std::pair<float, float> &pos, int id, uint32_t tick)
+{
+    Entity bullet =
+        id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    if (bullet == ENTITY_ERROR)
+        return;
+    m_mediator->AddComponent(bullet, Chrono{tick});
+    m_mediator->AddComponent(bullet, BigBulletPlayer{});
+    m_mediator->AddComponent(bullet, BoundingBox{200, 20});
+    m_mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
+    m_mediator->AddComponent(
+        bullet, Position{pos.first + 93, pos.second, pos.first + 93, pos.second});
 }

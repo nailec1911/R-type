@@ -141,6 +141,8 @@ class RtypeServer
         uint32_t clientId, asun::message<CustomMessageType> &msg);
     void handleClientShoot(
         uint32_t clientId, asun::message<CustomMessageType> &msg);
+    void handleClientBigShoot(
+        uint32_t clientId, asun::message<CustomMessageType> &msg);
     void handleClientSnapOk(
         uint32_t clientId, asun::message<CustomMessageType> &msg);
     bool isClientConnected(uint32_t clientId)

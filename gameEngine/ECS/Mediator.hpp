@@ -122,6 +122,8 @@ class Mediator
             return spritesTypes::RED_MONSTER_LEFT;
         if (mEntityManager->GetSignature(entity).test(P_BULLET))
             return spritesTypes::BULLET_P;
+        if (mEntityManager->GetSignature(entity).test(P_BULLET_CHARGED))
+            return spritesTypes::BULLET_P_CHARGED_100;
         if (mEntityManager->GetSignature(entity).test(M_BULLET))
             return spritesTypes::BULLET_M;
         if (mEntityManager->GetSignature(entity).test(HUD))
@@ -143,6 +145,8 @@ class Mediator
             return MONSTER;
         if (mEntityManager->GetSignature(entity).test(P_BULLET))
             return P_BULLET;
+        if (mEntityManager->GetSignature(entity).test(P_BULLET_CHARGED))
+            return P_BULLET_CHARGED;
         if (mEntityManager->GetSignature(entity).test(M_BULLET))
             return M_BULLET;
         if (mEntityManager->GetSignature(entity).test(HUD))

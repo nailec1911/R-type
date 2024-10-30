@@ -189,7 +189,7 @@ class InputsPlayer : public System
             newPlayer,
             Position{.x = 500, .y = 540, .initX = 500, .initY = 540});
         mediator->AddComponent<BoundingBox>(newPlayer, BoundingBox{93, 33});
-        m_players[cEvent.id] = {newPlayer, {}};
+        m_players[cEvent.id] = {newPlayer, {}, {}};
         data.clientsIdByEntities[cEvent.id] = newPlayer;
     }
 
@@ -198,8 +198,8 @@ class InputsPlayer : public System
     {
         for (auto &player : m_players) {
             auto &tranformComp =
-                mediator->GetComponent<Transform>(player.second.first);
-            auto &chrono = mediator->GetComponent<Chrono>(player.second.first);
+                mediator->GetComponent<Transform>(player.second.entity);
+            auto &chrono = mediator->GetComponent<Chrono>(player.second.entity);
             tranformComp.velX = 0;
             tranformComp.velY = 0;
             chrono.update(data.tick);
@@ -221,9 +221,30 @@ class InputsPlayer : public System
         mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
         mediator->AddComponent(
             bullet, Position{
-                        .x = position.x,
+                        .x = position.x + 93, // 93 size of the player
                         .y = position.y + boundingBox.height / 2,
-                        .initX = position.x,
+                        .initX = position.x + 93, // 93 size of the player
+                        .initY = position.y + boundingBox.height / 2});
+    }
+
+    static void createBigBullet(
+        std::shared_ptr<Mediator> &mediator, const Entity &entity,
+        uint32_t tick)
+    {
+        auto &position = mediator->GetComponent<Position>(entity);
+        auto &boundingBox = mediator->GetComponent<BoundingBox>(entity);
+        Entity bullet = mediator->CreateEntity();
+        if (bullet == ENTITY_ERROR)
+            return;
+        mediator->AddComponent(bullet, Chrono{tick});
+        mediator->AddComponent(bullet, BigBulletPlayer{});
+        mediator->AddComponent(bullet, BoundingBox{200, 20});
+        mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
+        mediator->AddComponent(
+            bullet, Position{
+                        .x = position.x + 93, // 93 size of the player
+                        .y = position.y + boundingBox.height / 2,
+                        .initX = position.x + 93, // 93 size of the player
                         .initY = position.y + boundingBox.height / 2});
     }
 
@@ -231,14 +252,22 @@ class InputsPlayer : public System
     {
         auto testShot = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-            testShot - m_players[cEvent.id].second);
+            testShot - m_players[cEvent.id].chrono1);
         return duration.count() > 300;
+    }
+
+    bool canBigShoot(const clientEvent &cEvent)
+    {
+        auto testShot = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+            testShot - m_players[cEvent.id].chrono2);
+        return duration.count() > 3000;
     }
 
     void eraseDeadPlayers()
     {
         for (auto it = m_players.begin(); it != m_players.end();) {
-            Entity playerEntity = it->second.first;
+            Entity playerEntity = it->second.entity;
             if (std::find(m_Entities.begin(), m_Entities.end(), playerEntity) ==
                 m_Entities.end())
                 it = m_players.erase(it);
@@ -263,9 +292,9 @@ class InputsPlayer : public System
             if (m_players.find(cEvent.id) == m_players.end())
                 createPlayer(mediator, cEvent, data);
             auto &transform =
-                mediator->GetComponent<Transform>(m_players[cEvent.id].first);
+                mediator->GetComponent<Transform>(m_players[cEvent.id].entity);
             auto &chrono =
-                mediator->GetComponent<Chrono>(m_players[cEvent.id].first);
+                mediator->GetComponent<Chrono>(m_players[cEvent.id].entity);
 
             if (cEvent.event.key == EventKey::KeyLeft) {
                 transform.velX = -600;
@@ -284,17 +313,27 @@ class InputsPlayer : public System
                 chrono.update(data.tick);
             }
             if (cEvent.event.key == EventKey::KeyB && canShoot(cEvent)) {
-                createBullet(mediator, m_players[cEvent.id].first, data.tick);
-                m_players[cEvent.id].second = std::chrono::steady_clock::now();
+                createBullet(mediator, m_players[cEvent.id].entity, data.tick);
+                m_players[cEvent.id].chrono1 = std::chrono::steady_clock::now();
+            }
+            if (cEvent.event.key == EventKey::KeySpace && canBigShoot(cEvent)) {
+                createBigBullet(
+                    mediator, m_players[cEvent.id].entity, data.tick);
+                m_players[cEvent.id].chrono2 = std::chrono::steady_clock::now();
             }
         }
         data.nbPlayers = m_players.size();
     }
 
    private:
-    std::unordered_map<
-        size_t, std::pair<Entity, std::chrono::steady_clock::time_point>>
-        m_players;
+    struct PlayerData
+    {
+        Entity entity{};
+        std::chrono::steady_clock::time_point chrono1;
+        std::chrono::steady_clock::time_point chrono2;
+    };
+
+    std::unordered_map<size_t, PlayerData> m_players;
 };
 
 class InputsPlayerClient : public System
@@ -402,6 +441,9 @@ class CollisionSystem : public System
         if (roleA == P_BULLET)
             return roleABullet_player(
                 entitiesToRemove, entityA, entityB, roleB);
+        if (roleA == P_BULLET_CHARGED)
+            return roleABigBullet_player(
+                entitiesToRemove, entityA, entityB, roleB);
         if (roleA == M_BULLET)
             return roleABullet_monster(
                 entitiesToRemove, entityA, entityB, roleB);
@@ -411,7 +453,7 @@ class CollisionSystem : public System
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
         EntityName roleB)
     {
-        if (roleB == P_BULLET)
+        if (roleB == P_BULLET || roleB == P_BULLET_CHARGED)
             return;
         if (roleB == WALL || isMonster(roleB)) {
             entitiesToRemove.push_back(entityA);
@@ -441,13 +483,30 @@ class CollisionSystem : public System
         }
     }
 
+    static void roleABigBullet_player(
+        std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
+        EntityName roleB)
+    {
+        if (roleB == PLAYER)
+            return;
+        if (roleB == WALL) {
+            entitiesToRemove.push_back(entityA);
+            return;
+        }
+        if (roleB == M_BULLET || isMonster(roleB)) {
+            entitiesToRemove.push_back(entityB);
+            return;
+        }
+    }
+
+
     static void roleABullet_monster(
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
         EntityName roleB)
     {
         if (isMonster(roleB))
             return;
-        if (roleB == WALL) {
+        if (roleB == WALL || roleB == P_BULLET_CHARGED) {
             entitiesToRemove.push_back(entityA);
             return;
         }
@@ -464,6 +523,10 @@ class CollisionSystem : public System
     {
         if (roleB == M_BULLET || roleB == WALL)
             return;
+        if (roleB == P_BULLET_CHARGED) {
+            entitiesToRemove.push_back(entityA);
+            return;
+        }
         if (roleB == PLAYER) {
             entitiesToRemove.push_back(entityB);
             return;

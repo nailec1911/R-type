@@ -69,6 +69,7 @@ void gameEngine::RTypeGameClient::initGameRules(void)
     m_mediator->RegisterComponent<Player>(PLAYER);
     m_mediator->RegisterComponent<Chrono>(CHRONO);
     m_mediator->RegisterComponent<BulletPlayer>(P_BULLET);
+    m_mediator->RegisterComponent<BigBulletPlayer>(P_BULLET_CHARGED);
     m_mediator->RegisterComponent<BulletMonster>(M_BULLET);
     m_mediator->RegisterComponent<Wall>(WALL);
     m_mediator->RegisterComponent<Monster>(MONSTER);
