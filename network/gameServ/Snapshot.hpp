@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <format>
 #ifdef __linux__
     #include <unistd.h>
 #endif
@@ -120,7 +121,10 @@ class Snapshot
     {
         auto msg = uncompressData(bytes);
 
-        size_t indx = 0;
+        if (msg.at(0)  != m_startSnap || msg.back() != m_endSnap)
+            throw std::format_error("Snapchots is corrupted");
+
+        size_t indx = 1;
         m_id = extractUint32(msg, indx);
         for (int i = 0; i < nb_others; i++) {
             if (msg.at(indx) == 0) {
@@ -189,8 +193,9 @@ class Snapshot
             auto toAdd = static_cast<std::vector<uint8_t>>(elt.second);
             res.insert(res.end(), toAdd.begin(), toAdd.end());
         }
-        auto p = compressData(res);
-        return p;
+        res.push_back(m_endSnap);
+        res.insert(res.begin(), m_startSnap);
+        return compressData(res);
     }
 
    protected:
@@ -201,6 +206,9 @@ class Snapshot
     std::time_t m_timestamp{};
     uint32_t m_id{};
     bool m_acknowledge{};
+    static constexpr uint8_t m_startSnap = 231;
+    static constexpr uint8_t m_endSnap = 123;
+
 
     std::vector<uint8_t> compressData(
         const std::vector<uint8_t> &serializedData)
