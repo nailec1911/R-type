@@ -8,6 +8,7 @@
 #include "RtypeClient.hpp"
 
 #include <cstdint>
+#include <format>
 #include <vector>
 
 #include "../../../gameEngine/ECS/Managers/Component/StructComponent.hpp"
@@ -19,13 +20,21 @@ void rtypeNetwork::RtypeClient::handleMessages(
         auto msg = popReadQueue();
 
         if (msg.header.id == CustomMessageType::SNAPSHOT) {
-            uint32_t id = updateGameData(
-                gameServer::Snapshot<SnapshotData, 1>(msg.body), rType,
-                entitiesToRemove);
-            asun::message<CustomMessageType> ok;
-            ok.header.id = CustomMessageType::SNAP_OK;
-            ok << id;
-            sendMessage(ok);
+            try
+            {
+                uint32_t id = updateGameData(
+                    gameServer::Snapshot<SnapshotData, 1>(msg.body), rType,
+                    entitiesToRemove);
+                asun::message<CustomMessageType> ok;
+                ok.header.id = CustomMessageType::SNAP_OK;
+                ok << id;
+                sendMessage(ok);
+            }
+            catch (const std::format_error &e)
+            {
+                std::cerr << e.what() << std::endl;
+                return;
+            }
         }
         if (msg.header.id == CustomMessageType::DEAD)
             m_isPlayerDead = true;
