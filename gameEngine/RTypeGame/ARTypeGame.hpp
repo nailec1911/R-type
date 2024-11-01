@@ -57,6 +57,8 @@ class ARTypeGame
         uint32_t tick);
 
     void createWall(std::pair<float, float> &pos, int id, uint32_t tick);
+    void createBonusShoot(std::pair<float, float> &pos, int id, uint32_t tick);
+    void createBonusSpeed(std::pair<float, float> &pos, int id, uint32_t tick);
     void createShooterMonster(
         std::pair<float, float> &pos, int id, uint32_t tick);
     void createFlyingMonster(

@@ -10,7 +10,6 @@
 #include <yaml-cpp/yaml.h>
 
 #include <string>
-#include <iostream>
 #include <unordered_map>
 
 #include "../../../gameEngine/ECS/using.hpp"
@@ -22,6 +21,8 @@ static const std::unordered_map<std::string, EntityName> stringToEnumMap = {
     {"PLAYER", PLAYER},
     {"P_BULLET", P_BULLET},
     {"WALL", WALL},
+    {"BONUS_SHOOT", BONUS_SHOOT},
+    {"BONUS_SPEED", BONUS_SPEED},
     {"MONSTER", MONSTER},
     {"HUD", HUD},
     {"P_BULLET_CHARGED", P_BULLET_CHARGED},
@@ -53,6 +54,10 @@ class LevelConfigParser
         };
 
         LevelConfigParser();
+        LevelConfigParser(const LevelConfigParser &) = default;
+        LevelConfigParser(LevelConfigParser &&) = delete;
+        LevelConfigParser &operator=(const LevelConfigParser &) = default;
+        LevelConfigParser &operator=(LevelConfigParser &&) = delete;
         ~LevelConfigParser() = default;
         std::vector<std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>>> &getLevel()
         {
@@ -64,7 +69,7 @@ class LevelConfigParser
         }
    protected:
    private:
-        void validateEntity(const YAML::Node& entityNode)
+        static void validateEntity(const YAML::Node& entityNode)
         {
             static const std::vector<std::string> requiredFields = {
                 "type", "spawn_x", "spawn_y"

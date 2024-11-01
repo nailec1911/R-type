@@ -30,6 +30,8 @@ enum EntityName : uint8_t
     HUD,
     P_BULLET_CHARGED,
     M_BULLET,
+    BONUS_SHOOT,
+    BONUS_SPEED,
     TRANSFORM,
     POSITION,
     BOUNDING_BOX,

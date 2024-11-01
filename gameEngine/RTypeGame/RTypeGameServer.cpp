@@ -158,6 +158,8 @@ void gameEngine::RTypeGameServer::initGameRules(void)
     m_mediator->RegisterComponent<BigBulletPlayer>(P_BULLET_CHARGED);
     m_mediator->RegisterComponent<BulletMonster>(M_BULLET);
     m_mediator->RegisterComponent<Wall>(WALL);
+    m_mediator->RegisterComponent<BonusShoot>(BONUS_SHOOT);
+    m_mediator->RegisterComponent<BonusSpeed>(BONUS_SPEED);
     m_mediator->RegisterComponent<Monster>(MONSTER);
     m_mediator->RegisterComponent<ShooterMonster>(SHOOTER_MONSTER);
     m_mediator->RegisterComponent<FlyingMonster>(FLYING_MONSTER);

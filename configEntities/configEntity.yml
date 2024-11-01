@@ -313,7 +313,26 @@ Entities:
     height: 31
     scale: 3
 
-  BONUS_LEVEL_1:
+  BONUS_SHOOTER:
+    sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet2.gif"
+    frames:
+      - start: [118, 68]
+        end: [147, 91]
+      - start: [149, 68]
+        end: [177, 91]
+      - start: [180, 68]
+        end: [208, 91]
+      - start: [210, 68]
+        end: [238, 91]
+      - start: [240, 68]
+        end: [268, 91]
+      - start: [270, 68]
+        end: [298, 91]
+    width: 19
+    height: 15
+    scale: 3
+
+  BONUS_SPEEDY:
     sprite: "../gameEngine/Renderer/assets/sprites/r-typesheet2.gif"
     frames:
       - start: [279, 35]

@@ -189,7 +189,8 @@ class InputsPlayer : public System
             newPlayer,
             Position{.x = 500, .y = 540, .initX = 500, .initY = 540});
         mediator->AddComponent<BoundingBox>(newPlayer, BoundingBox{93, 33});
-        m_players[cEvent.id] = {newPlayer, {}, {}};
+                m_players[cEvent.id] = {};
+        m_players[cEvent.id].entity = newPlayer;
         data.clientsIdByEntities[cEvent.id] = newPlayer;
     }
 
@@ -221,9 +222,9 @@ class InputsPlayer : public System
         mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
         mediator->AddComponent(
             bullet, Position{
-                        .x = position.x + 93, // 93 size of the player
+                        .x = position.x + 93,  // 93 size of the player
                         .y = position.y + boundingBox.height / 2,
-                        .initX = position.x + 93, // 93 size of the player
+                        .initX = position.x + 93,  // 93 size of the player
                         .initY = position.y + boundingBox.height / 2});
     }
 
@@ -242,9 +243,9 @@ class InputsPlayer : public System
         mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
         mediator->AddComponent(
             bullet, Position{
-                        .x = position.x + 93, // 93 size of the player
+                        .x = position.x + 93,  // 93 size of the player
                         .y = position.y + boundingBox.height / 2,
-                        .initX = position.x + 93, // 93 size of the player
+                        .initX = position.x + 93,  // 93 size of the player
                         .initY = position.y + boundingBox.height / 2});
     }
 
@@ -253,7 +254,8 @@ class InputsPlayer : public System
         auto testShot = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
             testShot - m_players[cEvent.id].chrono1);
-        return duration.count() > 300;
+        return duration.count() >
+               300 / (m_players[cEvent.id].bonus_shoot ? 4 : 1);
     }
 
     bool canBigShoot(const clientEvent &cEvent)
@@ -281,6 +283,7 @@ class InputsPlayer : public System
         auto mediator = castAnyTypeMediator(med);
         eraseDeadPlayers();
         resetPlayerVelocity(mediator, data);
+        resetPlayerBonuses(mediator);
         while (!data.clientsEvents.empty()) {
             auto cEvent = data.clientsEvents.front();
             data.clientsEvents.pop();
@@ -295,21 +298,22 @@ class InputsPlayer : public System
                 mediator->GetComponent<Transform>(m_players[cEvent.id].entity);
             auto &chrono =
                 mediator->GetComponent<Chrono>(m_players[cEvent.id].entity);
+            int16_t speedBonus = m_players[cEvent.id].bonus_speed ? 400 : 0;
 
             if (cEvent.event.key == EventKey::KeyLeft) {
-                transform.velX = -600;
+                transform.velX = static_cast<int16_t>(-1 * (400 + speedBonus));
                 chrono.update(data.tick);
             }
             if (cEvent.event.key == EventKey::KeyRight) {
-                transform.velX = 600;
+                transform.velX = static_cast<int16_t>(400 + speedBonus);
                 chrono.update(data.tick);
             }
             if (cEvent.event.key == EventKey::KeyUp) {
-                transform.velY = -600;
+                transform.velY = static_cast<int16_t>(-1 * (400 + speedBonus));
                 chrono.update(data.tick);
             }
             if (cEvent.event.key == EventKey::KeyDown) {
-                transform.velY = 600;
+                transform.velY = static_cast<int16_t>(400 + speedBonus);
                 chrono.update(data.tick);
             }
             if (cEvent.event.key == EventKey::KeyB && canShoot(cEvent)) {
@@ -326,11 +330,61 @@ class InputsPlayer : public System
     }
 
    private:
+    void resetPlayerBonuses(std::shared_ptr<Mediator> &mediator)
+    {
+        for (auto &playerInfo : m_players) {
+            setBonusShoot(mediator, playerInfo.first);
+            setBonusSpeed(mediator, playerInfo.first);
+        }
+    }
+
+    void setBonusSpeed(std::shared_ptr<Mediator> &mediator, Entity playerId)
+    {
+        auto &player = mediator->GetComponent<Player>(playerId);
+        if (player.bonus_speed) {
+            player.bonus_speed = false;
+            m_players[playerId].bonus_speed = true;
+            m_players[playerId].chronoBonusSpeed =
+                std::chrono::steady_clock::now();
+        }
+        if (m_players[playerId].bonus_speed) {
+            auto now = std::chrono::steady_clock::now();
+            auto duration =
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    now - m_players[playerId].chronoBonusSpeed);
+            if (duration.count() > 3000)
+                m_players[playerId].bonus_speed = false;
+        }
+    }
+
+    void setBonusShoot(std::shared_ptr<Mediator> &mediator, Entity playerId)
+    {
+        auto &player = mediator->GetComponent<Player>(playerId);
+        if (player.bonus_shoot) {
+            player.bonus_shoot = false;
+            m_players[playerId].bonus_shoot = true;
+            m_players[playerId].chronoBonusShoot =
+                std::chrono::steady_clock::now();
+        }
+        if (m_players[playerId].bonus_shoot) {
+            auto now = std::chrono::steady_clock::now();
+            auto duration =
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    now - m_players[playerId].chronoBonusShoot);
+            if (duration.count() > 3000)
+                m_players[playerId].bonus_shoot = false;
+        }
+    }
+
     struct PlayerData
     {
         Entity entity{};
         std::chrono::steady_clock::time_point chrono1;
         std::chrono::steady_clock::time_point chrono2;
+        bool bonus_shoot{false};
+        std::chrono::steady_clock::time_point chronoBonusShoot;
+        bool bonus_speed{false};
+        std::chrono::steady_clock::time_point chronoBonusSpeed;
     };
 
     std::unordered_map<size_t, PlayerData> m_players;
@@ -352,13 +406,13 @@ class InputsPlayerClient : public System
             transform.velY = 0;
             for (auto &event : data.events) {
                 if (event.key == EventKey::KeyLeft)
-                    transform.velX = -600;
+                    transform.velX = -400;
                 if (event.key == EventKey::KeyRight)
-                    transform.velX = 600;
+                    transform.velX = 400;
                 if (event.key == EventKey::KeyUp)
-                    transform.velY = -600;
+                    transform.velY = -400;
                 if (event.key == EventKey::KeyDown)
-                    transform.velY = 600;
+                    transform.velY = 400;
             }
         }
     }
@@ -421,6 +475,28 @@ class CollisionSystem : public System
         return role == MONSTER || role == SHOOTER_MONSTER ||
                role == FLYING_MONSTER;
     }
+
+    static bool isBonus(EntityName role)
+    {
+        return role == BONUS_SPEED || role == BONUS_SHOOT;
+    }
+
+    static void handleBonus(
+        std::shared_ptr<Mediator> &mediator,
+        std::vector<Entity> &entitiesToRemove, Entity &playerId,
+        Entity &bonusId, EntityName roleB)
+    {
+        auto &player = mediator->GetComponent<Player>(playerId);
+        if (roleB == BONUS_SHOOT) {
+            player.bonus_shoot = true;
+            std::cout << "bonus shoot taken" << std::endl;
+        } else if (roleB == BONUS_SPEED) {
+            player.bonus_speed = true;
+            std::cout << "bonus speed taken" << std::endl;
+        }
+        entitiesToRemove.push_back(bonusId);
+    }
+
     static void handleCollide(
         std::shared_ptr<Mediator> &mediator,
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB)
@@ -432,10 +508,14 @@ class CollisionSystem : public System
 
         if (roleA == roleB)
             return;
+        if (isBonus(roleA))
+            return roleABonus(
+                mediator, entitiesToRemove, entityA, entityB, roleA, roleB);
         if (roleA == WALL)
             return roleAWall(entitiesToRemove, entityA, entityB, roleB);
         if (roleA == PLAYER)
-            return roleAPlayer(entitiesToRemove, entityA, entityB, roleB);
+            return roleAPlayer(
+                mediator, entitiesToRemove, entityA, entityB, roleB);
         if (isMonster(roleA))
             return roleAMonster(entitiesToRemove, entityA, entityB, roleB);
         if (roleA == P_BULLET)
@@ -449,12 +529,26 @@ class CollisionSystem : public System
                 entitiesToRemove, entityA, entityB, roleB);
     }
 
+    static void roleABonus(
+        std::shared_ptr<Mediator> &mediator,
+        std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
+        EntityName roleA, EntityName roleB)
+    {
+        if (roleB == PLAYER) {
+            handleBonus(mediator, entitiesToRemove, entityB, entityA, roleA);
+        }
+    }
+
     static void roleAPlayer(
+        std::shared_ptr<Mediator> &mediator,
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,
         EntityName roleB)
     {
         if (roleB == P_BULLET || roleB == P_BULLET_CHARGED)
             return;
+        if (isBonus(roleB)) {
+            handleBonus(mediator, entitiesToRemove, entityA, entityB, roleB);
+        }
         if (roleB == WALL || isMonster(roleB)) {
             entitiesToRemove.push_back(entityA);
             return;
@@ -498,7 +592,6 @@ class CollisionSystem : public System
             return;
         }
     }
-
 
     static void roleABullet_monster(
         std::vector<Entity> &entitiesToRemove, Entity &entityA, Entity &entityB,

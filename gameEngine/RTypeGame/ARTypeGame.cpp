@@ -24,6 +24,8 @@ void gameEngine::ARTypeGame::initSystemSignature(const SystemType &type)
         signature.set(m_mediator->GetComponentType<BulletMonster>());
         signature.set(m_mediator->GetComponentType<Monster>());
         signature.set(m_mediator->GetComponentType<Wall>());
+        signature.set(m_mediator->GetComponentType<BonusShoot>());
+        signature.set(m_mediator->GetComponentType<BonusSpeed>());
         m_mediator->SetSystemSignature<MotionSystem>(signature);
         return;
     }
@@ -67,6 +69,8 @@ void gameEngine::ARTypeGame::initSystemSignature(const SystemType &type)
     }
     if (type == SystemType::DESTROYENTITIES) {
         signature.set(m_mediator->GetComponentType<Wall>());
+        signature.set(m_mediator->GetComponentType<BonusShoot>());
+        signature.set(m_mediator->GetComponentType<BonusSpeed>());
         signature.set(m_mediator->GetComponentType<BulletMonster>());
         signature.set(m_mediator->GetComponentType<Monster>());
         m_mediator->SetSystemSignature<DestroyEntities>(signature);
@@ -77,33 +81,36 @@ void gameEngine::ARTypeGame::initSystemSignature(const SystemType &type)
 void gameEngine::ARTypeGame::createEntity(
     const EntityName &name, std::pair<float, float> pos, int id, uint32_t tick)
 {
-    if (name == WALL) {
-        createWall(pos, id, tick);
-        return;
-    }
-    if (name == SHOOTER_MONSTER) {
-        createShooterMonster(pos, id, tick);
-        return;
-    }
-    if (name == FLYING_MONSTER) {
-        createFlyingMonster(pos, id, tick);
-        return;
-    }
-    if (name == PLAYER) {
-        createPlayer(pos, id, tick);
-        return;
-    }
-    if (name == M_BULLET) {
-        createMBullet(pos, id, tick);
-        return;
-    }
-    if (name == P_BULLET) {
-        createPBullet(pos, id, tick);
-        return;
-    }
-    if (name == P_BULLET_CHARGED) {
-        createBigPBullet(pos, id, tick);
-        return;
+    switch (name) {
+        case WALL:
+            createWall(pos, id, tick);
+            break;
+        case SHOOTER_MONSTER:
+            createShooterMonster(pos, id, tick);
+            break;
+        case FLYING_MONSTER:
+            createFlyingMonster(pos, id, tick);
+            break;
+        case PLAYER:
+            createPlayer(pos, id, tick);
+            break;
+        case M_BULLET:
+            createMBullet(pos, id, tick);
+            break;
+        case P_BULLET:
+            createPBullet(pos, id, tick);
+            break;
+        case P_BULLET_CHARGED:
+            createBigPBullet(pos, id, tick);
+            break;
+        case BONUS_SHOOT:
+            createBonusShoot(pos, id, tick);
+            break;
+        case BONUS_SPEED:
+            createBonusSpeed(pos, id, tick);
+            break;
+        default:
+            break;
     }
 }
 
@@ -120,6 +127,36 @@ void gameEngine::ARTypeGame::createWall(
         wall, {pos.first, pos.second, pos.first, pos.second});
     m_mediator->AddComponent<Transform>(wall, {-100, 0});
     m_mediator->AddComponent<BoundingBox>(wall, {138, 138});
+}
+
+void gameEngine::ARTypeGame::createBonusShoot(
+    std::pair<float, float> &pos, int id, uint32_t tick)
+{
+    Entity bonus =
+        id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    if (bonus == ENTITY_ERROR)
+        return;
+    m_mediator->AddComponent<Chrono>(bonus, tick);
+    m_mediator->AddComponent<BonusShoot>(bonus, {});
+    m_mediator->AddComponent<Position>(
+        bonus, {pos.first, pos.second, pos.first, pos.second});
+    m_mediator->AddComponent<Transform>(bonus, {-100, 0});
+    m_mediator->AddComponent<BoundingBox>(bonus, {70, 40});
+}
+
+void gameEngine::ARTypeGame::createBonusSpeed(
+    std::pair<float, float> &pos, int id, uint32_t tick)
+{
+    Entity bonus =
+        id >= 0 ? m_mediator->CreateEntityById(id) : m_mediator->CreateEntity();
+    if (bonus == ENTITY_ERROR)
+        return;
+    m_mediator->AddComponent<Chrono>(bonus, tick);
+    m_mediator->AddComponent<BonusSpeed>(bonus, {});
+    m_mediator->AddComponent<Position>(
+        bonus, {pos.first, pos.second, pos.first, pos.second});
+    m_mediator->AddComponent<Transform>(bonus, {-100, 0});
+    m_mediator->AddComponent<BoundingBox>(bonus, {50, 40});
 }
 
 void gameEngine::ARTypeGame::createShooterMonster(
@@ -201,7 +238,8 @@ void gameEngine::ARTypeGame::createPBullet(
     m_mediator->AddComponent(bullet, BoundingBox{10, 10});
     m_mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
     m_mediator->AddComponent(
-        bullet, Position{pos.first + 93, pos.second, pos.first + 93, pos.second});
+        bullet,
+        Position{pos.first + 93, pos.second, pos.first + 93, pos.second});
 }
 
 void gameEngine::ARTypeGame::createBigPBullet(
@@ -216,5 +254,6 @@ void gameEngine::ARTypeGame::createBigPBullet(
     m_mediator->AddComponent(bullet, BoundingBox{200, 20});
     m_mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
     m_mediator->AddComponent(
-        bullet, Position{pos.first + 93, pos.second, pos.first + 93, pos.second});
+        bullet,
+        Position{pos.first + 93, pos.second, pos.first + 93, pos.second});
 }

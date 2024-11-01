@@ -1,6 +1,12 @@
 timeline:
   - time: 0.0 # Time of spawn
     entities: # List of ennemies
+      - type: "BONUS_SHOOT"
+        spawn_x: 1000
+        spawn_y: 700
+      - type: "BONUS_SPEED"
+        spawn_x: 1000
+        spawn_y: 400
       - type: "WALL"
         spawn_x: 690
         spawn_y: 0

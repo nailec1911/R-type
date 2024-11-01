@@ -6,6 +6,7 @@
 */
 
 #pragma once
+#include <chrono>
 #include <cstdint>
 #include <string>
 
@@ -67,7 +68,9 @@ class Chrono
 
 struct Player
 {
-    uint32_t id;
+    uint32_t id{};
+    bool bonus_shoot{false};
+    bool bonus_speed{false};
 };
 
 struct BulletPlayer
@@ -89,6 +92,12 @@ struct FlyingMonster
 {};
 
 struct Wall
+{};
+
+struct BonusShoot
+{};
+
+struct BonusSpeed
 {};
 
 struct HUDComp

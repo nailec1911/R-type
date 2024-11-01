@@ -126,6 +126,10 @@ class Mediator
             return spritesTypes::BULLET_P_CHARGED_100;
         if (mEntityManager->GetSignature(entity).test(M_BULLET))
             return spritesTypes::BULLET_M;
+        if (mEntityManager->GetSignature(entity).test(BONUS_SHOOT))
+            return spritesTypes::BONUS_SHOOTER;
+        if (mEntityManager->GetSignature(entity).test(BONUS_SPEED))
+            return spritesTypes::BONUS_SPEEDY;
         if (mEntityManager->GetSignature(entity).test(HUD))
             return spritesTypes::BONUS_ITEM;
         return spritesTypes::EMPTY;
@@ -151,6 +155,10 @@ class Mediator
             return M_BULLET;
         if (mEntityManager->GetSignature(entity).test(HUD))
             return HUD;
+        if (mEntityManager->GetSignature(entity).test(BONUS_SPEED))
+            return BONUS_SPEED;
+        if (mEntityManager->GetSignature(entity).test(BONUS_SHOOT))
+            return BONUS_SHOOT;
         return NONE;
     }
 
