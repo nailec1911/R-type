@@ -239,7 +239,7 @@ void gameEngine::ARTypeGame::createPBullet(
     m_mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
     m_mediator->AddComponent(
         bullet,
-        Position{pos.first + 93, pos.second, pos.first + 93, pos.second});
+        Position{pos.first, pos.second, pos.first, pos.second});
 }
 
 void gameEngine::ARTypeGame::createBigPBullet(

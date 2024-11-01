@@ -69,11 +69,11 @@ gameEngine::RTypeGameServer::createSnapshots(
         snapshots[elem.first] = {
             role,
             static_cast<int16_t>(
-                chrono.wasUpdated() || role == PLAYER || role == FLYING_MONSTER
+                chrono.wasUpdated()
                     ? position.x
                     : position.initX),
             static_cast<int16_t>(
-                chrono.wasUpdated() || role == PLAYER || role == FLYING_MONSTER
+                chrono.wasUpdated()
                     ? position.y
                     : position.initY),
             speed.velX,
