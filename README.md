@@ -47,25 +47,16 @@ Players control a spaceship, navigating through various levels, defeating enemie
 - Start the server:
 
     ```bash
-    ./r-type_server
+    ./r-type_server [PORT]
     ```
 
 - Start a client instance:
 
     ```bash
-    ./r-type_client
+    ./r-type_client [SERVER_IP] [PORT]
     ```
 
-### Controls
-
-- Arrow Keys: Move the spaceship (Up, Down, Left, Right)
-- B: Shoot
-
-### Multiplayer
-
-- Ensure the server is running before clients connect.
-- Clients connect to the server using the server's IP address and designated port.
-- Game start once a player is connected, when others join they start at the first player game state.
+To understand how to play, go check our [wiki](https://gitlab.com/epitech-it-2027/rts/-/wikis/home/Getting-started/Usage).
 
 ### Level edition
 
