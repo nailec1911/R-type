@@ -70,26 +70,32 @@ class PlayerBorderSystem : public System
             auto &position = mediator->GetComponent<Position>(entity);
             auto &box = mediator->GetComponent<BoundingBox>(entity);
             auto &transform = mediator->GetComponent<Transform>(entity);
-            auto &chrono = mediator->GetComponent<Chrono>(entity);
+            bool update = false;
             if (position.x > 1920 - box.width) {
                 position.x = 1920 - box.width;
                 transform.velX = 0;
-                chrono.update(data.tick);
+                update = true;
             }
             if (position.x < 0) {
                 position.x = 0;
                 transform.velX = 0;
-                chrono.update(data.tick);
+                update = true;
             }
             if (position.y < 0) {
                 position.y = 0;
                 transform.velY = 0;
-                chrono.update(data.tick);
+                update = true;
             }
             if (position.y > 1080 - box.height) {
                 position.y = 1080 - box.height;
                 transform.velY = 0;
+                update = true;
+            }
+            if (update) {
+                auto &chrono = mediator->GetComponent<Chrono>(entity);
                 chrono.update(data.tick);
+                position.initX = position.x;
+                position.initY = position.y;
             }
         }
     }
@@ -116,9 +122,13 @@ class FlyingMonsterSystem : public MonstersSystem
             if (changeDirection(monster)) {
                 auto &transform =
                     mediator->GetComponent<Transform>(monster.first);
+                auto &position =
+                    mediator->GetComponent<Position>(monster.first);
                 auto &chrono = mediator->GetComponent<Chrono>(monster.first);
                 transform.velY *= -1;
                 chrono.update(data.tick);
+                position.initX = position.x;
+                position.initY = position.y;
                 monster.second = std::chrono::steady_clock::now();
             }
         }
@@ -189,7 +199,7 @@ class InputsPlayer : public System
             newPlayer,
             Position{.x = 500, .y = 540, .initX = 500, .initY = 540});
         mediator->AddComponent<BoundingBox>(newPlayer, BoundingBox{93, 33});
-                m_players[cEvent.id] = {};
+        m_players[cEvent.id] = {};
         m_players[cEvent.id].entity = newPlayer;
         data.clientsIdByEntities[cEvent.id] = newPlayer;
     }
@@ -200,10 +210,9 @@ class InputsPlayer : public System
         for (auto &player : m_players) {
             auto &tranformComp =
                 mediator->GetComponent<Transform>(player.second.entity);
-            auto &chrono = mediator->GetComponent<Chrono>(player.second.entity);
             tranformComp.velX = 0;
             tranformComp.velY = 0;
-            chrono.update(data.tick);
+            updatePosition(mediator, player.second.entity, data.tick);
         }
     }
 
@@ -222,9 +231,9 @@ class InputsPlayer : public System
         mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
         mediator->AddComponent(
             bullet, Position{
-                        .x = position.x + 93,  // 93 size of the player
+                        .x = position.x,
                         .y = position.y + boundingBox.height / 2,
-                        .initX = position.x + 93,  // 93 size of the player
+                        .initX = position.x,
                         .initY = position.y + boundingBox.height / 2});
     }
 
@@ -243,9 +252,9 @@ class InputsPlayer : public System
         mediator->AddComponent(bullet, Transform{.velX = 800, .velY = 0});
         mediator->AddComponent(
             bullet, Position{
-                        .x = position.x + 93,  // 93 size of the player
+                        .x = position.x,
                         .y = position.y + boundingBox.height / 2,
-                        .initX = position.x + 93,  // 93 size of the player
+                        .initX = position.x,
                         .initY = position.y + boundingBox.height / 2});
     }
 
@@ -296,25 +305,23 @@ class InputsPlayer : public System
                 createPlayer(mediator, cEvent, data);
             auto &transform =
                 mediator->GetComponent<Transform>(m_players[cEvent.id].entity);
-            auto &chrono =
-                mediator->GetComponent<Chrono>(m_players[cEvent.id].entity);
             int16_t speedBonus = m_players[cEvent.id].bonus_speed ? 400 : 0;
 
             if (cEvent.event.key == EventKey::KeyLeft) {
                 transform.velX = static_cast<int16_t>(-1 * (400 + speedBonus));
-                chrono.update(data.tick);
+                updatePosition(mediator, cEvent.id, data.tick);
             }
             if (cEvent.event.key == EventKey::KeyRight) {
                 transform.velX = static_cast<int16_t>(400 + speedBonus);
-                chrono.update(data.tick);
+                updatePosition(mediator, cEvent.id, data.tick);
             }
             if (cEvent.event.key == EventKey::KeyUp) {
                 transform.velY = static_cast<int16_t>(-1 * (400 + speedBonus));
-                chrono.update(data.tick);
+                updatePosition(mediator, cEvent.id, data.tick);
             }
             if (cEvent.event.key == EventKey::KeyDown) {
                 transform.velY = static_cast<int16_t>(400 + speedBonus);
-                chrono.update(data.tick);
+                updatePosition(mediator, cEvent.id, data.tick);
             }
             if (cEvent.event.key == EventKey::KeyB && canShoot(cEvent)) {
                 createBullet(mediator, m_players[cEvent.id].entity, data.tick);
@@ -330,6 +337,18 @@ class InputsPlayer : public System
     }
 
    private:
+    static void updatePosition(
+        std::shared_ptr<Mediator> &mediator, Entity playerId, uint32_t tick)
+    {
+        auto &chrono =
+            mediator->GetComponent<Chrono>(playerId);
+        auto &postion =
+            mediator->GetComponent<Position>(playerId);
+        chrono.update(tick);
+        postion.initX = postion.x;
+        postion.initY = postion.y;
+    }
+
     void resetPlayerBonuses(std::shared_ptr<Mediator> &mediator)
     {
         for (auto &playerInfo : m_players) {

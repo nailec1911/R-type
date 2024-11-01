@@ -19,6 +19,10 @@ class RTypeGameClient : public gameEngine::ARTypeGame
 {
    public:
     RTypeGameClient() = default;
+    RTypeGameClient(const RTypeGameClient &) = default;
+    RTypeGameClient(RTypeGameClient &&) = delete;
+    RTypeGameClient &operator=(const RTypeGameClient &) = default;
+    RTypeGameClient &operator=(RTypeGameClient &&) = delete;
     ~RTypeGameClient() = default;
 
     void initGameRules(void) override;

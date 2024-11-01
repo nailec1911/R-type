@@ -66,13 +66,13 @@ uint32_t rtypeNetwork::RtypeClient::updateGameData(
         auto pos = item.second.getXY();
         auto vel = item.second.getVelocity();
 
+        pos.first +=
+            static_cast<int>(vel.first * (tick - item.second.getTick())) *
+            1 / 32;
+        pos.second +=
+            static_cast<int>(vel.second * (tick - item.second.getTick())) *
+            1 / 32;
         if (entities.find(item.first) == entities.end()) {
-            pos.first +=
-                static_cast<int>(vel.first * (tick - item.second.getTick())) *
-                1 / 32;
-            pos.second +=
-                static_cast<int>(vel.second * (tick - item.second.getTick())) *
-                1 / 32;
             if (type == PLAYER)
                 rType.getNbPlayers() += 1;
             rType.createEntity(
