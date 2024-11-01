@@ -31,6 +31,7 @@ endif()
 # Include source files
 file(GLOB_RECURSE SOURCES "src/*.cpp" "../../gameEngine/*.cpp")
 
+
 # Find and link libraries
 find_package(asio REQUIRED)
 find_package(SFML 2.5 COMPONENTS system window graphics network audio REQUIRED)

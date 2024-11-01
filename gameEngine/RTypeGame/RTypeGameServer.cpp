@@ -46,7 +46,7 @@ void gameEngine::RTypeGameServer::startGame()
 
 std::unordered_map<uint32_t, SnapshotData>
 gameEngine::RTypeGameServer::createSnapshots(
-    std::vector<Entity> &entitiesToRemove, uint32_t /*tick*/)
+    std::vector<Entity> &entitiesToRemove)
 {
     std::unordered_map<uint32_t, SnapshotData> snapshots{};
     std::unordered_map<Entity, Signature> entities =
@@ -128,7 +128,7 @@ gameEngine::RTypeGameServer::updateSystems(
         }
         m_mediator->DestroyEntity(entity);
     }
-    auto snapshots = createSnapshots(data.entitiesToRemove, tick);
+    auto snapshots = createSnapshots(data.entitiesToRemove);
     clientsEvents = {};
     m_deadPlayers = data.deadPlayers;
     m_nbPlayers = data.nbPlayers;

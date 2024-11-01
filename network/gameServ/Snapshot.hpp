@@ -41,6 +41,9 @@ enum class CustomMessageType
     DEAD,
     WIN,
     YOUR_PLAYER,
+    LIST,
+    JOIN,
+    CREATE,
     NONE,
 };
 
