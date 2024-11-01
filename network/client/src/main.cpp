@@ -5,6 +5,8 @@
 ** main
 */
 
+#include <unistd.h>
+
 #include <vector>
 
 #include "../../../gameEngine/RTypeGame/RTypeGameClient.hpp"
@@ -22,12 +24,8 @@ static void gameloop(
 {
     std::vector<asun::message<CustomMessageType>> eventMessage;
     std::vector<Event> events{};
-    asun::message<CustomMessageType> msg{};
-    msg.header.id = CustomMessageType::LOGIN;
 
     renderer.setBackgrounds(config.getBackground(), 50);
-    client.start();
-    client.sendMessage(msg);
     while (renderer.isWindowOpen()) {
         events = renderer.getEvents();
         {
@@ -61,10 +59,19 @@ int main(int argc, char **argv)
 {
     try {
         checkParametersClient(argc, argv);
-        Renderer renderer({1920, 1080}, "Rtype");
-        ConfigParser config;
-        renderer.setEltInfo(config.getEltInfo());
         rtypeNetwork::RtypeClient client(argv[1], std::stoi(argv[2]));
+
+        asun::message<CustomMessageType> msg{};
+        msg.header.id = CustomMessageType::LOGIN;
+        client.start();
+        client.sendMessage(msg);
+
+        client.serverInfos();
+
+        ConfigParser config;
+        Renderer renderer({1920, 1080}, "Rtype");
+        renderer.setEltInfo(config.getEltInfo());
+
         gameEngine::RTypeGameClient rType;
         rType.initGameRules();
         gameloop(renderer, client, config, rType);

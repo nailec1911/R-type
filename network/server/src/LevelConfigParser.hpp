@@ -63,8 +63,10 @@ class LevelConfigParser
         {
             return m_level;
         }
-        std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>> &getLevelbyId(int id)
+        std::pair<float, std::unordered_map<float, std::vector<entitySpawn>>> getLevelbyId(int id)
         {
+            if (static_cast<int>(m_level.size()) <= id)
+                return {-1, {}};
             return m_level.at(id);
         }
    protected:

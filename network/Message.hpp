@@ -7,9 +7,11 @@
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <iostream>
 #include <ostream>
 #include <type_traits>
 #include <vector>
@@ -21,14 +23,14 @@ struct messageHeader
 {
     T id{};
     std::uint32_t size = 0;
-    uint32_t checksum;
+    uint32_t checksum{};
 };
 
 template <typename T>
 struct message
 {
     messageHeader<T> header{};
-    std::vector<std::uint8_t> body{};
+    std::vector<uint8_t> body{};
 
     [[nodiscard]] std::size_t size() const
     {
@@ -41,6 +43,18 @@ struct message
            << " Size: " << msg.header.size << std::endl;
         return os;
     };
+
+    friend message<T> &operator<<(message<T> &msg, const std::string &data)
+    {
+        size_t size = data.size();
+        msg << size;
+        std::size_t bodySize = msg.body.size();
+        msg.body.resize(bodySize + size);
+        std::memcpy(msg.body.data() + bodySize, data.data(), size);
+        msg.header.size = msg.size();
+
+        return msg;
+    }
 
     template <typename DataType>
     friend message<T> &operator<<(message<T> &msg, const DataType &data)
@@ -65,6 +79,21 @@ struct message
             data.size());  // Copy the vector contents
         msg.header.size = msg.size();
 
+        return msg;
+    }
+
+    friend message<T> &operator>>(message<T> &msg, std::string &data)
+    {
+        size_t strSize = 0;
+        std::memcpy(&strSize, msg.body.data(), sizeof(std::size_t));
+
+        if (msg.body.size() < sizeof(std::size_t) + strSize) {
+            throw std::runtime_error("Data size mismatch.");
+        }
+        data.resize(strSize);
+        std::memcpy(data.data(), msg.body.data() + sizeof(size_t), strSize);
+        msg.body.erase(msg.body.begin(), msg.body.begin() + strSize);
+        msg.header.size = msg.size();
         return msg;
     }
 

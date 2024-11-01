@@ -31,7 +31,9 @@ class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
     RtypeClient &operator=(const RtypeClient &) = delete;
     ~RtypeClient() override = default;
 
+    void serverInfos();
     void handleMessages(gameEngine::RTypeGameClient &rType, std::vector<Entity> &entitiesToRemove);
+    void handleMessages(bool &isChoosing);
 
     bool isPlayerDead() const
     {
@@ -54,6 +56,10 @@ class RtypeClient : public asun::AsioUdpClient<CustomMessageType>
     }
 
    private:
+   void listInfosServer();
+   void help();
+   void joinRoom(const std::vector<std::string> &argv);
+   void createRoom(const std::vector<std::string> &argv);
     uint32_t updateGameData(
         const gameServer::Snapshot<SnapshotData, 1> &newSnapshot,
         gameEngine::RTypeGameClient &rType, std::vector<Entity> &entitiesToRemove);

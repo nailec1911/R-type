@@ -44,7 +44,7 @@ class RTypeGameServer : public ARTypeGame
         level.erase(m_second);
     }
     std::unordered_map<uint32_t, SnapshotData> createSnapshots(
-        std::vector<Entity> &entitiesToRemove, uint32_t tick);
+        std::vector<Entity> &entitiesToRemove);
 
     bool isGameStarted() const
     {

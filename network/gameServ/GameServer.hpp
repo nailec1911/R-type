@@ -93,12 +93,15 @@ class GameServer : public asun::AsioUdpServer<Tmessage>
     ~GameServer() = default;
 
     void sendMaster(
-        Tmessage headerId, Snapshot<Telement, nb_others> newSnapshot)
+        Tmessage headerId, Snapshot<Telement, nb_others> newSnapshot,
+        std::vector<uint32_t> clientsInRoom)
     {
         m_master = std::move(newSnapshot);
-        for (auto &items : m_clientHistory) {
-            sendClient(headerId, items.first);
-        }
+        for (auto &items : m_clientHistory)
+            if (std::find(
+                    clientsInRoom.begin(), clientsInRoom.end(), items.first) !=
+                clientsInRoom.end())
+                sendClient(headerId, items.first);
     };
 
     void acknowledgeSnapshot(uint32_t clientId, uint32_t snapId)
