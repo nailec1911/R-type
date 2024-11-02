@@ -236,7 +236,7 @@ class Renderer final : public rndr::IRenderer
         return m_eltInfo;
     }
     void setEltInfo(
-        const std::unordered_map<std::string, rndr::elementInfo> &newEltInfo)
+        const std::unordered_map<std::string, rndr::elementInfo> &newEltInfo) override
     {
         m_eltInfo = newEltInfo;
     }
