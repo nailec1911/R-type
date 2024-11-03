@@ -23,7 +23,9 @@ struct messageHeader
 {
     T id{};
     std::uint32_t size = 0;
-    uint32_t checksum{};
+    std::uint32_t checksum{};
+    bool reliable = false;
+    std::uint32_t sequence = 0;
 };
 
 template <typename T>

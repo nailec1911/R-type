@@ -37,7 +37,7 @@ class AsioUdpClient : public AsioNetworkThread
         AsioNetworkThread::stop();
     }
 
-    void sendMessage(const message<T> &msg)
+    void sendMessage(message<T> &msg)
     {
         asio::post(m_ctx, [this, msg]() {
             bool canSend = !m_sendQueue.isEmpty();
@@ -60,6 +60,7 @@ class AsioUdpClient : public AsioNetworkThread
     }
 
    private:
+
     void sendBody()
     {
         m_socket.async_send_to(
@@ -119,6 +120,23 @@ class AsioUdpClient : public AsioNetworkThread
             });
     }
 
+    void sendAck(std::uint32_t sequence)
+    {
+        message<T> ack{};
+        ack.header.reliable = true;
+        ack.header.sequence = sequence;
+        m_socket.async_send_to(
+            asio::buffer(&ack.header, sizeof(messageHeader<T>)),
+            m_serverEndpoint,
+            [this, sequence](std::error_code ec, [[maybe_unused]] std::size_t length) {
+                if (!ec)
+                {
+                } else {
+                    std::cerr << ec.message() << std::endl;
+                }
+            });
+    }
+
     void readHeader()
     {
         m_socket.async_receive_from(
@@ -126,6 +144,10 @@ class AsioUdpClient : public AsioNetworkThread
             m_serverEndpoint,
             [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
                 if (!ec) {
+                    if (m_readMessage.header.reliable)
+                    {
+                        sendAck(m_readMessage.header.sequence);
+                    }
                     if (m_readMessage.header.size > 0) {
                         m_readMessage.body.resize(m_readMessage.header.size);
                         readBody();

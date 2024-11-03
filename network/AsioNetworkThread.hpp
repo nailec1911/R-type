@@ -8,9 +8,11 @@
 #pragma once
 
 #include <asio.hpp>
+#include <asio/steady_timer.hpp>
 #include <iostream>
 
 namespace asun {
+constexpr uint32_t TIMEOUT = 500;
 class AsioNetworkThread
 {
    public:
