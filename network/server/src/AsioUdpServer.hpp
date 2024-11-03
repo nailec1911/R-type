@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <unordered_map>
 
 #include "../../AsioNetworkThread.hpp"
 #include "../../Message.hpp"
@@ -38,8 +39,14 @@ class AsioUdpServer : public AsioNetworkThread
 
    protected:
     void sendMessage(
-        const asio::ip::udp::endpoint &endpoint, const message<T> &msg)
+        const asio::ip::udp::endpoint &endpoint, message<T> &msg)
     {
+        if (msg.header.reliable)
+        {
+            msg.header.sequence = m_nextSequence++;
+            m_unackedMessages[msg.header.sequence] = msg;
+            startRetryTimer(endpoint, msg.header.sequence);
+        }
         asio::post(
             m_ctx, [this, endpoint, msg]() { sendHeader(endpoint, msg); });
     }
@@ -55,6 +62,22 @@ class AsioUdpServer : public AsioNetworkThread
     }
 
    private:
+
+    void startRetryTimer(
+        const asio::ip::udp::endpoint &endpoint, std::uint32_t sequence)
+    {
+        m_timers[sequence] = std::make_shared<asio::steady_timer>(m_ctx, std::chrono::milliseconds(asun::TIMEOUT));
+        m_timers[sequence]->async_wait(
+            [this, endpoint, sequence](const std::error_code &ec) {
+                if (!ec && m_unackedMessages.count(
+                               sequence)) {
+                    sendMessage(endpoint, m_unackedMessages[sequence]);
+                    startRetryTimer(
+                        endpoint, sequence);
+                }
+            });
+    }
+
     void sendBody(
         const asio::ip::udp::endpoint &clientEndpoint,
         const asun::message<T> &msg)
@@ -102,23 +125,31 @@ class AsioUdpServer : public AsioNetworkThread
             });
     }
 
-    void readHeader()
-    {
-        m_socket.async_receive_from(
-            asio::buffer(&m_readMessage.header, sizeof(asun::messageHeader<T>)),
-            m_remoteEndpoint,
-            [this](std::error_code ec, [[maybe_unused]] std::size_t length) {
-                if (!ec) {
-                    if (m_readMessage.header.size > 0) {
-                        m_readMessage.body.resize(m_readMessage.header.size);
-                        readBody();
-                    } else {
-                        m_readQueue.push({m_remoteEndpoint, m_readMessage});
-                        readHeader();
-                    }
-                }
-            });
-    }
+	void readHeader()
+		{
+			m_socket.async_receive_from(
+				asio::buffer(&m_readMessage.header, sizeof(asun::messageHeader<T>)),
+				m_remoteEndpoint, [this](std::error_code ec, std::size_t length) {
+					if (!ec) {
+						if (m_readMessage.header.reliable) {
+                            if (m_unackedMessages.count(m_readMessage.header.sequence) > 0)
+                            {
+								m_unackedMessages.erase(m_readMessage.header.sequence);
+								m_timers[m_readMessage.header.sequence]->cancel();
+								m_timers.erase(m_readMessage.header.sequence);
+                            }
+						}
+						if (m_readMessage.header.size > 0) {
+							m_readMessage.body.resize(
+							m_readMessage.header.size);
+							readBody();
+						} else {
+								m_readQueue.push({m_remoteEndpoint, m_readMessage});
+								readHeader();
+						}
+					}
+				});
+		}
 
     asio::ip::udp::socket m_socket;
     asio::ip::udp::endpoint m_remoteEndpoint;
@@ -126,6 +157,10 @@ class AsioUdpServer : public AsioNetworkThread
     ThreadSafeQueue<std::pair<asio::ip::udp::endpoint, asun::message<T>>>
         m_readQueue;
     ThreadSafeQueue<asun::message<T>> m_sendQueue;
+
+    std::unordered_map<std::uint32_t, message<T>> m_unackedMessages;
+    std::unordered_map<std::uint32_t, std::shared_ptr<asio::steady_timer>> m_timers;
+    uint32_t m_nextSequence = 0;
 
     message<T> m_readMessage{};
 };

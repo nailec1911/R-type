@@ -49,7 +49,7 @@ static void gameloop(
         }
         renderer.display();
         eventMessage = inputToMessage(events, renderer.getWindowSFML());
-        for (const auto &elem : eventMessage) {
+        for (auto &elem : eventMessage) {
             client.sendMessage(elem);
         }
     }
