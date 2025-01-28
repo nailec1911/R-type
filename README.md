@@ -47,13 +47,13 @@ Players control a spaceship, navigating through various levels, defeating enemie
 - Start the server:
 
     ```bash
-    ./r-type_server [PORT]
+    ./r-type_server PORT
     ```
 
 - Start a client instance:
 
     ```bash
-    ./r-type_client [SERVER_IP] [PORT]
+    ./r-type_client SERVER_IP PORT
     ```
 
 To understand how to play, go check our [wiki](https://gitlab.com/epitech-it-2027/rts/-/wikis/home/Getting-started/Usage).
