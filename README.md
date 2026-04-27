@@ -1,19 +1,22 @@
 # R-Type Superior
 
+**\[EDIT] This project was previously on a gitlab repo. Hence, the project wiki might not be accessible.**
+
 ## Table of contents
 
-1. [Overview](#overview)
-    1. [The game](#the-game)
-    2. [Features](#features)
-2. [Getting started](#getting-started)
-    1. [Installation](#installation)
-    2. [Run the Game](#run-the-game)
-    3. [Controls](#controls)
-    4. [Multiplayer](#multiplayer)
-    5. [Level edition](#level-edition)
-3. [Documentation](#documentation)
-4. [Contributing](#contributing)
-5. [Authors](#authors)
+- [R-Type Superior](#r-type-superior)
+  - [Table of contents](#table-of-contents)
+  - [Overview](#overview)
+    - [The game](#the-game)
+    - [Features](#features)
+  - [Getting Started](#getting-started)
+    - [Installation](#installation)
+      - [Run the Game](#run-the-game)
+    - [Level edition](#level-edition)
+  - [Documentation](#documentation)
+  - [Contributing](#contributing)
+  - [Authors](#authors)
+  - [License](#license)
 
 ## Overview
 
